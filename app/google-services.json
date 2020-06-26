@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "938383869511",
+    "firebase_url": "https://culs-bebf2.firebaseio.com",
+    "project_id": "culs-bebf2",
+    "storage_bucket": "culs-bebf2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:938383869511:android:082a77c4c35bcf73c0d362",
+        "android_client_info": {
+          "package_name": "com.example.culs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "938383869511-emu60436t4a6n8dhbv35urdh4q7r7un5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.culs",
+            "certificate_hash": "1a099ba47db54fcd624284d4ba04d9cba2670980"
+          }
+        },
+        {
+          "client_id": "938383869511-udbnkv3bpeu552s1gllf035iqlss4sgs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnTU_0jQCTbedgcatsxeFKBXB1_1iYEbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "938383869511-udbnkv3bpeu552s1gllf035iqlss4sgs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "938383869511-cpsfvq8uagmdlvg27u3qlh1dmbgvlt5i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.samphillips.CULS"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
