@@ -2,10 +2,12 @@ package com.example.culs;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -20,6 +22,11 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setOnNavigationItemSelectedListener(bottomNavListener);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
 
     }
 
@@ -52,4 +59,14 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             };
+
+    private class AnimatedTextView {
+        private final TextView textView;
+
+        public AnimatedTextView(TextView textView) {this.textView = textView;}
+        public String getText() {return textView.getText().toString();}
+        public void setText(String text) {textView.setText(text);}
+    }
 }
+
+
