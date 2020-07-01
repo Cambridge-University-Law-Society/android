@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -25,9 +26,11 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "LoginActivity";
+
     private static final int RC_SIGN_IN = 9001;
 
     private SignInButton mSignInButton;
+    private Button btnSignOut;
 
     private GoogleSignInClient mSignInClient;
 
@@ -40,10 +43,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         // Assign fields
+        mFirebaseAuth = FirebaseAuth.getInstance();
         mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
-
-        // Set click listeners
-        mSignInButton.setOnClickListener(this);
+        btnSignOut = findViewById(R.id.sign_out_button);
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -52,8 +54,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .build();
         mSignInClient = GoogleSignIn.getClient(this, gso);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        // Set click listeners
+        mSignInButton.setOnClickListener(this);
+
+        btnSignOut.setOnClickListener(this);
+
     }
+
 
     //initiate signing in with google
 

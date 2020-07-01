@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".LoginActivity">
 
     <RelativeLayout
@@ -14,25 +14,25 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
-        <ImageView
+        <!--<ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_culs_signin_button"
-            android:layout_marginTop="250sp"
             android:layout_below="@id/imageView2"
             android:layout_centerHorizontal="true"
-            android:contentDescription="@string/common_signin_button_text" />
+            android:layout_marginTop="170sp"
+            android:contentDescription="@string/common_signin_button_text"
+            app:srcCompat="@drawable/ic_culs_signin_button" />-->
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_button"
             android:layout_width="330sp"
             android:layout_height="64sp"
-            android:layout_marginTop="250sp"
             android:layout_below="@id/imageView2"
             android:layout_centerHorizontal="true"
-            android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_culs_signin_button"
-            />
+            android:layout_marginTop="250sp"
+            android:background="#00FFFFFF"
+            android:text="@string/common_signin_button_text_long"
+            app:srcCompat="@drawable/ic_culs_signin_button" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -40,8 +40,9 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="100dp"
-            app:srcCompat="@drawable/ic_culs_top_logo"
-            android:contentDescription="culs_logo" />
+            android:contentDescription="culs_logo"
+            app:srcCompat="@drawable/ic_culs_top_logo" />
+
 
 
     </RelativeLayout>
