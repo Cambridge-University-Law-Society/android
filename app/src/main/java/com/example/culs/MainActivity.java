@@ -59,14 +59,6 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             };
-
-    private class AnimatedTextView {
-        private final TextView textView;
-        int usage;
-        public AnimatedTextView(TextView textView) {this.textView = textView;}
-        public String getText() {return textView.getText().toString();}
-        public void setText(String text) {textView.setText(text);}
-    }
 }
 
 
