@@ -30,7 +30,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private static final int RC_SIGN_IN = 9001;
 
     private SignInButton mSignInButton;
-    private Button btnSignOut;
 
     private GoogleSignInClient mSignInClient;
 
@@ -45,7 +44,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // Assign fields
         mFirebaseAuth = FirebaseAuth.getInstance();
         mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        btnSignOut = findViewById(R.id.sign_out_button);
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -57,7 +55,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // Set click listeners
         mSignInButton.setOnClickListener(this);
 
-        btnSignOut.setOnClickListener(this);
 
     }
 
