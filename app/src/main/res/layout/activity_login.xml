@@ -31,7 +31,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="250sp"
             android:background="#00FFFFFF"
-            android:text="@string/common_signin_button_text_long"
+            android:text="Sign In with Raven"
             app:srcCompat="@drawable/ic_culs_signin_button" />
 
         <ImageView

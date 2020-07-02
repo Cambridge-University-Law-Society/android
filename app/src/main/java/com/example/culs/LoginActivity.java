@@ -26,7 +26,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "LoginActivity";
-
     private static final int RC_SIGN_IN = 9001;
 
     private SignInButton mSignInButton;
@@ -55,9 +54,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // Set click listeners
         mSignInButton.setOnClickListener(this);
 
-
     }
-
 
     //initiate signing in with google
 

@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .setHostedDomain("cam.ac.uk")
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
