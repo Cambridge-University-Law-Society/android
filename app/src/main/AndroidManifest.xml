@@ -3,6 +3,7 @@
     package="com.example.culs">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,13 +11,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".SignUpActivity"></activity>
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-
-                <!-- uncomment this if you want the login page to come up every time the user closes the app
-                <category android:name="android.intent.category.LAUNCHER" />-->
+                <!--
+                uncomment this if you want the login page to come up every time the user closes the app
+                <category android:name="android.intent.category.LAUNCHER" />
+                -->
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity">
