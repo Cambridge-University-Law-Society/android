@@ -30,7 +30,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+public class ProfileFragment extends Fragment {
 
     private Button buttonSignOut;
 
@@ -41,16 +41,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        Button buttonSignOut = (Button) v.findViewById(R.id.sign_out_button);
-        buttonSignOut.setOnClickListener(this);
         return  v;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sign_out_button:
-                FirebaseAuth.getInstance().signOut();
-        }
-    }
 }

@@ -46,6 +46,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .setHostedDomain("cam.ac.uk")
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
