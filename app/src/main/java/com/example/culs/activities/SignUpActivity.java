@@ -21,6 +21,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -42,6 +45,7 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db = db.getInstance();
 
         txtfirstname = (EditText) findViewById(R.id.first);
         txtlastname = (EditText) findViewById(R.id.last);
@@ -64,8 +68,9 @@ public class SignUpActivity extends AppCompatActivity {
                 String college_id = txtcollegeid.getText().toString().trim();
                 String year_id = txtyearid.getText().toString().trim();
 
-                User users = new User(first_name, last_name, college_id, year_id);
-                db.getInstance().collection("users").document(userid).set(users)
+
+                User users = new User(first_name, last_name, college_id, year_id, null, null, null, null, null, null);
+                db.collection("users").document(userid).set(users)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
