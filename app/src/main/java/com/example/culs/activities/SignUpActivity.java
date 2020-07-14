@@ -65,7 +65,7 @@ public class SignUpActivity extends AppCompatActivity {
                 String year_id = txtyearid.getText().toString().trim();
 
                 User users = new User(first_name, last_name, college_id, year_id);
-                db.collection("users").document(userid).set(users)
+                db.getInstance().collection("users").document(userid).set(users)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
