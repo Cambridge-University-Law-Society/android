@@ -82,18 +82,6 @@ public class SignUpActivity extends AppCompatActivity {
                 startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                 finish();
 
-
-                // Add a new document with a generated id.
-                //db.collection("users").add({
-                        //firstname: first_name,
-                        //lastname: last_name,
-                        //college: college_id,
-                        //year: year_id
-            //})
-
-                //Data data = new Data(...);
-                //db.collection("users").add(data)
-
             }
         });
 
