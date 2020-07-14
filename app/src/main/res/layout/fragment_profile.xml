@@ -58,7 +58,6 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-
                     <TextView
                         android:id="@+id/user_name"
                         android:layout_width="wrap_content"
@@ -66,8 +65,9 @@
                         android:layout_marginTop="10sp"
                         android:layout_gravity="center_horizontal"
                         android:text="User Name"
+                        android:fontFamily="sans-serif-black"
                         android:textStyle="bold"
-                        android:textSize="25sp"/>
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/crsid"
@@ -76,7 +76,8 @@
                         android:layout_marginTop="10sp"
                         android:layout_gravity="center_horizontal"
                         android:text="crsid"
-                        android:textSize="20sp"/>
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-light"/>
 
                     <TextView
                         android:id="@+id/bio"
@@ -85,7 +86,8 @@
                         android:layout_marginTop="10sp"
                         android:layout_gravity="center_horizontal"
                         android:text="bio"
-                        android:textSize="20sp"/>
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-light"/>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -102,7 +104,7 @@
                             android:layout_marginLeft="25sp"
                             android:text="College:"
                             android:textColor="#3797CF"
-                            android:textSize="20sp"/>
+                            android:textSize="16sp"/>
 
                         <TextView
                             android:id="@+id/user_college"
@@ -115,7 +117,7 @@
                             android:fontFamily="sans-serif-light"
                             android:text="College"
                             android:textColor="#000000"
-                            android:textSize="20sp" />
+                            android:textSize="16sp" />
 
                     </RelativeLayout>
 
@@ -134,7 +136,7 @@
                             android:layout_marginLeft="25sp"
                             android:text="Year:"
                             android:textColor="#3797CF"
-                            android:textSize="20sp"/>
+                            android:textSize="16sp"/>
 
                         <TextView
                             android:id="@+id/user_year"
@@ -147,7 +149,7 @@
                             android:fontFamily="sans-serif-light"
                             android:text="Year"
                             android:textColor="#000000"
-                            android:textSize="20sp" />
+                            android:textSize="16sp" />
 
                     </RelativeLayout>
 
@@ -166,7 +168,7 @@
                             android:layout_marginLeft="25sp"
                             android:text="Graduation Year:"
                             android:textColor="#3797CF"
-                            android:textSize="20sp"/>
+                            android:textSize="16sp"/>
 
                         <TextView
                             android:id="@+id/user_grad"
@@ -179,7 +181,7 @@
                             android:fontFamily="sans-serif-light"
                             android:text="2022"
                             android:textColor="#000000"
-                            android:textSize="20sp" />
+                            android:textSize="16sp" />
 
                     </RelativeLayout>
 
@@ -198,7 +200,7 @@
                             android:layout_marginLeft="25sp"
                             android:text="Interests:"
                             android:textColor="#3797CF"
-                            android:textSize="20sp"/>
+                            android:textSize="16sp"/>
 
                         <TextView
                             android:id="@+id/user_interests1"
@@ -211,7 +213,7 @@
                             android:fontFamily="sans-serif-light"
                             android:text="Interest 1"
                             android:textColor="#000000"
-                            android:textSize="20sp" />
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/user_interests2"
@@ -226,11 +228,12 @@
                             android:fontFamily="sans-serif-light"
                             android:text="Interest 2"
                             android:textColor="#000000"
-                            android:textSize="20sp"/>
+                            android:textSize="16sp"/>
 
                     </RelativeLayout>
 
                 </LinearLayout>
+
 
             </androidx.cardview.widget.CardView>
 

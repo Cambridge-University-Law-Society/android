@@ -1,4 +1,4 @@
-package com.example.culs;
+package com.example.culs.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

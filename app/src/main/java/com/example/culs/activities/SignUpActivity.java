@@ -1,42 +1,25 @@
-package com.example.culs;
+package com.example.culs.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
+import com.example.culs.R;
+import com.example.culs.helpers.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.nio.charset.MalformedInputException;
 
 
 public class SignUpActivity extends AppCompatActivity {
@@ -51,20 +34,19 @@ public class SignUpActivity extends AppCompatActivity {
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseFirestore db;
 
-    SignUpActivity(FirebaseFirestore db){
-        this.db = db;
-    }
-
+    private String TAG = "MyActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        txtfirstname = (EditText) findViewById(R.id.firstname);
-        txtlastname = (EditText) findViewById(R.id.lastname);
-        txtcollegeid = (EditText) findViewById(R.id.collegeid);
-        txtyearid = (EditText) findViewById(R.id.yearid);
+        final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        txtfirstname = (EditText) findViewById(R.id.first);
+        txtlastname = (EditText) findViewById(R.id.last);
+        txtcollegeid = (EditText) findViewById(R.id.college);
+        txtyearid = (EditText) findViewById(R.id.year);
         signupbtn = (TextView) findViewById(R.id.signupbtn);
 
         //gets current instance of the database
@@ -83,7 +65,22 @@ public class SignUpActivity extends AppCompatActivity {
                 String year_id = txtyearid.getText().toString().trim();
 
                 User users = new User(first_name, last_name, college_id, year_id);
-                db.collection("users").add(users);
+                db.collection("users").document(userid).set(users)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot written with ID: ");
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error adding document", e);
+                            }
+                        });
+
+                startActivity(new Intent(SignUpActivity.this, MainActivity.class));
+                finish();
 
 
                 // Add a new document with a generated id.
