@@ -8,13 +8,6 @@
     android:background="@drawable/gradient_background">
 
 
-        <ImageView
-            android:id="@+id/topbar"
-            android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize"
-            android:src="@drawable/ic_culs_top_logo"
-            android:layout_gravity="center_horizontal"/>
-
         <androidx.core.widget.NestedScrollView
             android:id="@+id/my_scroll_view"
             android:scrollbars = "none"
@@ -45,7 +38,7 @@
                 app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="25sp"
                 app:cardElevation="10sp"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="50dp"
                 android:layout_gravity="center_horizontal"
                 >
 

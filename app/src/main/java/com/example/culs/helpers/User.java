@@ -33,20 +33,20 @@ public class User {
         this.profilePic = profilePic;
     }
 
-    public String getFirst_name() {
+    public String getFirstname() {
         return firstname;
     }
 
     /*public void setFirst_name(String first_name) {
-        this.firstname = first_name;
+        this.firstname = firstname;
     }*/
 
-    public String getLast_name() {
+    public String getLastname() {
         return lastname;
     }
 
     /*public void setLast_name(String last_name) {
-        this.lastname = last_name;
+        this.lastname = lastname;
     }*/
 
     public String getCollege() {

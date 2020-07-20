@@ -18,10 +18,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_navigation"
-        android:background="@color/navAndActionBar"/>
+        android:background="@color/navAndActionBarDark"
+        app:itemIconTint="@color/navAndActionBar"
+        app:menu="@menu/bottom_navigation" />
 
-    <androidx.appcompat.widget.Toolbar
+    <!--<androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -42,5 +43,5 @@
                 android:layout_gravity="center_horizontal"/>
 
         </LinearLayout>
-    </androidx.appcompat.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar> -->
 </RelativeLayout>
