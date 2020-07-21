@@ -22,9 +22,12 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="150sp"
-                android:background="#3F1B7E" />
+                android:id="@+id/profile_background"
+                android:layout_width="wrap_content"
+                android:layout_height="200sp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/ic_default_cover_photo"
+                android:scaleType="centerCrop" />
 
             <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_image"
@@ -83,7 +86,7 @@
                         android:id="@+id/bio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10sp"
+                        android:layout_margin="10sp"
                         android:layout_gravity="center_horizontal"
                         android:text="bio"
                         android:textSize="18sp"
