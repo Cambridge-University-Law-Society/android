@@ -16,45 +16,96 @@
         android:scrollingCache = "true"
         tools:layout_behaviour = "@string/appbar_scrolling_view_behaviour">
 
-
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true">
 
-            <ImageView
-                android:id="@+id/profile_background"
+            <TextView
+                android:id="@+id/sign_out"
                 android:layout_width="wrap_content"
-                android:layout_height="200sp"
-                android:adjustViewBounds="true"
-                android:background="@drawable/ic_default_cover_photo"
-                android:scaleType="centerCrop" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20sp"
+                android:layout_marginTop="20sp"
+                android:fontFamily="sans-serif"
+                android:text="Sign Out"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/admin_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/sign_out"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="sans-serif"
+                android:text="Admin Mode"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/edit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_marginRight="20sp"
+                android:layout_alignParentEnd="true"
+                android:paddingRight="25sp"
+                android:paddingLeft="20sp"
+                android:fontFamily="sans-serif"
+                android:text="Edit"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:layout_alignParentRight="true" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardview1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                android:elevation="10dp"
+                android:layout_marginLeft="10sp"
+                android:layout_marginRight="10sp"
+                android:layout_marginTop="20sp"
+                android:layout_below="@id/sign_out">
+
+                <ImageView
+                    android:id="@+id/profile_background"
+                    android:layout_width="match_parent"
+                    android:layout_height="190sp"
+                    android:adjustViewBounds="false"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/ic_default_cover_photo"/>
+
+
+            </androidx.cardview.widget.CardView>
 
             <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profile_image"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="1dp"
-            android:src="@drawable/ic_profile_icon_24dp"
-            android:layout_marginTop="100sp"
-            android:layout_centerHorizontal="true"
-            app:civ_border_color="#888686"
-            app:civ_border_width="5dp"
-            android:elevation="2dp" />
+                android:id="@+id/profile_image"
+                android:layout_below="@id/cardview1"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="-70sp"
+                android:elevation="2dp"
+                android:src="@drawable/ic_profile_icon_24dp"
+                app:civ_border_color="#888686"
+                app:civ_border_width="5dp" />
 
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardview2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="15sp"
-                app:cardElevation="10sp"
                 android:layout_below="@id/profile_image"
                 android:layout_marginLeft="10sp"
+                android:layout_marginTop="10sp"
                 android:layout_marginRight="10sp"
                 android:layout_marginBottom="10sp"
-                android:layout_marginTop="30sp">
+                app:cardBackgroundColor="#F0E9F1"
+                app:cardCornerRadius="15sp"
+                app:cardElevation="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -65,39 +116,39 @@
                         android:id="@+id/user_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10sp"
                         android:layout_gravity="center_horizontal"
-                        android:text="User Name"
+                        android:layout_marginTop="20sp"
                         android:fontFamily="sans-serif-black"
-                        android:textStyle="bold"
-                        android:textSize="20sp" />
+                        android:text="User Name"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/crsid"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10sp"
                         android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10sp"
+                        android:fontFamily="sans-serif-light"
                         android:text="crsid"
-                        android:textSize="18sp"
-                        android:fontFamily="sans-serif-light"/>
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/bio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="10sp"
                         android:layout_gravity="center_horizontal"
+                        android:layout_margin="10sp"
+                        android:fontFamily="sans-serif-light"
                         android:text="bio"
-                        android:textSize="18sp"
-                        android:fontFamily="sans-serif-light"/>
+                        android:textSize="18sp" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10sp"
                         android:layout_marginLeft="10sp"
                         android:layout_marginTop="20sp"
+                        android:layout_marginRight="10sp"
                         android:orientation="horizontal">
 
                         <TextView
@@ -106,8 +157,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="25sp"
                             android:text="College:"
-                            android:textColor="#3797CF"
-                            android:textSize="16sp"/>
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/user_college"
@@ -127,9 +178,9 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10sp"
                         android:layout_marginLeft="10sp"
                         android:layout_marginTop="30sp"
+                        android:layout_marginRight="10sp"
                         android:orientation="horizontal">
 
                         <TextView
@@ -138,8 +189,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="25sp"
                             android:text="Year:"
-                            android:textColor="#3797CF"
-                            android:textSize="16sp"/>
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/user_year"
@@ -159,9 +210,9 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10sp"
                         android:layout_marginLeft="10sp"
                         android:layout_marginTop="30sp"
+                        android:layout_marginRight="10sp"
                         android:orientation="horizontal">
 
                         <TextView
@@ -170,8 +221,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="25sp"
                             android:text="Graduation Year:"
-                            android:textColor="#3797CF"
-                            android:textSize="16sp"/>
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/user_grad"
@@ -191,9 +242,9 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10sp"
                         android:layout_marginLeft="10sp"
                         android:layout_marginTop="30sp"
+                        android:layout_marginRight="10sp"
                         android:orientation="horizontal">
 
                         <TextView
@@ -202,8 +253,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="25sp"
                             android:text="Interests:"
-                            android:textColor="#3797CF"
-                            android:textSize="16sp"/>
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/user_interests1"
@@ -222,16 +273,16 @@
                             android:id="@+id/user_interests2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_marginTop="10sp"
-                            android:paddingBottom="10sp"
                             android:layout_below="@id/user_interests1"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentRight="true"
                             android:layout_marginLeft="220sp"
+                            android:layout_marginTop="10sp"
                             android:fontFamily="sans-serif-light"
+                            android:paddingBottom="15sp"
                             android:text="Interest 2"
                             android:textColor="#000000"
-                            android:textSize="16sp"/>
+                            android:textSize="16sp" />
 
                     </RelativeLayout>
 
@@ -239,6 +290,23 @@
 
 
             </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/button_choose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose File"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/cardview2"/>
+
+            <Button
+                android:id="@+id/button_upload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/button_choose"/>
+
 
 
         </RelativeLayout>

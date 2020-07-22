@@ -20,6 +20,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,9 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseFirestore db;
+    StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+    StorageReference photoReference= storageReference.child("users/DefaultProfilePic/ic_profile_icon_24dp.xml");
+    private String defaultProfilePic = "users/DefaultProfilePic/ic_profile_icon_24dp.xml";
 
     private String TAG = "MyActivity";
 
@@ -69,7 +74,7 @@ public class SignUpActivity extends AppCompatActivity {
                 String year_id = txtyearid.getText().toString().trim();
 
 
-                User users = new User(first_name, last_name, college_id, year_id, null, null, null, null, null, null);
+                User users = new User(first_name, last_name, college_id, year_id, "null", userid, null, "null", "admin", defaultProfilePic);
                 db.collection("users").document(userid).set(users)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
