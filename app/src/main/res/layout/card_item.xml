@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:clipToPadding="false"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:minHeight="@dimen/list_item_height">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/cards"
+        card_view:cardCornerRadius="12dp"
+        card_view:cardMaxElevation="8dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/event_pic_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:background="@color/cards"
+                android:layout_alignParentTop="true"
+                tools:src="@drawable/allbarone"/>
+
+            <LinearLayout
+                android:id="@+id/event_tag_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/rounded_tags"
+                android:layout_marginTop="4dp">
+
+                <ImageView
+                    android:id="@+id/tag_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="24dp"
+                    android:maxHeight="24dp"
+                    android:layout_margin="4dp"
+                    tools:src="@drawable/ic_upcoming_tag_24dp"/>
+
+                <TextView
+                    android:id="@+id/tag_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="8dp"
+                    android:textSize="14dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/cards"
+                    android:fontFamily="sans-serif-light"
+                    tools:text="Upcoming"/>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/text_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/event_pic_image_view"
+                android:orientation="vertical"
+                android:background="@color/cards"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:id="@+id/event_name_friends_holder"
+                    >
+
+                    <TextView
+                        android:id="@+id/event_name_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_toLeftOf="@id/event__holder"
+                        android:layout_marginRight="8dp"
+                        android:paddingTop="8dp"
+                        android:gravity="bottom"
+                        android:textSize="22sp"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:textColor="@color/dark_text"
+                        android:fontFamily="sans-serif"
+                        tools:text="Fleek Fridays" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="76dp"
+                        android:maxHeight="26dp"
+                        android:orientation="horizontal"
+                        android:id="@+id/event__holder"
+                        android:layout_alignParentRight="true">
+
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_below="@id/event_name_friends_holder"
+                    android:orientation="horizontal"
+                    android:id="@+id/event_date_loc_holder"
+                    android:layout_alignParentLeft="true">
+
+                    <TextView
+                        android:id="@+id/event_date_and_time_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:gravity="top"
+                        android:textSize="12dp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/holo_red_light"
+                        android:fontFamily="sans-serif-light"
+                        tools:text="Friday 15th October: 22:00" />
+
+                    <TextView
+                        android:id="@+id/event_location_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:gravity="top"
+                        android:textSize="12dp"
+                        android:textColor="@android:color/darker_gray"
+                        android:fontFamily="sans-serif-light"
+                        tools:text="Ballare, Regent's Street" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/event_description_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:maxLines="3"
+                    android:layout_below="@id/event_date_loc_holder"
+                    android:gravity="top"
+                    android:textSize="14sp"
+                    android:textColor="@color/dark_text"
+                    android:fontFamily="sans-serif-light"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum elit lacus, sed blandit nisl bibendum et. Maecenas vel massa suscipit, scelerisque neque varius, tempus augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum eget risus ut tortor consectetur luctus quis eu quam. Proin ornare ex eget odio molestie, cursus suscipit risus auctor. Aliquam tempus diam sed semper auctor. Suspendisse tempor risus id est cursus, quis aliquam erat bibendum. Morbi tristique rutrum risus. Vestibulum elementum mi purus, quis ornare odio eleifend a." />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom = "12dp"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="76dp"
+                    android:maxHeight="26dp"
+                    android:orientation="horizontal"
+                    android:id="@+id/event_friends_holder"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/event_description_text_view">
+
+                    <ImageView
+                        android:id="@+id/event_friend_1_image_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="24dp"
+                        android:maxHeight="24dp"
+                        android:scaleType="fitXY"
+                        android:layout_marginTop="8dp"
+                        android:gravity="bottom"
+                        android:layout_alignParentLeft="true"
+                        tools:src="@drawable/mc_durks" />
+
+                    <ImageView
+                        android:id="@+id/event_friend_2_image_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="24dp"
+                        android:maxHeight="24dp"
+                        android:scaleType="fitXY"
+                        android:layout_marginTop="8dp"
+                        android:gravity="bottom"
+                        android:layout_marginLeft="2dp"
+                        tools:src="@drawable/mc_durks" />
+
+                    <ImageView
+                        android:id="@+id/event_friend_3_image_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="24dp"
+                        android:maxHeight="24dp"
+                        android:scaleType="fitXY"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginLeft="2dp"
+                        android:gravity="bottom"
+                        tools:src="@drawable/mc_durks" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom = "12dp"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="76dp"
+                    android:maxHeight="26dp"
+                    android:orientation="horizontal"
+                    android:id="@+id/event_buttons_holder"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@id/event_description_text_view">
+
+                    <ImageView
+                        android:id="@+id/event_interested_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="24dp"
+                        android:maxHeight="24dp"
+                        android:scaleType="fitXY"
+                        android:layout_marginTop="8dp"
+                        android:gravity="bottom"
+                        android:layout_marginRight="16dp"
+                        android:src="@drawable/ic_interested_button_off_24dp" />
+
+                    <ImageView
+                        android:id="@+id/event_tag_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="24dp"
+                        android:maxHeight="24dp"
+                        android:scaleType="fitXY"
+                        android:layout_marginTop="8dp"
+                        android:gravity="bottom"
+                        android:layout_marginRight="16dp"
+                        android:src="@drawable/ic_share_button_off_24dp" />
+
+                    <ImageView
+                        android:id="@+id/event_notify_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="24dp"
+                        android:maxHeight="24dp"
+                        android:scaleType="fitXY"
+                        android:layout_marginTop="8dp"
+                        android:gravity="bottom"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/ic_notifications_button_off_24dp" />
+                </LinearLayout>
+            </RelativeLayout>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>
