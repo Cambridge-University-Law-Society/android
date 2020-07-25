@@ -21,6 +21,31 @@ public class User {
     }
 
     public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String profilePicRef) {
+        if (firstname.trim().equals("")){
+            firstname = "First";
+        }
+
+        if (lastname.trim().equals("")){
+            lastname = "Last";
+        }
+
+        if (college.trim().equals("")){
+            college = "College";
+        }
+
+        if (year.trim().equals("")){
+            year = "Year";
+        }
+
+        if (bio.trim().equals("")){
+            bio = "bio";
+        }
+
+        if (crsid.trim().equals("")){
+            crsid = "crsid";
+        }
+
+
         this.firstname = firstname;
         this.lastname = lastname;
         this.college = college;
