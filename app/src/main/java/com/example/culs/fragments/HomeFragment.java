@@ -70,11 +70,6 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
         return rootView;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        inflater.inflate(R.menu.app_bar, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
 
     @Override
     public void onCardClick(View v, int position, ArrayList<Card> cardList) {

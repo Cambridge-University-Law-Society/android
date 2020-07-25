@@ -21,7 +21,7 @@ public class User {
     }
 
     public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String profilePicRef) {
-        if (firstname.trim().equals("")){
+        /*if (firstname.trim().equals("")){
             firstname = "First";
         }
 
@@ -43,7 +43,7 @@ public class User {
 
         if (crsid.trim().equals("")){
             crsid = "crsid";
-        }
+        }*/
 
 
         this.firstname = firstname;

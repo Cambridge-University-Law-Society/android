@@ -9,6 +9,9 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -32,6 +35,7 @@ import android.content.ContentResolver;
 
 import com.bumptech.glide.Glide;
 import com.example.culs.R;
+import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.MainActivity;
 import com.example.culs.helpers.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -67,7 +71,8 @@ import org.w3c.dom.Text;
 
 public class ProfileFragment extends Fragment {
 
-    TextView username, userCrsid, userBio, userCollege, userYear, userGradYear, userInterests;
+    private TextView username, userCrsid, userBio, userCollege, userYear, userGradYear, userInterests;
+    private TextView signout_btn;
 
     //Stuff needed to search for a photo and upload a photo - we will set the ProfilePic as a button that you press to search for a new photo
 
@@ -82,6 +87,10 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseDatabase mFirebaseDatabase;
+
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private GoogleSignInClient mSignInClient;
+    private GoogleSignInClient mGoogleSignInClient;
 
     private DatabaseReference mFirebaseDatabaseReference;
     private StorageReference mStorageRef;
@@ -166,10 +175,26 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+
+        signOut(v);
         loadData(v);
 
         return  v;
 
+    }
+
+
+    public void signOut(View v) {
+        //SIGN OUT METHOD
+        signout_btn = v.findViewById(R.id.sign_out);
+        signout_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void loadData (View v) {
