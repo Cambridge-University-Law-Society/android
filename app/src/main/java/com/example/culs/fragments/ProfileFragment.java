@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,73 +70,24 @@ import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ProfileFragment extends Fragment {
-
-    private TextView username, userCrsid, userBio, userCollege, userYear, userGradYear, userInterests;
+    private TextView username, userCrsid, userBio, userCollege, userYear, userGradYear, userInterests, admin;
     private TextView signout_btn;
+    private CircleImageView profileImage;
 
-    //Stuff needed to search for a photo and upload a photo - we will set the ProfilePic as a button that you press to search for a new photo
+    //Firebase Instance variables - add them when you need them and explain their function
 
-    private static final int PICK_IMAGE_REQUEST =  1; //can use any button
-    private Button mButtonChooseImage;
-    private Button mButtonUpload;
-    private ImageView  mProfilePic;
-
-    private Uri mImageUri; //this is a uri that points to the image and uploads it to the firebase storage
-
-    // Firebase instance variable
+    //you can get an instance of the authentication by doing .getInstance()
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase mFirebaseDatabase;
-
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private GoogleSignInClient mSignInClient;
-    private GoogleSignInClient mGoogleSignInClient;
-
-    private DatabaseReference mFirebaseDatabaseReference;
-    private StorageReference mStorageRef;
-    private StorageTask mUploadTask;
-    private User user;
-
+    //this will get the current instance of the document in cloud firestore
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
     //this retrieves the entire document with this specific uid
     private DocumentReference docRef = db.collection("users").document(userid);
 
     private String TAG = "ProfileFragment";
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        /*//TODO  Add image to the profile pic from firebase
-
-        if (user.getProfilePicRef() != null){
-            String imageUrl = user.getProfilePicRef();
-            if (imageUrl.startsWith("gs://")){
-                StorageReference storageReference = FirebaseStorage.getInstance()
-                        .getReferenceFromUrl(imageUrl);
-                storageReference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()){
-                            String downloadUrl = task.getResult().toString();
-                            Glide.with(mProfilePic.getContext()).load(downloadUrl).into(mProfilePic);
-                        }else {
-                            Log.w(TAG, "Getting download url was not successful.",
-                                    task.getException());
-                        }
-                    }
-                });
-            }else{
-                Toast.makeText(getActivity(), "incorrect method", Toast.LENGTH_SHORT).show();
-            }
-        }else{
-            Drawable myDrawable = getResources().getDrawable(R.drawable.ic_profile_icon_24dp);
-            mProfilePic.setImageDrawable(myDrawable);
-        }*/
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -144,42 +96,13 @@ public class ProfileFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
 
 
-        //TODO : Make the Profile Image use a switch case between a button and imageview
-
-        mButtonChooseImage = v.findViewById(R.id.button_choose);
-        mButtonUpload = v.findViewById(R.id.button_upload);
-        mProfilePic = v.findViewById(R.id.profile_image);
-
-        mProfilePic.bringToFront();
-        ((View)mProfilePic.getParent()).requestLayout();
-
-        mStorageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
-        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + userid);
-
-        mButtonChooseImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openFileChooser();
-                mProfilePic.setRotation(-90);
-            }
-        });
-
-        mButtonUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mUploadTask != null){
-                    Toast.makeText(getActivity(), "Upload in Progress", Toast.LENGTH_SHORT).show();
-                }else {
-                    uploadFile();
-                }
-            }
-        });
-
-
+        //call signout function
         signOut(v);
+
+        //call loadData function
         loadData(v);
 
-        return  v;
+        return v;
 
     }
 
@@ -197,45 +120,82 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    public void loadData (View v) {
 
+    public void loadData(View v){
+        //this function will load in the current data of the user in the Firebase Database
+
+        //current textView data
         final TextView username = (TextView) v.findViewById(R.id.user_name);
         final TextView userCrsid = (TextView) v.findViewById(R.id.crsid);
         final TextView userBio = (TextView) v.findViewById(R.id.bio);
         final TextView userCollege = (TextView) v.findViewById(R.id.user_college);
         final TextView userYear = (TextView) v.findViewById(R.id.user_year);
-        final TextView userGradYear = (TextView) v.findViewById(R.id.user_grad);
-        final ImageView mProfilePic = (ImageView) v.findViewById(R.id.profile_image);
+        final TextView userDegree = (TextView) v.findViewById(R.id.user_degree);
+        final TextView admin = (TextView) v.findViewById(R.id.admin_mode);
 
-        //TODO: Add the interests TextView to the loadData
+        //method for loading textView data
 
-
-        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users/"+ userid);
-
-
-        //put the method for loading data here instead of in onCreateView
         docRef.get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            String first_name = documentSnapshot.getString("firstname");
-                            String last_name = documentSnapshot.getString("lastname");
-                            String crsid = documentSnapshot.getString("crsid");
-                            String bio  = documentSnapshot.getString("bio");
-                            String college = documentSnapshot.getString("college");
-                            String year = documentSnapshot.getString("year");
+                        if (documentSnapshot.exists()){
 
-                            username.setText(first_name + " " + last_name);
-                            userCrsid.setText(crsid);
-                            userBio.setText(bio);
-                            userCollege.setText(college);
-                            userYear.setText(year);
-                            userGradYear.setText("2022");
+                            if (documentSnapshot.get("firstname") != null && documentSnapshot.get("lastname") != null) {
+                                String first_name = documentSnapshot.getString("firstname");
+                                String last_name = documentSnapshot.getString("lastname");
 
-                        } else{
-                            Toast.makeText(getActivity(), "Document does not  exist", Toast.LENGTH_SHORT).show();
+                                username.setText(first_name + " " + last_name);
+                            }else{
+                                username.setText("Username Here");
+                            }
+
+                            if (documentSnapshot.get("crsid") != null) {
+                                String crsid = documentSnapshot.getString("crsid");
+
+                                userCrsid.setText(crsid);
+                            }else{
+                                userCrsid.setText("CRSID");
+                            }
+
+                            if (documentSnapshot.get("bio") != null) {
+                                String bio = documentSnapshot.getString("bio");
+
+                                userBio.setText(bio);
+                            }else{
+                                userBio.setText("Add a description about yourself, including interests and ambitions.");
+                            }
+
+                            if (documentSnapshot.get("college") != null) {
+                                String college = documentSnapshot.getString("college");
+
+                                userCollege.setText(college);
+                            }else{
+                                userCollege.setText("Select a College");
+                            }
+
+                            if (documentSnapshot.get("year") != null) {
+                                String year = documentSnapshot.getString("year");
+
+                                userYear.setText(year);
+                            }else{
+                                userBio.setText("Your Year");
+                            }
+
+                            if (documentSnapshot.get("degree") != null) {
+                                String degree = documentSnapshot.getString("degree");
+
+                                userDegree.setText(degree);
+                            }else{
+                                userDegree.setText("Your Degree");
+                            }
+
+                            if (documentSnapshot.get("status").equals("admin")){
+                                admin.setVisibility(View.VISIBLE);
+                            }
+
                         }
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -247,117 +207,26 @@ public class ProfileFragment extends Fragment {
                 });
 
 
+        //set the profile picture from firebase
+        profileImage = v.findViewById(R.id.profile_image);
+        fetchImage(profileImage);
 
-        /*final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("users/"+userid);
-        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                   @Override
-                                                                   public void onSuccess(Uri uri) {
-                                                                       Log.d("URI", uri.toString());
-                                                                       Picasso.get().load(uri.toString()).into(profilePic);
-                                                                   }
-                                                               }
-        ).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "No image available", Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
-
-
-        /*final StorageReference storageRef = FirebaseStorage.getInstance().getReference("users/P7dcbf8ICoSYfbOjWzUGCeNcoxd2/profilePic.jpg");  //try using the getFileExtension function
-
-        final long ONE_MEGABYTE = 50000 * 50000;
-        storageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
-                mProfilePic.setImageBitmap(bmp);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "error in loading firebase image", Toast.LENGTH_SHORT).show();
-            }
-        });*/
+        //TODO: Load in the list of interests
 
     }
 
-    private void openFileChooser() {
-        Intent intent = new Intent();
-        intent.setType("image/*"); //ensures we only see images in our file chooser
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    private void fetchImage(ImageView image){
+        //using glide method
+
+        //Reference to an image file in cloud storage
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        // Create a reference with an initial file path and name
+        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
+
+        Glide.with(getActivity()).load(pathReference).into(image);
+
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null){
-            mImageUri = data.getData();
-
-
-            //native way of putting in an image into an imageview
-            //mProfilePic.setImageURI(mImageUri);
-
-            //using picasso
-            Picasso.get().load(mImageUri).into(mProfilePic);
-        }
-    }
-
-    private String getFileExtension(Uri uri){
-        //this function gets the file extension of the image (e.g. it will get .jpg)
-        ContentResolver cR = getActivity().getApplicationContext().getContentResolver();
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        return mime.getExtensionFromMimeType(cR.getType(uri));
-    }
-
-    private void uploadFile(){
-        if (mImageUri != null){
-             //set the picture name to profilePic
-            StorageReference fileReference = mStorageRef.child("profilePic." + getFileExtension(mImageUri));
-
-            //this puts the file the storage
-            mUploadTask = fileReference.putFile(mImageUri)
-                    //then we are trying to add the url to the database
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getActivity(), "Upload Successful", Toast.LENGTH_LONG).show();
-                            if (taskSnapshot.getMetadata()!= null){
-                                if (taskSnapshot.getMetadata().getReference()!= null){
-                                    String result = taskSnapshot.getStorage().getPath();
-                                    docRef.update("profilePicRef", result);
-                                    /*result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            String imageUrl = uri.toString();
-                                            docRef.update("profilePicRef", imageUrl);
-                                        }
-                                    });*/
-                                }
-                            }
-                            //instead of all that this might work instead
-                            //docRef.update("profilePicRef", taskSnapshot.getStorage().getDownloadUrl());
-
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), e.getMessage(),Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-
-        }else{
-            //if the user didn't pick an image
-            Toast.makeText(getActivity(), "No file selected", Toast.LENGTH_SHORT).show();
-        }
-    }
 }
-
-
-
-
