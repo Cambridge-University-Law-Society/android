@@ -15,12 +15,13 @@ public class User {
     private ArrayList<String> myevents;
     private String bio;
     private String status;
+    private String degree;
     private String profilePicRef;
 
     public User() {
     }
 
-    public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String profilePicRef) {
+    public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String degree, String profilePicRef) {
         /*if (firstname.trim().equals("")){
             firstname = "First";
         }
@@ -55,6 +56,7 @@ public class User {
         this.myevents = myevents;
         this.bio = bio;
         this.status = status;
+        this.degree = degree;
         this.profilePicRef = profilePicRef;
     }
 
@@ -128,6 +130,14 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDegree() {
+        return degree;
+    }
+
+    public void setDegree(String degree) {
+        this.degree = degree;
     }
 
     public String getProfilePicRef() {

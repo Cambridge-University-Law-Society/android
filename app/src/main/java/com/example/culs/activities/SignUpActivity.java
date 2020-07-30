@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    EditText txtfirstname, txtlastname, txtcollegeid, txtyearid;
+    EditText txtfirstname, txtlastname, txtcollegeid, txtyearid, txtdegree;
     TextView signupbtn;
 
     // Firebase instance variable
@@ -56,6 +56,7 @@ public class SignUpActivity extends AppCompatActivity {
         txtlastname = (EditText) findViewById(R.id.last);
         txtcollegeid = (EditText) findViewById(R.id.college);
         txtyearid = (EditText) findViewById(R.id.year);
+        txtdegree = (EditText) findViewById(R.id.degree);
         signupbtn = (TextView) findViewById(R.id.signupbtn);
 
         //gets current instance of the database
@@ -72,9 +73,10 @@ public class SignUpActivity extends AppCompatActivity {
                 String last_name = txtlastname.getText().toString().trim();
                 String college_id = txtcollegeid.getText().toString().trim();
                 String year_id = txtyearid.getText().toString().trim();
+                String degree_id = txtdegree.getText().toString().trim();
 
 
-                User users = new User(first_name, last_name, college_id, year_id, null, userid, null, null, "admin", defaultProfilePic);
+                User users = new User(first_name, last_name, college_id, year_id, null, userid, null, null, "admin",  degree_id, defaultProfilePic);
                 db.collection("users").document(userid).set(users)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
