@@ -39,6 +39,7 @@ import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.MainActivity;
 import com.example.culs.activities.ProfileEditActivity;
+import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -63,6 +64,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
@@ -70,6 +72,9 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
+
+import java.io.File;
+import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -101,7 +106,11 @@ public class ProfileFragment extends Fragment {
         signOut(v);
 
         //call loadData function
-        loadData(v);
+        try {
+            loadData(v);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //TODO set an intent to send pressing the edit button to the ProfileEditActivity with a fade transition
         edit_btn = v.findViewById(R.id.edit_button);
@@ -133,7 +142,7 @@ public class ProfileFragment extends Fragment {
     }
 
 
-    public void loadData(View v){
+    public void loadData(View v) throws IOException {
         //this function will load in the current data of the user in the Firebase Database
 
         //current textView data
@@ -220,14 +229,15 @@ public class ProfileFragment extends Fragment {
 
 
         //set the profile picture from firebase
-        profileImage = v.findViewById(R.id.profile_image);
-        fetchImage(profileImage);
+        final CircleImageView profilePic = (CircleImageView) v.findViewById(R.id.profile_image);
+        //profileImage = v.findViewById(R.id.profile_image);
+        fetchImage(profilePic);
 
         //TODO: Load in the list of interests
 
     }
 
-    private void fetchImage(ImageView image){
+    private void fetchImage(final CircleImageView image) throws IOException {
         //using glide method
 
         //Reference to an image file in cloud storage
@@ -236,8 +246,23 @@ public class ProfileFragment extends Fragment {
 
         // Create a reference with an initial file path and name
         StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
+        String downloadUrl = pathReference.toString();
 
-        Glide.with(getActivity()).load(pathReference).into(image);
+        //try to download to a local file
+        final File file = File.createTempFile("profilePic", "jpg");
+        pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                GlideApp.with(ProfileFragment.this).load(file).into(image);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(), "Error in loading", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //GlideApp.with(this.getContext()).load(pathReference).into(image);
 
     }
 

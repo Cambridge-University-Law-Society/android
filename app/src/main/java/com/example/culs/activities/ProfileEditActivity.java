@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.example.culs.fragments.ProfileFragment;
+import com.example.culs.helpers.GlideApp;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,11 +34,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -70,7 +75,11 @@ public class ProfileEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_edit);
 
-        loadCurrentData();
+        try {
+            loadCurrentData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
         firebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + userid);
@@ -114,7 +123,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     }
 
-    private void loadCurrentData(){
+    private void loadCurrentData() throws IOException {
         //load the current data from firebase into the edit text views
 
         final EditText firstName = (EditText) findViewById(R.id.first_name);
@@ -126,7 +135,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
 
         //method for loading textView data
-
         docRef.get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -149,7 +157,6 @@ public class ProfileEditActivity extends AppCompatActivity {
 
                                 userCrsid.setText(crsid);
                             }else{
-                                userCrsid.setText("CRSID");
                             }
 
                             if (documentSnapshot.get("bio") != null) {
@@ -157,7 +164,6 @@ public class ProfileEditActivity extends AppCompatActivity {
 
                                 userBio.setText(bio);
                             }else{
-                                userBio.setText("Add a description about yourself, including interests and ambitions.");
                             }
 
                             if (documentSnapshot.get("college") != null) {
@@ -165,7 +171,6 @@ public class ProfileEditActivity extends AppCompatActivity {
 
                                 userCollege.setText(college);
                             }else{
-                                userCollege.setText("Select a College");
                             }
 
                             if (documentSnapshot.get("year") != null) {
@@ -173,7 +178,6 @@ public class ProfileEditActivity extends AppCompatActivity {
 
                                 userYear.setText(year);
                             }else{
-                                userBio.setText("Your Year");
                             }
 
                             if (documentSnapshot.get("degree") != null) {
@@ -204,7 +208,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     }
 
-    private void fetchImage(ImageView image){
+    private void fetchImage(final CircleImageView image) throws IOException {
         //using glide method
 
         //Reference to an image file in cloud storage
@@ -214,7 +218,19 @@ public class ProfileEditActivity extends AppCompatActivity {
         // Create a reference with an initial file path and name
         StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
 
-        Glide.with(this).load(pathReference).into(image);
+        //try to download to a local file
+        final File file = File.createTempFile("profilePic", "jpg");
+        pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                GlideApp.with(ProfileEditActivity.this).load(file).into(image);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ProfileEditActivity.this, "Error in loading", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
