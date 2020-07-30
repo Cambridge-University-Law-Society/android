@@ -37,6 +37,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseUser mFirebaseUser;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mFirebaseDatabaseReference;
+
     private FirebaseFirestore db;
     StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     StorageReference photoReference= storageReference.child("users/DefaultProfilePic/ic_profile_icon_24dp.xml");
