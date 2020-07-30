@@ -45,5 +45,17 @@ public class CardAdapter extends RecyclerView.Adapter<CardHolder> {
     public int getItemCount() {
         return this.cards.size();
     }
+
+    public void clear() {
+        cards.clear();
+        notifyDataSetChanged();
+    }
+
+    // Add a list of items -- change to type used
+    public void addAll(List<Card> cards) {
+        cards.addAll(cards);
+        notifyDataSetChanged();
+    }
 }
+
 

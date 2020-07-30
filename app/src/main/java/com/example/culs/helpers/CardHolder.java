@@ -7,7 +7,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.culs.R;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -27,6 +30,7 @@ public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickL
     private final TextView eventTagNote;
     private final LinearLayout eventTagHolder;
     private int highestTag = 0;
+    private String IMAGE_URL;
     private ArrayList<Card> cardList = null;
     OnCardListener onCardListener;
 
@@ -56,7 +60,15 @@ public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickL
         this.eventDateTime.setText(card.getEventDateAndTime());
         this.eventLocation.setText(card.getEventLocation());
         this.eventDescription.setText(card.getEventDescription());
-        this.eventPic.setImageResource(card.getEventImage());
+
+        IMAGE_URL = "gs://culs-bebf2.appspot.com/Events/LawEvent1.jpg";
+
+        StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(IMAGE_URL);
+
+        Glide.with(itemView.getContext())
+                .load(ref)
+                .into(this.eventPic);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.eventPic.setTransitionName(card.getEventName() + "_image");
             this.eventDescription.setTransitionName(card.getEventName() + "_description");

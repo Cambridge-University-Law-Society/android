@@ -1,21 +1,90 @@
 package com.example.culs.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.example.culs.R;
+import com.example.culs.helpers.Card;
+import com.example.culs.helpers.CardAdapter;
+import com.example.culs.helpers.CardHolder;
+import com.example.culs.helpers.Sponsor;
+import com.example.culs.helpers.SponsorAdapter;
+import com.example.culs.helpers.SponsorHolder;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.culs.R;
+public class SponsorsFragment extends Fragment implements SponsorHolder.OnSponsorListener{
+    private RecyclerView sponsorsView;
+    private String[] linkstring = {"banana", "apple"};
 
-public class SponsorsFragment extends Fragment {
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_sponsors, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_sponsors, container, false);
+        setHasOptionsMenu(true);//Make sure you have this line of code.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setEnterTransition(new android.transition.Slide());
+            setExitTransition(new android.transition.Slide());
+        }
 
+        final ArrayList<Sponsor> sponsors = new ArrayList<Sponsor>();
+        sponsors.add(new Sponsor("Allen & Overy", "Kayda and Chantelle gonna be here so its deffo gonna be a mad one", R.drawable.ano_logo, "Criminal, Corporate, IP", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Buttery Biscuit Baker McKenzie", "Some other Btec Firm", R.drawable.bakmac_logo, "Marriage, Corporate, Tort", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Clifford the big red dog", "yet another Btec Law Firm why even go here", R.drawable.cliffchan_logo, "Tort, Tort and Tort", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Teeth", "blah blah blah", R.drawable.dentons_logo, "Everything under the sun", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Fuckbois Bellend Dickhead", "IIIII want eeeettt JIA WEI!!!", R.drawable.fbd_logo, "I'm hungry", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Logan Hovels", "Why even do law ngl just go be an engineer yk", R.drawable.hoglov_logo, "Gimme food", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Norton Antivirus", "oooooooooooh Cam Beaney!!!", R.drawable.nortfulb_logo, "Chicken, Milk, Bread", "www.google.com", linkstring));
+        sponsors.add(new Sponsor("Slaughter and Pillage", "Wassssssuuuuuuuppppp!!!!", R.drawable.slaughtmay_logo, "Dishwasher Tablets", "www.google.com", linkstring));
+
+
+        SponsorAdapter adapter = new SponsorAdapter(getActivity() , R.layout.sponsor_item, sponsors, this);
+        sponsorsView = (RecyclerView) rootView.findViewById(R.id.sponsor_list);
+        sponsorsView.setAdapter(adapter);
+        sponsorsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        Toolbar myToolbar = rootView.findViewById(R.id.my_sponsors_toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        return rootView;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.app_bar, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onSponsorClick(View v, int position, ArrayList<Sponsor> sponsorList) {
+        Sponsor currentSponsor = sponsorList.get(position);
+
+        Toast.makeText(getActivity(), currentSponsor.getSponsorName(), Toast.LENGTH_LONG).show();
+    }
+
 }
+
+

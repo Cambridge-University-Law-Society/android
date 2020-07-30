@@ -61,7 +61,7 @@ public class ExpandedEventFragment extends Fragment {
         exEventLoc.setText(currentCard.getEventLocation());
         exEventDesc.setText(currentCard.getEventDescription());
 
-        exEventPic.setImageResource(currentCard.getEventImage());
+//        exEventPic.setImageResource(currentCard.getEventImage());
         for(int i=0; i<(currentCard.getEventFriendPics().length); i++){
             this.exFriendProfs[i].setImageResource(currentCard.getEventFriendPics()[i]);
         }

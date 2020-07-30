@@ -8,35 +8,34 @@ import android.os.Parcelable;
 public class Card implements Parcelable {
 
     private String mEventName;
-    private int mEventUST;
+    private Long mEventUST;
     private String mEventDateAndTime;
     private String mEventLocation;
     private String mEventFriends[];
     private int mEventFriendPics[];
-    private int mEventImage = NO_IMAGE_PROVIDED;
-    private static final int NO_IMAGE_PROVIDED = -1;
+    private String mEventImage;
     private String mEventDescription;
     private Boolean mEventTags[];
 
-    public Card(String eventName, String eventDateAndTime, int eventUST, String eventLocation, String eventDescription) {
-        mEventName = eventName;
-        mEventDateAndTime = eventDateAndTime;
-        mEventUST = eventUST;
-        mEventLocation = eventLocation;
-        mEventDescription = eventDescription;
-    }
+//    public Card(String eventName, String eventDateAndTime, Long eventUST, String eventLocation, String eventDescription) {
+//        mEventName = eventName;
+//        mEventDateAndTime = eventDateAndTime;
+//        mEventUST = eventUST;
+//        mEventLocation = eventLocation;
+//        mEventDescription = eventDescription;
+//    }
+//
+//    public Card(String eventName, String eventDateAndTime, Long eventUST, String eventLocation, String eventDescription, int eventImage, Boolean[] eventTags) {
+//        mEventName = eventName;
+//        mEventDateAndTime = eventDateAndTime;
+//        mEventUST = eventUST;
+//        mEventLocation = eventLocation;
+//        mEventDescription = eventDescription;
+//        mEventImage = eventImage;
+//        mEventTags = eventTags;
+//    }
 
-    public Card(String eventName, String eventDateAndTime, int eventUST, String eventLocation, String eventDescription, int eventImage, Boolean[] eventTags) {
-        mEventName = eventName;
-        mEventDateAndTime = eventDateAndTime;
-        mEventUST = eventUST;
-        mEventLocation = eventLocation;
-        mEventDescription = eventDescription;
-        mEventImage = eventImage;
-        mEventTags = eventTags;
-    }
-
-    public Card(String eventName, String eventDateAndTime, int eventUST, String eventLocation, String eventDescription, int eventImage, String[] eventFriends, int[] eventFriendPics, Boolean[] eventTags) {
+    public Card(String eventName, String eventDateAndTime, Long eventUST, String eventLocation, String eventDescription, String eventImage, String[] eventFriends, int[] eventFriendPics, Boolean[] eventTags) {
         mEventName = eventName;
         mEventDateAndTime = eventDateAndTime;
         mEventUST = eventUST;
@@ -50,12 +49,12 @@ public class Card implements Parcelable {
 
     protected Card(Parcel in) {
         mEventName = in.readString();
-        mEventUST = in.readInt();
+        mEventUST = in.readLong();
         mEventDateAndTime = in.readString();
         mEventLocation = in.readString();
         mEventFriends = in.createStringArray();
         mEventFriendPics = in.createIntArray();
-        mEventImage = in.readInt();
+        mEventImage = in.readString();
         mEventDescription = in.readString();
     }
 
@@ -74,7 +73,7 @@ public class Card implements Parcelable {
     public String getEventName() {
         return mEventName;
     }
-    public int getEventUST() { return mEventUST; }
+    public Long getEventUST() { return mEventUST; }
     public String getEventDateAndTime() {
         return mEventDateAndTime;
     }
@@ -82,8 +81,7 @@ public class Card implements Parcelable {
         return mEventLocation;
     }
     public String getEventDescription() { return mEventDescription; }
-    public int getEventImage() { return mEventImage; }
-    public boolean hasImage() { return mEventImage != NO_IMAGE_PROVIDED; }
+    public String getEventImage() { return mEventImage; }
     public String[] getEventFriends() { return mEventFriends; }
     public int[] getEventFriendPics() { return mEventFriendPics; }
     public Boolean[] getEventTags() { return mEventTags; }
@@ -96,12 +94,12 @@ public class Card implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mEventName);
-        parcel.writeInt(mEventUST);
+        parcel.writeLong(mEventUST);
         parcel.writeString(mEventDateAndTime);
         parcel.writeString(mEventLocation);
         parcel.writeStringArray(mEventFriends);
         parcel.writeIntArray(mEventFriendPics);
-        parcel.writeInt(mEventImage);
+        parcel.writeString(mEventImage);
         parcel.writeString(mEventDescription);
     }
 }
