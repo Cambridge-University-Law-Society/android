@@ -5,8 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.ArrayList;
 import java.util.List;
+import com.squareup.picasso.Picasso;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,6 +43,15 @@ public class CardAdapter extends RecyclerView.Adapter<CardHolder> {
         // 5. Use position to access the correct Bakery object
         Card card = this.cards.get(position);
         // 6. Bind the bakery object to the holder
+
+        String IMAGE_URL = "gs://culs-bebf2.appspot.com/Events/LawEvent1.jpg";
+
+//        StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(IMAGE_URL);
+
+        Picasso.get()
+                .load(IMAGE_URL)
+                .into(holder.eventPic);
+
         holder.bindCard(card);
     }
 

@@ -20,7 +20,7 @@ public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickL
 
     private Card card;
     private Context context;
-    private final ImageView eventPic;
+    public final ImageView eventPic;
     private final TextView eventDateTime;
     private final TextView eventName;
     private final TextView eventLocation;
@@ -61,13 +61,6 @@ public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickL
         this.eventLocation.setText(card.getEventLocation());
         this.eventDescription.setText(card.getEventDescription());
 
-        IMAGE_URL = "gs://culs-bebf2.appspot.com/Events/LawEvent1.jpg";
-
-        StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(IMAGE_URL);
-
-        Glide.with(itemView.getContext())
-                .load(ref)
-                .into(this.eventPic);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.eventPic.setTransitionName(card.getEventName() + "_image");
