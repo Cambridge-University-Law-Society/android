@@ -4,16 +4,26 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.culs.fragments.ProfileFragment;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import com.squareup.picasso.Picasso;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class CardAdapter extends RecyclerView.Adapter<CardHolder> {
@@ -39,18 +49,15 @@ public class CardAdapter extends RecyclerView.Adapter<CardHolder> {
     }
 
     @Override
-    public void onBindViewHolder(CardHolder holder, int position) {
-        // 5. Use position to access the correct Bakery object
+    public void onBindViewHolder(final CardHolder holder, int position) {
+
         Card card = this.cards.get(position);
-        // 6. Bind the bakery object to the holder
 
-        String IMAGE_URL = "gs://culs-bebf2.appspot.com/Events/LawEvent1.jpg";
-
-//        StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(IMAGE_URL);
-
-        Picasso.get()
-                .load(IMAGE_URL)
-                .into(holder.eventPic);
+        try {
+            fetchImage(holder, card);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         holder.bindCard(card);
     }
@@ -69,6 +76,35 @@ public class CardAdapter extends RecyclerView.Adapter<CardHolder> {
     public void addAll(List<Card> cards) {
         cards.addAll(cards);
         notifyDataSetChanged();
+    }
+
+    private void fetchImage(final CardHolder holder, final Card currentCard) throws IOException {
+        //using glide method
+
+        //Reference to an image file in cloud storage
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        // Create a reference with an initial file path and name
+        StorageReference pathReference = storageRef.child("Events/" + currentCard.getEventImage());
+        String downloadUrl = pathReference.toString();
+
+        //try to download to a local file
+        final File file = File.createTempFile("eventPic", "jpg");
+        pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                GlideApp.with(holder.itemView).load(file).into(holder.eventPic);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+
+        //GlideApp.with(this.getContext()).load(pathReference).into(image);
+
     }
 }
 

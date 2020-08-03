@@ -16,15 +16,20 @@ import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CardAdapter;
 import com.example.culs.helpers.CardHolder;
 import com.example.culs.helpers.SponsorAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -52,8 +57,10 @@ import java.util.Date;
 
 public class HomeFragment extends Fragment implements CardHolder.OnCardListener {
     private RecyclerView eventsView;
+    public static final String TAG = "Shonak";
     private SwipeRefreshLayout swipeContainer;
     String[] friends = {"friend 1", "friend 2", "friend 3"};
+    private ArrayList<DocumentReference> documentList = new ArrayList<DocumentReference>();
     int[] friendPics3 = {R.drawable.mc_durks, R.drawable.mc_durks, R.drawable.mc_durks};
     int[] friendPics2 = {R.drawable.mc_durks, R.drawable.mc_durks};
     int[] friendPics1 = {R.drawable.mc_durks};
@@ -66,7 +73,8 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
     SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yy HH:mm");
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference noteRef = db.collection("Events").document("gPel12YOlfp6t7mG2g1I");
-    private final ArrayList<Card> cards = new ArrayList<Card>();
+    private CollectionReference eventsRef = db.collection("Events");
+    private ArrayList<Card> cards = new ArrayList<Card>();
     private ListenerRegistration noteListener;
 
     @Nullable
@@ -90,10 +98,6 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
                 loadNote(adapter);
             }
         });
-//        cards.add(new Card("Mojitos with Baker McKenzie", "Sunday 30th October: 22:00 - 3:00", hehelong, "Vinyl, Sidney St", "This is an event that is hosted by Baker McKenzie every year and is always lots of fun. There will be an open bar and representatives to talk to. ", R.drawable.allbarone, friends, friendPics1, boolCase5));
-//        cards.add(new Card("Buffet and Bellinis", "Thursday 3rd November: 22:00 - 3:00", 12543, "Lola Lo's, Corn Exchange St", "This will be another great event at NOVI, hosted by Macfarlanes. The night will start with some light cocktails, including Bellinis at the bar and some substantial canapés. There will be representatives from Macfarlanes to talk to throughout the night who will be able to provide an interesting insight into life as a lawyer.", R.drawable.lawevent2, friends, friendPics2, boolCase3));
-//        cards.add(new Card("Engineering and Law Lolas Night", "Saturday 18th June: 18:00 - 6:00", 12543, "Queens' College Cambridge, Silver St", "This is going to be a very fun event in Lola’s with the Engineering Society. There will be some a discount at the door for members!", R.drawable.lolas, friends, friendPics2, boolCase4));
-//        cards.add(new Card("Burritos and Mojitos", "Saturday 18th June: 18:00 - 6:00", 12543, "Queens' College Cambridge, Silver St", "Fun night planned at the classic bar Ta Bouche. There will be free mojitos as well as plenty of other drinks at the bar.", R.drawable.lawevent1, friends, friendPics2, boolCase1));
 
         adapter.notifyDataSetChanged();
         eventsView = (RecyclerView) rootView.findViewById(R.id.list);
@@ -185,37 +189,54 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
 
     public void loadNote(final CardAdapter adapter){
 
-        swipeContainer.setRefreshing(true);
-        noteRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        eventsRef.whereEqualTo("Active", true)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if(documentSnapshot.exists()) {
-                            Boolean eventActive = documentSnapshot.getBoolean("Active");
-                            if(eventActive) {
-                                String eventName = documentSnapshot.getString("name");
-                                String eventImage = documentSnapshot.getString("ImageRef");
-                                Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                Long utcTimestamp = timestamp.getSeconds();
-                                String eventDate = sdf.format(utcTimestamp);
-                                String eventLocation = documentSnapshot.getString("location");
-                                String eventDescription = documentSnapshot.getString("description");
-                                cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
-                                Toast.makeText(getActivity(), eventImage, Toast.LENGTH_SHORT).show();
-                                adapter.notifyDataSetChanged();
-                                return;
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                documentList.add(db.collection("Events").document(document.getId()));
                             }
                         } else {
-                            Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                    }
                 });
+
+
+        swipeContainer.setRefreshing(true);
+        for (int i = 0; i < documentList.size(); i++) {
+            documentList.get(i).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                Boolean eventActive = documentSnapshot.getBoolean("Active");
+                                if (eventActive) {
+                                    String eventName = documentSnapshot.getString("name");
+                                    String eventImage = documentSnapshot.getString("ImageRef");
+                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
+                                    Long utcTimestamp = timestamp.getSeconds();
+                                    String eventDate = sdf.format(utcTimestamp);
+                                    String eventLocation = documentSnapshot.getString("location");
+                                    String eventDescription = documentSnapshot.getString("description");
+                                    cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
+                                    adapter.notifyDataSetChanged();
+                                    return;
+                                }
+                            } else {
+                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
         swipeContainer.setRefreshing(false);
         return;
     }
