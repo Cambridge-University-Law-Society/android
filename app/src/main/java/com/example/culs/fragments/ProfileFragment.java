@@ -30,6 +30,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.ContentResolver;
@@ -75,6 +76,7 @@ import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -93,6 +95,7 @@ public class ProfileFragment extends Fragment {
     final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
     //this retrieves the entire document with this specific uid
     private DocumentReference docRef = db.collection("users").document(userid);
+
 
     private String TAG = "ProfileFragment";
     @Nullable
@@ -127,6 +130,13 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    public void onCreate(@Nullable Bundle savedInstanceState, LayoutInflater inflater, ViewGroup container) throws IOException {
+        super.onCreate(savedInstanceState);
+
+        View v = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        loadData(v);
+    }
 
     public void signOut(View v) {
         //SIGN OUT METHOD
