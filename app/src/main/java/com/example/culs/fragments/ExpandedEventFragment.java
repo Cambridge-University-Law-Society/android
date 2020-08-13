@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
+import com.example.culs.helpers.GlideApp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,57 +55,13 @@ public class ExpandedEventFragment extends Fragment {
         exEventTagHolder = rootView.findViewById(R.id.ex_event_tag_holder);
 
         currentCard = bundle.getParcelable("Current Card");
-        Toast.makeText(getActivity(), currentCard.getEventLocation(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), currentCard.getLocation(), Toast.LENGTH_SHORT).show();
 
-        exEventName.setText(currentCard.getEventName());
-        exEventDnT.setText(currentCard.getEventDateAndTime());
-        exEventLoc.setText(currentCard.getEventLocation());
-        exEventDesc.setText(currentCard.getEventDescription());
-
-//        exEventPic.setImageResource(currentCard.getEventImage());
-        for(int i=0; i<(currentCard.getEventFriendPics().length); i++){
-            this.exFriendProfs[i].setImageResource(currentCard.getEventFriendPics()[i]);
-        }
-
-        for(int i=0; i<(currentCard.getEventTags().length); i++){
-            if(currentCard.getEventTags()[i] == true) {
-                highestTag = (i+1);
-            }
-        }
-
-        switch(highestTag){
-            case 0:
-                exEventTagIcon.setImageResource(0);
-                exEventTagHolder.setBackgroundResource(0);
-                exEventTagHolder.setBackground(null);
-                exEventTagNote.setText("");
-                break;
-            case 1:
-                exEventTagIcon.setImageResource(R.drawable.ic_new_tag_24dp);
-                exEventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                exEventTagNote.setText("New");
-                break;
-            case 2:
-                exEventTagIcon.setImageResource(R.drawable.ic_active_tag_24dp);
-                exEventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                exEventTagNote.setText("Popular");
-                break;
-            case 3:
-                exEventTagIcon.setImageResource(R.drawable.ic_upcoming_tag_24dp);
-                exEventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                exEventTagNote.setText("Upcoming");
-                break;
-            case 4:
-                exEventTagIcon.setImageResource(R.drawable.ic_tagged_tag_24dp);
-                exEventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                exEventTagNote.setText("Tagged");
-                break;
-            case 5:
-                exEventTagIcon.setImageResource(R.drawable.ic_cancel_tag_24dp);
-                exEventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                exEventTagNote.setText("Cancelled");
-                break;
-        }
+        exEventName.setText(currentCard.getName());
+//        exEventDnT.setText(currentCard.getEventDateAndTime());
+        exEventLoc.setText(currentCard.getLocation());
+        exEventDesc.setText(currentCard.getDescription());
+        GlideApp.with(getContext()).load(currentCard.getImageURL()).into(exEventPic);
 
         return rootView;
 
