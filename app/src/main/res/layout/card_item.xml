@@ -27,8 +27,8 @@
             <ImageView
                 android:id="@+id/event_pic_image_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="fitXY"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
                 android:background="@color/cards"
                 android:layout_alignParentTop="true"
@@ -155,7 +155,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:adjustViewBounds="true"
                     android:maxLines="3"
+                    android:ellipsize="end"
                     android:layout_below="@id/event_date_loc_holder"
                     android:gravity="top"
                     android:textSize="14sp"
@@ -166,53 +168,53 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom = "12dp"
+                    android:layout_marginTop="4dp"
                     android:adjustViewBounds="true"
                     android:maxWidth="76dp"
                     android:maxHeight="26dp"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:id="@+id/event_friends_holder"
                     android:layout_alignParentLeft="true"
                     android:layout_below="@id/event_description_text_view">
 
-                    <ImageView
-                        android:id="@+id/event_friend_1_image_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_alignParentLeft="true"
-                        tools:src="@drawable/mc_durks" />
 
-                    <ImageView
-                        android:id="@+id/event_friend_2_image_view"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_marginLeft="2dp"
-                        tools:src="@drawable/mc_durks" />
+                        android:maxWidth="76dp"
+                        android:maxHeight="26dp"
+                        android:orientation="horizontal"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@id/event_description_text_view">
 
-                    <ImageView
-                        android:id="@+id/event_friend_3_image_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginLeft="2dp"
-                        android:gravity="bottom"
-                        tools:src="@drawable/mc_durks" />
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/sponsor_logo"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:gravity="bottom"
+                            tools:src="@drawable/hoglov_logo"
+                            android:elevation="1dp"/>
+
+                        <TextView
+                            android:id="@+id/event_sponsor_text_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="4dp"
+                            android:maxWidth="250dp"
+                            android:maxHeight="26dp"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:gravity="bottom"
+                            android:textSize="12dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/dark_text"
+                            android:fontFamily="sans-serif-light"
+                            tools:text="Allen and Overy" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -236,36 +238,11 @@
                         android:maxWidth="24dp"
                         android:maxHeight="24dp"
                         android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:gravity="bottom"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginRight="8dp"
                         android:src="@drawable/ic_interested_button_off_24dp" />
 
-                    <ImageView
-                        android:id="@+id/event_tag_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_marginRight="16dp"
-                        android:src="@drawable/ic_share_button_off_24dp" />
-
-                    <ImageView
-                        android:id="@+id/event_notify_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_alignParentRight="true"
-                        android:src="@drawable/ic_notifications_button_off_24dp" />
                 </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
