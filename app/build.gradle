@@ -75,5 +75,10 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.0.0'
     implementation 'androidx.navigation:navigation-ui:2.0.0'
 
+    //going to try using a third party calendar - (may have to create own calendar)
+    //implementation 'com.applandeo:material-calendar-view:1.7.0'
+
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
+    implementation 'com.github.prolificinteractive:material-calendarview:2.0.1'
 
 }

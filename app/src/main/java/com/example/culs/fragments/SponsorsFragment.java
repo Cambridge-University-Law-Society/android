@@ -47,15 +47,6 @@ public class SponsorsFragment extends Fragment implements SponsorHolder.OnSponso
         }
 
         final ArrayList<Sponsor> sponsors = new ArrayList<Sponsor>();
-        sponsors.add(new Sponsor("Allen & Overy", "Kayda and Chantelle gonna be here so its deffo gonna be a mad one", R.drawable.ano_logo, "Criminal, Corporate, IP", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Buttery Biscuit Baker McKenzie", "Some other Btec Firm", R.drawable.bakmac_logo, "Marriage, Corporate, Tort", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Clifford the big red dog", "yet another Btec Law Firm why even go here", R.drawable.cliffchan_logo, "Tort, Tort and Tort", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Teeth", "blah blah blah", R.drawable.dentons_logo, "Everything under the sun", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Fuckbois Bellend Dickhead", "IIIII want eeeettt JIA WEI!!!", R.drawable.fbd_logo, "I'm hungry", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Logan Hovels", "Why even do law ngl just go be an engineer yk", R.drawable.hoglov_logo, "Gimme food", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Norton Antivirus", "oooooooooooh Cam Beaney!!!", R.drawable.nortfulb_logo, "Chicken, Milk, Bread", "www.google.com", linkstring));
-        sponsors.add(new Sponsor("Slaughter and Pillage", "Wassssssuuuuuuuppppp!!!!", R.drawable.slaughtmay_logo, "Dishwasher Tablets", "www.google.com", linkstring));
-
 
         SponsorAdapter adapter = new SponsorAdapter(getActivity() , R.layout.sponsor_item, sponsors, this);
         sponsorsView = (RecyclerView) rootView.findViewById(R.id.sponsor_list);
