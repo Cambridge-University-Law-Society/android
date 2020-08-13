@@ -1,44 +1,35 @@
 package com.example.culs.fragments;
 
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.Date;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CardAdapter;
 import com.example.culs.helpers.CardHolder;
-import com.example.culs.helpers.SponsorAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.example.culs.helpers.GlideApp;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
-
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,13 +41,17 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 
-import java.util.Date;
-
 public class HomeFragment extends Fragment implements CardHolder.OnCardListener {
     private RecyclerView eventsView;
+    private View rootView;
     public static final String TAG = "Shonak";
     private SwipeRefreshLayout swipeContainer;
     String[] friends = {"friend 1", "friend 2", "friend 3"};
@@ -72,37 +67,28 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
     Boolean[] boolCase5 = { true, true, true, true, true};
     SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yy HH:mm");
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private DocumentReference noteRef = db.collection("Events").document("gPel12YOlfp6t7mG2g1I");
     private CollectionReference eventsRef = db.collection("Events");
-    private ArrayList<Card> cards = new ArrayList<Card>();
     private ListenerRegistration noteListener;
+    private ArrayList<Card> cards = new ArrayList<>();
+    private FirestoreRecyclerAdapter<Card, CardViewHolder> fire_adapter;
 
-    @Nullable
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+        @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
-        setHasOptionsMenu(true);//Make sure you have this line of code.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setEnterTransition(new android.transition.Slide());
-            setExitTransition(new android.transition.Slide());
-        }
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        setHasOptionsMenu(true);
 
-        final CardAdapter adapter = new CardAdapter(getActivity() , R.layout.card_item, cards, this);
-        // Create a list of words
-        loadNote(adapter);
-
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadNote(adapter);
-            }
-        });
-
-        adapter.notifyDataSetChanged();
         eventsView = (RecyclerView) rootView.findViewById(R.id.list);
-        eventsView.setAdapter(adapter);
+        eventsView.setHasFixedSize(true);
+//        eventsView.setAdapter(adapter);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
 
         Toolbar myToolbar = rootView.findViewById(R.id.my_toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
@@ -111,42 +97,109 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         return rootView;
     }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        noteListener = noteRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-//                if(error != null){
-//                    Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//
-//                if(documentSnapshot.exists()) {
-//                    Boolean eventActive = documentSnapshot.getBoolean("Active");
-//                    if (eventActive) {
-//                        String eventName = documentSnapshot.getString("name");
-//                        Timestamp timestamp = documentSnapshot.getTimestamp("date");
-//                        Long utcTimestamp = timestamp.getSeconds();
-//                        String eventDate = sdf.format(utcTimestamp);
-//                        String eventLocation = documentSnapshot.getString("location");
-//                        String eventDescription = documentSnapshot.getString("description");
-//                        cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, R.drawable.allbarone, friends, friendPics1, boolCase5));
-//                        Toast.makeText(getActivity(), eventName, Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//            }
-//        });
-//    }
 
-//    @Override
-//    public void onStop(){
-//        super.onStop();
-//        noteListener.remove();
-//    }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Query query = FirebaseFirestore.getInstance().collection("Events").orderBy("date", Query.Direction.ASCENDING);
+        FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
+        fire_adapter = new FirestoreRecyclerAdapter<Card, CardViewHolder>(options) {
+                @NonNull
+                @Override
+                public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false);
+                    CardViewHolder cardViewHolder = new CardViewHolder(view);
+                    return cardViewHolder;
+                }
+
+                @Override
+                protected void onBindViewHolder(@NonNull final CardViewHolder holder, int position, @NonNull Card model) {
+                    SimpleDateFormat spf=new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
+
+                    DocumentSnapshot snapshot = getSnapshots().getSnapshot(position);
+                    String eventID = snapshot.getId();
+                    holder.eventName.setText(model.getName());
+                    holder.eventLocation.setText(model.getLocation());
+                    Date eventDate = model.getDate().toDate();
+                    String eventDateText = spf.format(eventDate);
+                    holder.eventDateTime.setText(eventDateText);
+                    holder.eventDescription.setText(model.getDescription());
+                    holder.eventPic.setImageDrawable(null);
+                    holder.eventTagNote.setText(model.getTags().get(0));
+                    holder.eventSponsor.setText(model.getSponsor());
+                    holder.eventSponsorLogo.setImageResource(R.drawable.fbd_logo);
+
+                    FirebaseStorage eventStorage = FirebaseStorage.getInstance();
+                    StorageReference eventStorageRef = eventStorage.getReference();
+                    StorageReference eventPathReference = eventStorageRef.child("Events/" + eventID + "/coverPhoto");
+                    eventPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String eventImageUri = uri.toString();
+                            GlideApp.with(holder.itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(holder.eventPic);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
+                    StorageReference sponsorStorageRef = sponsorStorage.getReference();
+                    StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + model.getSponsor() + "/logo.png");
+                    sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String sponsorImageUri = uri.toString();
+                            GlideApp.with(holder.itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(holder.eventSponsorLogo);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            GlideApp.with(holder.itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(holder.eventSponsorLogo);
+                        }
+                    });
+
+                }
+            };
+
+            eventsView.setAdapter(fire_adapter);
+            fire_adapter.startListening();
+        }
+
+        public void onStop() {
+            super.onStop();
+            fire_adapter.stopListening();
+        }
+
+    public static class CardViewHolder extends RecyclerView.ViewHolder{
+
+        ImageView eventPic, eventTagIcon, eventSponsorLogo;
+        TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote, eventSponsor;
+
+        LinearLayout eventTagHolder;
+
+        public CardViewHolder(@NonNull View itemView) {
+            super(itemView);
+            eventName = (TextView) itemView.findViewById(R.id.event_name_text_view);
+            eventDateTime = (TextView) itemView.findViewById(R.id.event_date_and_time_text_view);
+            eventLocation = (TextView) itemView.findViewById(R.id.event_location_text_view);
+            eventDescription = (TextView) itemView.findViewById(R.id.event_description_text_view);
+            eventPic = (ImageView) itemView.findViewById(R.id.event_pic_image_view);
+            eventTagIcon = (ImageView) itemView.findViewById(R.id.tag_icon);
+            eventTagNote = (TextView) itemView.findViewById(R.id.tag_note);
+            eventTagHolder = (LinearLayout) itemView.findViewById(R.id.event_tag_holder);
+            eventSponsor = (TextView) itemView.findViewById(R.id.event_sponsor_text_view);
+            eventSponsorLogo = (ImageView) itemView.findViewById(R.id.sponsor_logo);
+        }
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
@@ -185,60 +238,6 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
         fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-    }
-
-    public void loadNote(final CardAdapter adapter){
-
-        eventsRef.whereEqualTo("Active", true)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                documentList.add(db.collection("Events").document(document.getId()));
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-
-
-        swipeContainer.setRefreshing(true);
-        for (int i = 0; i < documentList.size(); i++) {
-            documentList.get(i).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                Boolean eventActive = documentSnapshot.getBoolean("Active");
-                                if (eventActive) {
-                                    String eventName = documentSnapshot.getString("name");
-                                    String eventImage = documentSnapshot.getString("ImageRef");
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    Long utcTimestamp = timestamp.getSeconds();
-                                    String eventDate = sdf.format(utcTimestamp);
-                                    String eventLocation = documentSnapshot.getString("location");
-                                    String eventDescription = documentSnapshot.getString("description");
-                                    cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
-                                    adapter.notifyDataSetChanged();
-                                    return;
-                                }
-                            } else {
-                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-        swipeContainer.setRefreshing(false);
-        return;
     }
 
 }
