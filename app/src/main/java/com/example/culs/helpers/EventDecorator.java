@@ -5,24 +5,32 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
+import org.threeten.bp.LocalDate;
+
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 
 public class EventDecorator implements DayViewDecorator {
 
     private int color;
-    private HashSet<CalendarDay> dates;
+    private CalendarDay day;
 
     //a Collection represents a group of objects/ elements
 
-    public EventDecorator(int color, Collection<CalendarDay> dates){
+    public EventDecorator(int color, LocalDate date){
         this.color = color;
-        this.dates = new HashSet<>(dates);
+        this.day = CalendarDay.from(date);
     }
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
-        return dates.contains(day);
+        if (this.day.equals(day)){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     @Override

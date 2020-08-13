@@ -1,25 +1,24 @@
 package com.example.culs.fragments;
 
-import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-
 import android.widget.ArrayAdapter;
-import android.widget.CalendarView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,17 +26,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-/*import com.applandeo.materialcalendarview.DatePicker;
-import com.applandeo.materialcalendarview.EventDay;
-import com.applandeo.materialcalendarview.builders.DatePickerBuilder;
-import com.applandeo.materialcalendarview.listeners.OnDayClickListener;
-import com.applandeo.materialcalendarview.listeners.OnSelectDateListener;*/
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
-import com.example.culs.helpers.CardAdapter;
 import com.example.culs.helpers.CardHolder;
 import com.example.culs.helpers.EventDecorator;
+import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.OneDayDecorators;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,24 +44,26 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.prolificinteractive.materialcalendarview.DayViewDecorator;
-import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+
 import org.threeten.bp.LocalDate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-//import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
+
+//import java.time.LocalDate;
 
 public class CalendarFragment extends Fragment implements CardHolder.OnCardListener, OnDateSelectedListener {
     private RecyclerView eventsView;
@@ -83,21 +81,12 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
     private ArrayList<DocumentReference> eventsDocRef1 = new ArrayList<DocumentReference>();
     SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy HH:mm");
 
-    private ArrayList<String> dateLocation = new ArrayList<String>();
+    private ArrayList<String> dateTime = new ArrayList<String>();
     private ArrayAdapter<String> adapter;
 
     //card stuff
     private ArrayList<Card> cards = new ArrayList<Card>();
-    int[] friendPics3 = {R.drawable.mc_durks, R.drawable.mc_durks, R.drawable.mc_durks};
-    int[] friendPics2 = {R.drawable.mc_durks, R.drawable.mc_durks};
-    int[] friendPics1 = {R.drawable.mc_durks};
-    int[] friendPics0 = {};
-    Boolean[] boolCase1 = {false, true, false, false, false};
-    Boolean[] boolCase2 = {true, false, false, false, false};
-    Boolean[] boolCase3 = {false, true, true, false, false};
-    Boolean[] boolCase4 = {false, true, true, true, false};
-    Boolean[] boolCase5 = { true, true, true, true, true};
-    String[] friends = {"friend 1", "friend 2", "friend 3"};
+    private FirestoreRecyclerAdapter<Card, CardViewHolder> fire_adapter;
 
     //private List<EventDay> events = new ArrayList<>();
 
@@ -107,19 +96,26 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
 
     private String TAG = "CalendarFragment";
     private String TAG1 = "Rajan";
+    private String TAG3 = "RAJAN1";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     //@RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_calendar, container, false);
+        setHasOptionsMenu(true);
 
         calendarView = (MaterialCalendarView) v.findViewById(R.id.calendarView);
         swipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        eventsView = (RecyclerView) v.findViewById(R.id.cardlist);
 
-
-        final LocalDate instance = LocalDate.now();
-        //calendarView.setOnDateChangedListener(this);
+        eventsView.setHasFixedSize(true);
+        eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         calendarView.addDecorators(
                 oneDayDecorators
@@ -127,33 +123,43 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
 
         addEventDots(calendarView);
 
+        //call data load to load cards into the RecyclerView
+        getDate(calendarView);
+
+        /*final LocalDate instance = LocalDate.now();
+        //calendarView.setOnDateChangedListener(this);
         //handling the cards recyclerview
         final CardAdapter adapter = new CardAdapter(getActivity() , R.layout.card_item, cards, this);
         //call data load to load into the adapter
         //UNCOMMENT THIS TO GET THE CARDS CODE
         // getDate(calendarView, adapter);
-
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 getDate(calendarView, adapter);
             }
         });
-
         adapter.notifyDataSetChanged();
-        eventsView = (RecyclerView) v.findViewById(R.id.cardlist);
-        eventsView.setAdapter(adapter);
-        eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //eventsView.setAdapter(adapter);
+        //eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));*/
 
 
-        //new eventsListGenerator().executeOnExecutor(Executors.newSingleThreadExecutor());
+        new eventsListGenerator().executeOnExecutor(Executors.newSingleThreadExecutor());
 
         return v;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.app_bar, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     //DONE:READ SELECTED DATE AND DISPLAY ALL THE CARDS FOR THOSE EVENTS ON THAT DATE
 
-    private void getDate(MaterialCalendarView c, final CardAdapter adapter){
+
+
+    private void getDate(MaterialCalendarView c){
         //this will return the date of the selected day in a Date format
 
         c.setOnDateChangedListener(new OnDateSelectedListener() {
@@ -169,7 +175,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
 
                 String currentDate = day + "-" + month + "-" + year;
                 String nextDate = day2 + "-" + month + "-" + year;
-                Toast.makeText(getActivity(), nextDate, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), nextDate, Toast.LENGTH_SHORT).show();
                 SimpleDateFormat sdf1 = new SimpleDateFormat("dd-M-yyyy");
                 try {
                     Date d = sdf1.parse(currentDate);
@@ -177,7 +183,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     Timestamp timestamp = new Timestamp(d);
                     Timestamp timestamp1 = new Timestamp(d2);
 
-                    loadData(timestamp, timestamp1, adapter);
+                    loadData(timestamp, timestamp1);
                     //Log.d(TAG1, timestamp.toString());
                     //Log.d(TAG1, timestamp1.toString());
                     //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
@@ -188,7 +194,95 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         });
     }
 
-    private void loadData(Timestamp timestamp, Timestamp timestamp2, final CardAdapter adapter){
+    private void loadData(Timestamp timestamp, Timestamp timestamp2){
+
+        Query query = eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING);
+        FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
+        fire_adapter = new FirestoreRecyclerAdapter<Card, CardViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull final CardViewHolder holder, int position, @NonNull Card model) {
+                SimpleDateFormat spf=new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
+
+                DocumentSnapshot snapshot = getSnapshots().getSnapshot(position);
+                String eventID = snapshot.getId();
+                holder.eventName.setText(model.getName());
+                holder.eventLocation.setText(model.getLocation());
+                Date eventDate = model.getDate().toDate();
+                String eventDateText = spf.format(eventDate);
+                holder.eventDateTime.setText(eventDateText);
+                holder.eventDescription.setText(model.getDescription());
+                holder.eventPic.setImageDrawable(null);
+                holder.eventTagNote.setText(model.getTags().get(0));
+                holder.eventSponsor.setText(model.getSponsor());
+                holder.eventSponsorLogo.setImageResource(R.drawable.ano_logo);
+
+                FirebaseStorage eventStorage = FirebaseStorage.getInstance();
+                StorageReference eventStorageRef = eventStorage.getReference();
+                StorageReference eventPathReference = eventStorageRef.child("Events/" + eventID + "/coverPhoto");
+                eventPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String eventImageUri = uri.toString();
+                        GlideApp.with(holder.itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(holder.eventPic);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
+                StorageReference sponsorStorageRef = sponsorStorage.getReference();
+                StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + model.getSponsor() + "/logo.png");
+                sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String sponsorImageUri = uri.toString();
+                        GlideApp.with(holder.itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(holder.eventSponsorLogo);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        GlideApp.with(holder.itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(holder.eventSponsorLogo);
+                    }
+                });
+            }
+
+            @NonNull
+            @Override
+            public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false);
+                CardViewHolder cardViewHolder = new CardViewHolder(view);
+                return cardViewHolder;
+            }
+        };
+        eventsView.setAdapter(fire_adapter);
+        fire_adapter.startListening();
+    }
+
+    /*@Override
+    public void onStart(){
+        super.onStart();
+        getDate(calendarView);
+        fire_adapter.startListening();
+
+    }*/
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        fire_adapter.stopListening();
+    }
+
+    private void getEventDates(){
+        Query events = eventsReference.whereEqualTo("active", true);
+
+    }
+
+
+
+        /*
         //DONE: extract from firebase a list of all the active events' id
         eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -230,7 +324,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                                     //Log.d(TAG1, newDate.toString());
                                     String eventLocation = documentSnapshot.getString("location");
                                     String eventDescription = documentSnapshot.getString("description");
-                                    cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
+                                    //cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
                                     adapter.notifyDataSetChanged();
                                     return;
                                 }
@@ -245,6 +339,25 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                             Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
                         }
                     });
+        }*/
+
+    public static class CardViewHolder extends RecyclerView.ViewHolder{
+
+        ImageView eventPic, eventTagIcon, eventSponsorLogo;
+        TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote, eventSponsor;
+        LinearLayout eventTagHolder;
+        public CardViewHolder(@NonNull View itemView) {
+            super(itemView);
+            eventName = (TextView) itemView.findViewById(R.id.event_name_text_view);
+            eventDateTime = (TextView) itemView.findViewById(R.id.event_date_and_time_text_view);
+            eventLocation = (TextView) itemView.findViewById(R.id.event_location_text_view);
+            eventDescription = (TextView) itemView.findViewById(R.id.event_description_text_view);
+            eventPic = (ImageView) itemView.findViewById(R.id.event_pic_image_view);
+            eventTagIcon = (ImageView) itemView.findViewById(R.id.tag_icon);
+            eventTagNote = (TextView) itemView.findViewById(R.id.tag_note);
+            eventTagHolder = (LinearLayout) itemView.findViewById(R.id.event_tag_holder);
+            eventSponsor = (TextView) itemView.findViewById(R.id.event_sponsor_text_view);
+            eventSponsorLogo = (ImageView) itemView.findViewById(R.id.sponsor_logo);
         }
     }
 
@@ -301,6 +414,8 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                             //Since query results contain only existing documents, the exists property will always be true
                             for (QueryDocumentSnapshot document : task.getResult()) { //this is the syntax for a "for-each" loop (loops through each element in array)
                                 eventsDocRef1.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
+                                dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
+                                Log.d(TAG3, dateTime.toString());
                             }
                         } else {
                             Log.d(TAG, "Error getting the documents", task.getException());
@@ -309,46 +424,11 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     //convert to Calendar
                     //use addDecorators to add the dots
                 });
+    }
 
-        for(int i=0; i < eventsDocRef1.size(); i++){
-            eventsDocRef1.get(i).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if(documentSnapshot.exists()){
-                                Boolean eventActive = documentSnapshot.getBoolean("active");
-                                if (eventActive) {
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    Long utcTimestamp = timestamp.getSeconds();
-                                    Date newDate = timestamp.toDate();
-                                    Log.d(TAG1, newDate.toString());
-                                    calendar.setTime(newDate);
-                                    int year = calendar.get(Calendar.YEAR);
-                                    int month = calendar.get(Calendar.MONTH);
-                                    int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-                                    calendar.set(year, month, day);
-                                    CalendarDay calendarDay = CalendarDay.from(year, month, day);
-                                    //Log.d(TAG1, calendarDay.toString());
-                                    list.add(calendarDay);
-                                    c.addDecorators(new EventDecorator(Color.RED, list));
-                                }
-                            } else {
-                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
         //Log.d(TAG1, list.toString());
         //List<CalendarDay> eventDays = list;
         //c.addDecorators(new EventDecorator(Color.RED, eventDays));
-    }
 
 
 

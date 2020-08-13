@@ -106,6 +106,7 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
     public void onStart() {
         super.onStart();
 
+        //fetch the info from firebase
         Query query = FirebaseFirestore.getInstance().collection("Events").orderBy("date", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
         fire_adapter = new FirestoreRecyclerAdapter<Card, CardViewHolder>(options) {
@@ -117,6 +118,7 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
                     return cardViewHolder;
                 }
 
+                //this creates the card with the info
                 @Override
                 protected void onBindViewHolder(@NonNull final CardViewHolder holder, int position, @NonNull Card model) {
                     SimpleDateFormat spf=new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
@@ -132,7 +134,7 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
                     holder.eventPic.setImageDrawable(null);
                     holder.eventTagNote.setText(model.getTags().get(0));
                     holder.eventSponsor.setText(model.getSponsor());
-                    holder.eventSponsorLogo.setImageResource(R.drawable.fbd_logo);
+                    holder.eventSponsorLogo.setImageResource(R.drawable.ano_logo);
 
                     FirebaseStorage eventStorage = FirebaseStorage.getInstance();
                     StorageReference eventStorageRef = eventStorage.getReference();
