@@ -459,7 +459,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
             super.onPostExecute(calendarDays);
 
             //if (isFin)
-            calendarView.addDecorator(new EventDecorator(Color.RED, calendarDays));
+            //calendarView.addDecorator(new EventDecorator(Color.RED, calendarDays));
         }
     }
 
