@@ -51,6 +51,7 @@ dependencies {
 
     // Firebase UI
     implementation 'com.firebaseui:firebase-ui-database:6.2.1'
+    implementation 'com.firebaseui:firebase-ui-firestore:6.3.0'
 
     //Testing dependencies
     implementation 'com.google.firebase:firebase-storage:16.0.4'
@@ -70,6 +71,7 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.squareup.picasso:picasso:2.71828"
+
 
     annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
     implementation 'androidx.navigation:navigation-fragment:2.0.0'
