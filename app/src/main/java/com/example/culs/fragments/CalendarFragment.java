@@ -9,13 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.culs.R;
-import com.example.culs.helpers.Event;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.type.Color;
 
 import java.text.SimpleDateFormat;
