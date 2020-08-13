@@ -7,10 +7,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.culs.R;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -18,20 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    private Card card;
-    private Context context;
+    public Card card;
+    public Context context;
     public final ImageView eventPic;
-    private final TextView eventDateTime;
-    private final TextView eventName;
-    private final TextView eventLocation;
-    private final TextView eventDescription;
-    private final ImageView friendProfs[]= new ImageView[3];
-    private final ImageView eventTagIcon;
-    private final TextView eventTagNote;
-    private final LinearLayout eventTagHolder;
-    private int highestTag = 0;
-    private String IMAGE_URL;
-    private ArrayList<Card> cardList = null;
+    public final TextView eventDateTime;
+    public final TextView eventName;
+    public final TextView eventLocation;
+    public final TextView eventDescription;
+    public final ImageView friendProfs[]= new ImageView[3];
+    public final ImageView eventTagIcon;
+    public final TextView eventTagNote;
+    public final LinearLayout eventTagHolder;
+    public int highestTag = 0;                              
+    public String IMAGE_URL;
+    public ArrayList<Card> cardList = null;
     OnCardListener onCardListener;
 
     public CardHolder(Context context, View itemView, OnCardListener onCardListener, ArrayList<Card> cards) {
@@ -56,61 +53,27 @@ public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickL
 
     public void bindCard(Card card) {
         this.card = card;
-        this.eventName.setText(card.getEventName());
-        this.eventDateTime.setText(card.getEventDateAndTime());
-        this.eventLocation.setText(card.getEventLocation());
-        this.eventDescription.setText(card.getEventDescription());
+        this.eventName.setText(card.getName());
+//        this.eventDateTime.setText(card.getEventDateAndTime());
+        this.eventLocation.setText(card.getLocation());
+        this.eventDescription.setText(card.getDescription());
+        
 
+//        try {
+//            fetchImage(this, card);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            this.eventPic.setTransitionName(card.getEventName() + "_image");
-            this.eventDescription.setTransitionName(card.getEventName() + "_description");
-            this.eventName.setTransitionName(card.getEventName() + "_name");
-            this.eventDateTime.setTransitionName(card.getEventName() + "_dnt");
-            this.eventLocation.setTransitionName(card.getEventName() + "_location");
-            this.eventTagHolder.setTransitionName(card.getEventName() + "_tagholder");
-            this.eventTagIcon.setTransitionName(card.getEventName() + "_tagicon");
-            this.eventTagNote.setTransitionName(card.getEventName() + "_tagnote");
-        }
-        for(int i=0; i<(card.getEventFriendPics().length); i++){
-            this.friendProfs[i].setImageResource(card.getEventFriendPics()[i]);
-        }
-        for(int i=0; i<(card.getEventTags().length); i++){
-            if(card.getEventTags()[i] == true) {
-                highestTag = (i+1);
-            }
-        }
-        switch(highestTag){
-            case 0:
-                this.eventTagIcon.setImageResource(R.drawable.ic_cancel_tag_24dp);
-                this.eventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                this.eventTagNote.setText("Canceled");
-                break;
-            case 1:
-                this.eventTagIcon.setImageResource(R.drawable.ic_new_tag_24dp);
-                this.eventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                this.eventTagNote.setText("New");
-                break;
-            case 2:
-                this.eventTagIcon.setImageResource(R.drawable.ic_socials_icon_24dp);
-                this.eventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                this.eventTagNote.setText("Social");
-                break;
-            case 3:
-                this.eventTagIcon.setImageResource(R.drawable.ic_upcoming_tag_24dp);
-                this.eventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                this.eventTagNote.setText("Upcoming");
-                break;
-            case 4:
-                this.eventTagIcon.setImageResource(R.drawable.ic_careers_icon_24dp);
-                this.eventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                this.eventTagNote.setText("Careers");
-                break;
-            case 5:
-                this.eventTagIcon.setImageResource(R.drawable.ic_networking_icon_24dp);
-                this.eventTagHolder.setBackgroundResource(R.drawable.rounded_tags);
-                this.eventTagNote.setText("Networking");
-                break;
+            this.eventPic.setTransitionName(card.getName() + "_image");
+            this.eventDescription.setTransitionName(card.getName() + "_description");
+            this.eventName.setTransitionName(card.getName() + "_name");
+            this.eventDateTime.setTransitionName(card.getName() + "_dnt");
+            this.eventLocation.setTransitionName(card.getName() + "_location");
+            this.eventTagHolder.setTransitionName(card.getName() + "_tagholder");
+            this.eventTagIcon.setTransitionName(card.getName() + "_tagicon");
+            this.eventTagNote.setTransitionName(card.getName() + "_tagnote");
         }
     }
 
@@ -123,5 +86,34 @@ public class CardHolder extends RecyclerView.ViewHolder implements View.OnClickL
     public interface OnCardListener{
         void onCardClick(View v, int position, ArrayList<Card> cardList);
     }
+
+//    private void fetchImage(final CardHolder holder, final Card currentCard) throws IOException {
+//        //using glide method
+//
+//        //Reference to an image file in cloud storage
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference storageRef = storage.getReference();
+//
+//        // Create a reference with an initial file path and name
+//        StorageReference pathReference = storageRef.child("Events/" + currentCard.getEventImage());
+//        String downloadUrl = pathReference.toString();
+//
+//        //try to download to a local file
+//        final File file = File.createTempFile("eventPic", "jpg");
+//        pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+//                GlideApp.with(holder.itemView).load(file).into(holder.eventPic);
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//
+//            }
+//        });
+//
+//        //GlideApp.with(this.getContext()).load(pathReference).into(image);
+//
+//    }
 
 }
