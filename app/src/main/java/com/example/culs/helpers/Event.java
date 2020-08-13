@@ -1,6 +1,6 @@
 package com.example.culs.helpers;
 
-import org.jetbrains.annotations.Nullable;
+import androidx.annotation.Nullable;
 
 public class Event {
 

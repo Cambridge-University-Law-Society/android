@@ -99,10 +99,9 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
         Bundle bundle = new Bundle();
         bundle.putParcelable("Current Card", currentCard);
         nextFragment.setArguments(bundle);
-        // Step 2: Create an Intent to start the next Activity
-
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
         fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
         fragmentTransaction.addSharedElement(v.findViewById(R.id.event_description_text_view), "expandedDescrip");
         fragmentTransaction.addSharedElement(v.findViewById(R.id.event_name_text_view), "expandedName");
