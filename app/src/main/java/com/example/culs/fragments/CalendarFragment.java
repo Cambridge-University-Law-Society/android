@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CardHolder;
+import com.example.culs.helpers.EventDecorator;
 import com.example.culs.helpers.FireRecyclerAdapter;
 import com.example.culs.helpers.GetEventDate;
 import com.example.culs.helpers.OneDayDecorators;
@@ -56,12 +58,15 @@ import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import org.threeten.bp.LocalDate;
 
+import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
 
 //import java.time.LocalDate;
 
@@ -162,6 +167,9 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         getDate(allEventsCalendar, v);
         getMyEventsDate(myEventsCalendar, v);
 
+        addAllEventDots(allEventsCalendar);
+        addMyEventsDots(myEventsCalendar);
+
         allEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -173,7 +181,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
                     myEventsText.setTextColor(Color.WHITE);
                     myEventsButton.setRadius(8);
-                    if (fire_adapter != null){
+                    if (fire_adapter != null) {
                         fire_adapter.stopListening();
                     }
                 }
@@ -183,7 +191,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         myEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (myEventsCalendar.getVisibility() == View.GONE){
+                if (myEventsCalendar.getVisibility() == View.GONE) {
                     crossFade(allEventsCalendar, myEventsCalendar);
                     myEventsButton.setCardBackgroundColor(Color.LTGRAY);
                     myEventsText.setTextColor(Color.BLACK);
@@ -191,14 +199,14 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     allEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
                     allEventsText.setTextColor(Color.WHITE);
                     allEventsButton.setRadius(8);
-                    if (fire_adapter != null){
+                    if (fire_adapter != null) {
                         fire_adapter.stopListening();
                     }
                 }
             }
         });
 
-        //new eventsListGenerator().executeOnExecutor(Executors.newSingleThreadExecutor());
+        //new ApiSimulator().executeOnExecutor(Executors.newSingleThreadExecutor());
 
         return v;
     }
@@ -209,7 +217,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
     }*/
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.app_bar, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -242,7 +250,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                 });
     }
 
-    private void getDate(MaterialCalendarView c, final View view){
+    private void getDate(MaterialCalendarView c, final View view) {
         //this will return the date of the selected day in a Date format
 
         c.setOnDateChangedListener(new OnDateSelectedListener() {
@@ -270,14 +278,14 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     //Log.d(TAG1, timestamp.toString());
                     //Log.d(TAG1, timestamp1.toString());
                     //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
-                } catch (ParseException ex){
+                } catch (ParseException ex) {
                     Log.v("Exception", ex.getLocalizedMessage());
                 }
             }
         });
     }
 
-    private void getMyEventsDate(MaterialCalendarView c, final View view){
+    private void getMyEventsDate(MaterialCalendarView c, final View view) {
         //this will return the date of the selected day in a Date format
 
         c.setOnDateChangedListener(new OnDateSelectedListener() {
@@ -302,17 +310,17 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     Timestamp timestamp1 = new Timestamp(d2);
 
                     loadMyEventsData(timestamp, timestamp1, view);
-                    //Log.d(TAG1, timestamp.toString());
-                    //Log.d(TAG1, timestamp1.toString());
+                    Log.d(TAG1, d.toString());
+                    Log.d(TAG1, d2.toString());
                     //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
-                } catch (ParseException ex){
+                } catch (ParseException ex) {
                     Log.v("Exception", ex.getLocalizedMessage());
                 }
             }
         });
     }
 
-    private void loadData(Timestamp timestamp, Timestamp timestamp2, View rootView){
+    private void loadData(Timestamp timestamp, Timestamp timestamp2, View rootView) {
 
         eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
         eventsView.setHasFixedSize(true);
@@ -391,7 +399,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
 
     }
 
-    private void loadMyEventsData(Timestamp timestamp, Timestamp timestamp2, View rootView){
+    private void loadMyEventsData(Timestamp timestamp, Timestamp timestamp2, View rootView) {
         eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -407,11 +415,12 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
     }
 
 
-    public static class CardViewHolder extends RecyclerView.ViewHolder{
+    public static class CardViewHolder extends RecyclerView.ViewHolder {
 
         ImageView eventPic, eventTagIcon, eventSponsorLogo;
         TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote, eventSponsor;
         LinearLayout eventTagHolder;
+
         public CardViewHolder(@NonNull View itemView) {
             super(itemView);
             eventName = (TextView) itemView.findViewById(R.id.event_name_text_view);
@@ -465,15 +474,90 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         widget.invalidateDecorators();
     }
 
+    public void addAllEventDots(final MaterialCalendarView calendarView){
+        //method use getData and get the timestamp straight from that Map and then use get() on the map to get the date value
+        eventsReference.whereEqualTo("active", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Log.d(TAG, document.getId() + " => " + document.getData());
+                        String documentID = document.getId();
+                        Map<String, Object> documentData = document.getData();
+                        Date dates = document.getTimestamp("date").toDate();
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(dates);
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH) + 1;
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        int color = Color.WHITE;
+                        EventDecorator decorator = new EventDecorator(color, year, month, day);
+                        calendarView.addDecorator(decorator);
+                        Log.d(TAG, String.valueOf(year));
+                        Log.d(TAG, String.valueOf(month));
+                        Log.d(TAG, String.valueOf(day));
+                        //Object date = documentData.get("date");
+                        //Integer times = date.hashCode();
+                        //og.d(TAG, date.toString());
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void addMyEventsDots(final MaterialCalendarView calendarView){
+        //method use getData and get the timestamp straight from that Map and then use get() on the map to get the date value
+        eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Log.d(TAG, document.getId() + " => " + document.getData());
+                        String documentID = document.getId();
+                        Map<String, Object> documentData = document.getData();
+                        Date dates = document.getTimestamp("date").toDate();
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(dates);
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH) + 1;
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        int color = Color.WHITE;
+                        EventDecorator decorator = new EventDecorator(color, year, month, day);
+                        calendarView.addDecorator(decorator);
+                        Log.d(TAG, String.valueOf(year));
+                        Log.d(TAG, String.valueOf(month));
+                        Log.d(TAG, String.valueOf(day));
+                        //Object date = documentData.get("date");
+                        //Integer times = date.hashCode();
+                        //og.d(TAG, date.toString());
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
     public void addEventDots(final MaterialCalendarView c) {
         //get the dates of all the events
         final Calendar calendar = Calendar.getInstance();
         final List<CalendarDay> list = new ArrayList<CalendarDay>();
 
-        
-
         /*eventsReference.whereEqualTo("active", true).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()){
+                            QuerySnapshot documentSnapshot = task.getResult();
+
+                        }
+                    }
+                })*/
+
+
+        eventsReference.whereEqualTo("active", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
@@ -491,311 +575,88 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     //convert to Calendar
                     //use addDecorators to add the dots
                 });
-
-        for(int i=0; i < eventsDocRef.size(); i++){
-            eventsDocRef1.get(i).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if(documentSnapshot.exists()){
-                                Boolean eventActive = documentSnapshot.getBoolean("active");
-                                if(eventActive){
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    Date timeDate = timestamp.toDate();
-                                    Calendar calendar = Calendar.getInstance();
-                                    calendar.setTime(timeDate);
-                                    int year = calendar.get(Calendar.YEAR);
-                                    int month = calendar.get(Calendar.MONTH);
-                                    int day = calendar.get(Calendar.DAY_OF_MONTH);
-                                    int color = R.color.colorAccent;
-                                    Log.d(TAG3, timeDate.toString());
-                                    //events.add(month);
-                                    //Log.d(TAG1, events.toString());
-                                    //dates = new GetEventDate(timeDate);
-                                    //EventDecorator decorator = new EventDecorator(color, year, month, day);
-                                    //c.addDecorator(decorator);
-                                }
-                            }else{
-                                Toast.makeText(getActivity(), "No Document", Toast.LENGTH_SHORT);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }*/
+        Log.d(TAG3, eventsDocRef1.toString());
+        final ArrayList<CalendarDay> dates = new ArrayList<>();
+        for (int i = 0; i < eventsDocRef.size(); i++) {
+            eventsDocRef1.get(i).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value.exists()) {
+                        Timestamp timestamp = value.getTimestamp("date");
+                        Date timeDate = timestamp.toDate();
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(timeDate);
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        int color = R.color.colorAccent;
+                        final CalendarDay day1 = CalendarDay.from(year, month, day);
+                        dates.add(day1);
+                    }
+                }
+            });
+        }
+        Log.d(TAG3, dates.toString());
     }
 
 
-    private class eventsListGenerator extends AsyncTask<Void, Void, List<CalendarDay>>{
+    private class ApiSimulator extends AsyncTask<Void, Void, List<CalendarDay>> {
 
         @Override
-        protected List<CalendarDay> doInBackground(@NonNull Void... voids){
+        protected List<CalendarDay> doInBackground(@NonNull Void... voids) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            LocalDate temp = LocalDate.now().minusMonths(2);
+            //create a list of event dates in the type CalendarDay
+
+            eventsReference.whereEqualTo("active", true).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
+                                //Since query results contain only existing documents, the exists property will always be true
+                                for (QueryDocumentSnapshot document : task.getResult()) { //this is the syntax for a "for-each" loop (loops through each element in array)
+                                    eventsDocRef1.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
+                                    //dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
+                                    //Log.d(TAG3, dateTime.toString());
+                                }
+                            } else {
+                                Log.d(TAG, "Error getting the documents", task.getException());
+                            }
+                        }
+                        //convert to Calendar
+                        //use addDecorators to add the dots
+                    });
             final ArrayList<CalendarDay> dates = new ArrayList<>();
-            for(int i=0; i<30; i++){
-                final CalendarDay day = CalendarDay.from(temp);
-                dates.add(day);
-                temp = temp.plusDays(5);
+            for (int i = 0; i < eventsDocRef.size(); i++) {
+                eventsDocRef1.get(i).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (value.exists()) {
+                            Timestamp timestamp = value.getTimestamp("date");
+                            Date timeDate = timestamp.toDate();
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(timeDate);
+                            int year = calendar.get(Calendar.YEAR);
+                            int month = calendar.get(Calendar.MONTH);
+                            int day = calendar.get(Calendar.DAY_OF_MONTH);
+                            int color = R.color.colorAccent;
+                            final CalendarDay day1 = CalendarDay.from(year, month, day);
+                            dates.add(day1);
+                        }
+                    }
+                });
             }
             return dates;
         }
 
-        protected void onPostExecute(@NonNull List<CalendarDay> calendarDays){
+        protected void onPostExecute(@NonNull List<CalendarDay> calendarDays) {
             super.onPostExecute(calendarDays);
 
-            //if (isFin)
-            //calendarView.addDecorator(new EventDecorator(Color.RED, calendarDays));
+            //allEventsCalendar.addDecorator(new EventDecorator(Color.RED, calendarDays));
         }
     }
-
-
-  /*
-        //DONE: extract from firebase a list of all the active events' id
-        eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()){
-                            //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
-                            //Since query results contain only existing documents, the exists property will always be true
-                            for (QueryDocumentSnapshot document : task.getResult()){ //this is the syntax for a "for-each" loop (loops through each element in array)
-                                eventsDocRef.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
-                                dateLocation.add(String.valueOf(eventsReference.document(document.getString("location"))));
-                                eventsid.add(document.getId()); //adds documentid to eventsUid
-                            }
-                            Log.d(TAG, eventsDocRef.toString());
-                            Log.d(TAG, eventsid.toString());
-                            Log.d(TAG, dateLocation.toString());
-                            //Toast.makeText(getActivity(), eventsDocRef.toString(), Toast.LENGTH_SHORT).show();
-                        }else{
-                            Log.d(TAG, "Error getting the documents", task.getException());
-                        }
-                    }
-                });
-
-        swipeContainer.setRefreshing(true);
-        for(int i=0; i < eventsDocRef.size(); i++){
-            eventsDocRef.get(i).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if(documentSnapshot.exists()){
-                                Boolean eventActive = documentSnapshot.getBoolean("active");
-                                if (eventActive) {
-                                    String eventName = documentSnapshot.getString("name");
-                                    String eventImage = documentSnapshot.getString("imageref");
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    Long utcTimestamp = timestamp.getSeconds();
-                                    String eventDate = sdf.format(utcTimestamp);
-                                    Date newDate = timestamp.toDate();
-                                    //Log.d(TAG1, newDate.toString());
-                                    String eventLocation = documentSnapshot.getString("location");
-                                    String eventDescription = documentSnapshot.getString("description");
-                                    //cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
-                                    adapter.notifyDataSetChanged();
-                                    return;
-                                }
-                            } else {
-                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }*/
-
-
-    /*
-
-    //set a date to a calendar
-        Calendar calendar = Calendar.getInstance();
-        String date1 = "20 08 2020";
-        long timestamp = 1596931200;
-
-        calendar.setTimeInMillis(timestamp*1000);
-
-        SimpleDateFormat format = new SimpleDateFormat("dd MM yyyy", Locale.ENGLISH);
-        //calendar.setTime(format.parse(date1));
-        //Date date = format.parse(date1);
-        //calendar.setTimeInMillis(utcTimestamp * 1000);
-        //events.add(new EventDay(calendar, R.drawable.ic_interested_button_off_24dp));
-        //calendarView.setEvents(events);
-
-
-        //TODO:extract from firebase the information about each event and put in list and log it -- TEST IT ANOTHER WAY
-        for (int i = 0; i < eventsDocRef.size(); i++) {
-            eventsDocRef.get(i).get() //first .get() will get the documentReference, and then the second get() will get the field info from that document
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                Boolean eventActive = documentSnapshot.getBoolean("Active");
-                                if (eventActive) {
-                                    String eventName = documentSnapshot.getString("name");
-                                    String eventImage = documentSnapshot.getString("ImageRef");
-
-                                    //DONE: How do you get the timestamp converted into a standard date and time
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    Long utcTimestamp = timestamp.getSeconds(); //method 2
-                                    Date date = new Date(utcTimestamp); //method 1
-                                    String eventDate = sdf.format(utcTimestamp);
-                                    String eventLocation = documentSnapshot.getString("location");
-                                    String eventDescription = documentSnapshot.getString("description");
-                                    //dateList.add(eventDate);
-                                }
-                            }
-                            else {
-                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-
-        //TODO:extract the name and timestamp of each event from firebase - maybe store it in a dictionary
-        //and set it so that when you click on a day, it tells you in the list view the name and time of the event
-
-        for (String i : eventsid){
-            Log.d(TAG, i);
-            DocumentReference docRef = db.collection("Events").document(i);
-            docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    new ValueEventListener(){
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            Event event = dataSnapshot.getValue(Event.class);
-                            String location = event.location;
-                            dateLocation.add(location);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    };
-                }
-                });
-        };
-        Log.d(TAG1, dateLocation.toString());
-*/
-
-
-
-
-    /* ATTEMPT 2
-        //create a list of timestamps that are read from the firebase database
-        //loop through all the documents and read the field "date" in each one - and store that timestamp in this list
-        eventsReference.whereEqualTo("Active", true)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                documentList.add(db.collection("Events").document(document.getId()));
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-
-        for (int i = 0; i < documentList.size(); i++) {
-            documentList.get(i).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                Boolean eventActive = documentSnapshot.getBoolean("Active");
-                                if (eventActive) {
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    //add the timestamp from this event into this list
-                                    timestamps.add(timestamp);
-                                    return;
-                                }
-                            } else {
-                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-        //somehow pass that timestamp into the calendar and set those dates to be highlighted
-        //ValueEventListener will receive the data about date changes to an event location
-        ValueEventListener eventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Calendar calendar = Calendar.getInstance();
-                //need to try convert the timestamp into a year,month,date
-                for (int i=0; i < timestamps.size(); i++){
-                    String time = getDate(i);
-                    String[] items1 = time.split("-");
-                    int year= Integer.parseInt(items1[0]);
-                    int month=Integer.parseInt(items1[1]);
-                    int day=Integer.parseInt(items1[2]);
-
-                    calendar.set(year,month,day);
-                    events.add(new EventDay(calendar, R.drawable.ic_interested_button_off_24dp));
-                }
-                calendarView.setEvents(events);
-            }
-
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };*/
-
-        /* FIRST QUICK LITTLE CALENDARVIEW DEMO
-        // CalendarView and TextView
-        calendarView = (CalendarView) v.findViewById(R.id.calendarView);
-        date_view = (TextView) v.findViewById(R.id.date_view);
-
-        // Define the variable of CalendarView type and TextView type
-        private TextView date_view;
-
-        private CalendarView calendarView;
-        private List<EventDay> eventDays = new ArrayList<>();
-
-        // Add Listener in calendar
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            // In this Listener have one method and in this method we will get the value of DAYS, MONTH, YEARS
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                // Store the value of date with format in String type Variable
-                // Add 1 in month because month index is start with 0
-                String Date = dayOfMonth + "/" + (month + 1) + "/" + year;
-
-                // set this date in TextView for Display
-                date_view.setText(Date);
-            }
-        });*/
-
 }

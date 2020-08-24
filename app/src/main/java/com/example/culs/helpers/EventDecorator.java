@@ -14,28 +14,24 @@ import java.util.HashSet;
 public class EventDecorator implements DayViewDecorator {
 
     private int color;
-    private CalendarDay day;
+    private CalendarDay dates;
 
-    //a Collection represents a group of objects/ elements
-
-    public EventDecorator(int color, int year, int month, int day){
+    public EventDecorator(int color, int year, int month, int day) {
         this.color = color;
-        this.day = CalendarDay.from(year, month, day);
+        this.dates = CalendarDay.from(year, month, day);
     }
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
-        if (this.day.equals(day)){
+        //return dates.contains(day);
+        if (this.dates.equals(day)){
             return true;
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     @Override
     public void decorate(DayViewFacade view) {
-        //decorate the event days
         view.addSpan(new DotSpan(5, color));
     }
 }
