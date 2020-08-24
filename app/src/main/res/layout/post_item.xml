@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
@@ -41,7 +42,7 @@
                     >
 
                     <TextView
-                        android:id="@+id/event_name_text_view"
+                        android:id="@+id/post_title_text_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
@@ -79,7 +80,7 @@
                     android:layout_alignParentLeft="true">
 
                     <TextView
-                        android:id="@+id/event_date_and_time_text_view"
+                        android:id="@+id/post_date_and_time_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="8dp"
@@ -93,7 +94,7 @@
                         tools:text="Friday 15th October: 22:00" />
 
                     <TextView
-                        android:id="@+id/event_location_text_view"
+                        android:id="@+id/post_sender_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
@@ -106,123 +107,23 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/event_description_text_view"
+                <ru.embersoft.expandabletextview.ExpandableTextView
+                    android:id="@+id/post_content_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:maxLines="3"
                     android:layout_below="@id/event_date_loc_holder"
-                    android:gravity="top"
-                    android:textSize="14sp"
-                    android:textColor="@color/dark_text"
-                    android:fontFamily="sans-serif-light"
-                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum elit lacus, sed blandit nisl bibendum et. Maecenas vel massa suscipit, scelerisque neque varius, tempus augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum eget risus ut tortor consectetur luctus quis eu quam. Proin ornare ex eget odio molestie, cursus suscipit risus auctor. Aliquam tempus diam sed semper auctor. Suspendisse tempor risus id est cursus, quis aliquam erat bibendum. Morbi tristique rutrum risus. Vestibulum elementum mi purus, quis ornare odio eleifend a." />
+                    app:etv_animationTime="20"
+                    app:etv_expandLines="3"
+                    app:etv_showLine="false"
+                    app:etv_textContentSize="14sp"
+                    app:etv_textExpand="Show more"
+                    app:etv_textShrink="Show less"
+                    app:etv_textContentColor="#8A000000"
+                    app:etv_textStateColor="#8A000000"
+                    android:layout_marginBottom="8dp"
+                    style="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="hiehehiehfilaehflahnflkajshddfnlahdlsakdhnlkad"/>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom = "12dp"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="76dp"
-                    android:maxHeight="26dp"
-                    android:orientation="horizontal"
-                    android:id="@+id/event_friends_holder"
-                    android:layout_alignParentLeft="true"
-                    android:layout_below="@id/event_description_text_view">
-
-                    <ImageView
-                        android:id="@+id/event_friend_1_image_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_alignParentLeft="true"
-                        tools:src="@drawable/mc_durks" />
-
-                    <ImageView
-                        android:id="@+id/event_friend_2_image_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_marginLeft="2dp"
-                        tools:src="@drawable/mc_durks" />
-
-                    <ImageView
-                        android:id="@+id/event_friend_3_image_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginLeft="2dp"
-                        android:gravity="bottom"
-                        tools:src="@drawable/mc_durks" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom = "12dp"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="76dp"
-                    android:maxHeight="26dp"
-                    android:orientation="horizontal"
-                    android:id="@+id/event_buttons_holder"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@id/event_description_text_view">
-
-                    <ImageView
-                        android:id="@+id/event_interested_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_marginRight="16dp"
-                        android:src="@drawable/ic_interested_button_off_24dp" />
-
-                    <ImageView
-                        android:id="@+id/event_tag_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_marginRight="16dp"
-                        android:src="@drawable/ic_share_button_off_24dp" />
-
-                    <ImageView
-                        android:id="@+id/event_notify_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:maxWidth="24dp"
-                        android:maxHeight="24dp"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="8dp"
-                        android:gravity="bottom"
-                        android:layout_alignParentRight="true"
-                        android:src="@drawable/ic_notifications_button_off_24dp" />
-                </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
