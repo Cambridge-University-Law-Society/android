@@ -3,6 +3,7 @@ package com.example.culs.helpers;
 import android.media.Image;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class User {
 
@@ -148,3 +149,4 @@ public class User {
         this.profilePicRef = profilePicRef;
     }
 }
+

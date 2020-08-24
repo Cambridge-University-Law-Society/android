@@ -18,9 +18,9 @@ public class EventDecorator implements DayViewDecorator {
 
     //a Collection represents a group of objects/ elements
 
-    public EventDecorator(int color, LocalDate date){
+    public EventDecorator(int color, int year, int month, int day){
         this.color = color;
-        this.day = CalendarDay.from(date);
+        this.day = CalendarDay.from(year, month, day);
     }
 
     @Override

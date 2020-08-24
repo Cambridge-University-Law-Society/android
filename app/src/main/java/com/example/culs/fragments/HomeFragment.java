@@ -30,7 +30,6 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
     private View rootView;
     private FireRecyclerAdapter fire_adapter;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

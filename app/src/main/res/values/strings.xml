@@ -9,4 +9,40 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string-array name="college_names">
+        <item>Christ\'s College</item>
+        <item>Churchill College</item>
+        <item>Clare College</item>
+        <item>Clare Hall</item>
+        <item>Corpus Christi College</item>
+        <item>Darwin College</item>
+        <item>Downing College</item>
+        <item>Emmanuel College</item>
+        <item>Fitzwilliam College</item>
+        <item>Girton College</item>
+        <item>Gonville and Caius College</item>
+        <item>Homerton College</item>
+        <item>Hughes Hall</item>
+        <item>Jesus College</item>
+        <item>King\'s College</item>
+        <item>Lucy Cavendish College</item>
+        <item>Magdalene College</item>
+        <item>Murray Edwards College</item>
+        <item>Newnham College</item>
+        <item>Pembroke College</item>
+        <item>Peterhouse</item>
+        <item>Queens\' College</item>
+        <item>Robinson College</item>
+        <item>Selwyn College</item>
+        <item>Sidney Sussex College</item>
+        <item>St Catharine\'s College</item>
+        <item>St Edmund\'s College</item>
+        <item>St John\'s College</item>
+        <item>Trinity College</item>
+        <item>Trinity Hall</item>
+        <item>Wolfson College</item>
+        <item>Other</item>
+    </string-array>
+
 </resources>

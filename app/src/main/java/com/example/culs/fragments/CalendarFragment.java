@@ -1,7 +1,8 @@
 package com.example.culs.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,20 +21,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CardHolder;
-import com.example.culs.helpers.EventDecorator;
-import com.example.culs.helpers.GlideApp;
+import com.example.culs.helpers.FireRecyclerAdapter;
+import com.example.culs.helpers.GetEventDate;
 import com.example.culs.helpers.OneDayDecorators;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -43,12 +44,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
@@ -61,13 +62,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 //import java.time.LocalDate;
 
 public class CalendarFragment extends Fragment implements CardHolder.OnCardListener, OnDateSelectedListener {
     private RecyclerView eventsView;
-    private SwipeRefreshLayout swipeContainer;
+    private MaterialCalendarView allEventsCalendar;
+    private MaterialCalendarView myEventsCalendar;
+    private Button allEventsbtn;
+    private Button myEventsbtn;
+    private CardView allEventsButton;
+    private CardView myEventsButton;
+    private TextView allEventsText, myEventsText;
+
+    //instantiate the short animation between the all events calendar view and myevents calendar view
+    private int shortAnimationDuration;
 
     //you can get an instance of the authentication by doing .getInstance()
     private FirebaseAuth mFirebaseAuth;
@@ -76,23 +85,27 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
     //this retrieves the entire document with this specific uid
     private CollectionReference eventsReference = db.collection("Events");
 
-    private List<String> eventsid = new ArrayList<>(); //this kind of declaration of a list allows the list to be typecast into any other type of list
+    //this retrieves the entire document with this specific uid
+    final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private DocumentReference docRef = db.collection("users").document(userid);
+    private List<String> eventsid; //this kind of declaration of a list allows the list to be typecast into any other type of list
+
     private ArrayList<DocumentReference> eventsDocRef = new ArrayList<DocumentReference>();
     private ArrayList<DocumentReference> eventsDocRef1 = new ArrayList<DocumentReference>();
     SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy HH:mm");
 
-    private ArrayList<String> dateTime = new ArrayList<String>();
+    private ArrayList<Date> dateTime = new ArrayList<Date>();
     private ArrayAdapter<String> adapter;
 
     //card stuff
     private ArrayList<Card> cards = new ArrayList<Card>();
-    private FirestoreRecyclerAdapter<Card, CardViewHolder> fire_adapter;
+    private FireRecyclerAdapter fire_adapter;
 
-    //private List<EventDay> events = new ArrayList<>();
+    private ArrayList<Integer> events = new ArrayList<>();
 
     private final OneDayDecorators oneDayDecorators = new OneDayDecorators();
 
-    private MaterialCalendarView calendarView;
+    private GetEventDate dates;
 
     private String TAG = "CalendarFragment";
     private String TAG1 = "Rajan";
@@ -110,44 +123,90 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         View v = inflater.inflate(R.layout.fragment_calendar, container, false);
         setHasOptionsMenu(true);
 
-        calendarView = (MaterialCalendarView) v.findViewById(R.id.calendarView);
-        swipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
-        eventsView = (RecyclerView) v.findViewById(R.id.cardlist);
+        allEventsCalendar = (MaterialCalendarView) v.findViewById(R.id.allEventsCalendarView);
+        myEventsCalendar = (MaterialCalendarView) v.findViewById(R.id.myEventsCalendarView);
 
-        eventsView.setHasFixedSize(true);
-        eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //keep myEventsCalendar invisible on start
+        myEventsCalendar.setVisibility(View.GONE);
 
-        calendarView.addDecorators(
+        allEventsButton = v.findViewById(R.id.alleventsbutton);
+        allEventsText = v.findViewById(R.id.allEvents);
+        allEventsButton.setCardBackgroundColor(Color.LTGRAY);
+        allEventsButton.setRadius(6);
+        allEventsText.setTextColor(Color.BLACK);
+
+        myEventsButton = v.findViewById(R.id.myeventsbutton);
+        myEventsText = v.findViewById(R.id.myEvents);
+        myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
+        myEventsText.setTextColor(Color.WHITE);
+
+        /*allEventsbtn = (Button) v.findViewById(R.id.alleventsbtn);
+        allEventsbtn.setBackgroundColor(Color.LTGRAY);
+        allEventsbtn.setTextColor(Color.MAGENTA);
+        myEventsbtn = (Button) v.findViewById(R.id.myeventsbtn);
+        myEventsbtn.setBackgroundColor(Color.TRANSPARENT);
+        myEventsbtn.setTextColor(Color.WHITE);*/
+
+        // Retrieve and cache the system's default "short" animation time.
+        shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        allEventsCalendar.addDecorators(
                 oneDayDecorators
         );
 
-        addEventDots(calendarView);
+        myEventsCalendar.addDecorators(
+                oneDayDecorators
+        );
 
         //call data load to load cards into the RecyclerView
-        getDate(calendarView);
+        getDate(allEventsCalendar, v);
+        getMyEventsDate(myEventsCalendar, v);
 
-        /*final LocalDate instance = LocalDate.now();
-        //calendarView.setOnDateChangedListener(this);
-        //handling the cards recyclerview
-        final CardAdapter adapter = new CardAdapter(getActivity() , R.layout.card_item, cards, this);
-        //call data load to load into the adapter
-        //UNCOMMENT THIS TO GET THE CARDS CODE
-        // getDate(calendarView, adapter);
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        allEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onRefresh() {
-                getDate(calendarView, adapter);
+            public void onClick(View view) {
+                if (allEventsCalendar.getVisibility() == View.GONE) {
+                    crossFade(myEventsCalendar, allEventsCalendar);
+                    allEventsButton.setCardBackgroundColor(Color.LTGRAY);
+                    allEventsText.setTextColor(Color.BLACK);
+                    allEventsButton.setRadius(8);
+                    myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
+                    myEventsText.setTextColor(Color.WHITE);
+                    myEventsButton.setRadius(8);
+                    if (fire_adapter != null){
+                        fire_adapter.stopListening();
+                    }
+                }
             }
         });
-        adapter.notifyDataSetChanged();
-        //eventsView.setAdapter(adapter);
-        //eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));*/
 
+        myEventsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (myEventsCalendar.getVisibility() == View.GONE){
+                    crossFade(allEventsCalendar, myEventsCalendar);
+                    myEventsButton.setCardBackgroundColor(Color.LTGRAY);
+                    myEventsText.setTextColor(Color.BLACK);
+                    myEventsButton.setRadius(8);
+                    allEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
+                    allEventsText.setTextColor(Color.WHITE);
+                    allEventsButton.setRadius(8);
+                    if (fire_adapter != null){
+                        fire_adapter.stopListening();
+                    }
+                }
+            }
+        });
 
-        new eventsListGenerator().executeOnExecutor(Executors.newSingleThreadExecutor());
+        //new eventsListGenerator().executeOnExecutor(Executors.newSingleThreadExecutor());
 
         return v;
     }
+
+    /*public void onStop() {
+        super.onStop();
+        fire_adapter.stopListening();
+    }*/
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
@@ -155,11 +214,35 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    //DONE:READ SELECTED DATE AND DISPLAY ALL THE CARDS FOR THOSE EVENTS ON THAT DATE
+    private void crossFade(final View fadeOutView, View fadeInView) {
 
+        // Set the content view to 0% opacity but visible, so that it is visible
+        // (but fully transparent) during the animation.
+        fadeInView.setAlpha(0f);
+        fadeInView.setVisibility(View.VISIBLE);
 
+        // Animate the content view to 100% opacity, and clear any animation
+        // listener set on the view.
+        fadeInView.animate()
+                .alpha(1f)
+                .setDuration(shortAnimationDuration)
+                .setListener(null);
 
-    private void getDate(MaterialCalendarView c){
+        // Animate the loading view to 0% opacity. After the animation ends,
+        // set its visibility to GONE as an optimization step (it won't
+        // participate in layout passes, etc.)
+        fadeOutView.animate()
+                .alpha(0f)
+                .setDuration(shortAnimationDuration)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fadeOutView.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+    private void getDate(MaterialCalendarView c, final View view){
         //this will return the date of the selected day in a Date format
 
         c.setOnDateChangedListener(new OnDateSelectedListener() {
@@ -183,7 +266,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     Timestamp timestamp = new Timestamp(d);
                     Timestamp timestamp1 = new Timestamp(d2);
 
-                    loadData(timestamp, timestamp1);
+                    loadData(timestamp, timestamp1, view);
                     //Log.d(TAG1, timestamp.toString());
                     //Log.d(TAG1, timestamp1.toString());
                     //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
@@ -194,11 +277,56 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         });
     }
 
-    private void loadData(Timestamp timestamp, Timestamp timestamp2){
+    private void getMyEventsDate(MaterialCalendarView c, final View view){
+        //this will return the date of the selected day in a Date format
 
-        Query query = eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING);
+        c.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                int day = date.getDay();
+                int month = date.getMonth();
+                int year = date.getYear();
+
+                int day2 = date.getDay() + 1;
+
+                //currentDate = date.getDate();
+
+                String currentDate = day + "-" + month + "-" + year;
+                String nextDate = day2 + "-" + month + "-" + year;
+                //Toast.makeText(getActivity(), nextDate, Toast.LENGTH_SHORT).show();
+                SimpleDateFormat sdf1 = new SimpleDateFormat("dd-M-yyyy");
+                try {
+                    Date d = sdf1.parse(currentDate);
+                    Date d2 = sdf1.parse(nextDate);
+                    Timestamp timestamp = new Timestamp(d);
+                    Timestamp timestamp1 = new Timestamp(d2);
+
+                    loadMyEventsData(timestamp, timestamp1, view);
+                    //Log.d(TAG1, timestamp.toString());
+                    //Log.d(TAG1, timestamp1.toString());
+                    //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
+                } catch (ParseException ex){
+                    Log.v("Exception", ex.getLocalizedMessage());
+                }
+            }
+        });
+    }
+
+    private void loadData(Timestamp timestamp, Timestamp timestamp2, View rootView){
+
+        eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
+        eventsView.setHasFixedSize(true);
+        eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        Query query = eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp)
+                .whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
-        fire_adapter = new FirestoreRecyclerAdapter<Card, CardViewHolder>(options) {
+        fire_adapter = new FireRecyclerAdapter(options);
+        eventsView.setAdapter(fire_adapter);
+
+        fire_adapter.startListening();
+
+        /*fire_adapter = new FirestoreRecyclerAdapter<Card, CardViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull final CardViewHolder holder, int position, @NonNull Card model) {
                 SimpleDateFormat spf=new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
@@ -207,6 +335,7 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                 String eventID = snapshot.getId();
                 holder.eventName.setText(model.getName());
                 holder.eventLocation.setText(model.getLocation());
+                //TRY TO ADD THIS TO A LIST!!
                 Date eventDate = model.getDate().toDate();
                 String eventDateText = spf.format(eventDate);
                 holder.eventDateTime.setText(eventDateText);
@@ -258,88 +387,25 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
             }
         };
         eventsView.setAdapter(fire_adapter);
+        fire_adapter.startListening();*/
+
+    }
+
+    private void loadMyEventsData(Timestamp timestamp, Timestamp timestamp2, View rootView){
+        eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
+        eventsView.setHasFixedSize(true);
+        eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        Query query = eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid)
+                .whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING);
+        FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
+        fire_adapter = new FireRecyclerAdapter(options);
+        eventsView.setAdapter(fire_adapter);
+
         fire_adapter.startListening();
-    }
-
-    /*@Override
-    public void onStart(){
-        super.onStart();
-        getDate(calendarView);
-        fire_adapter.startListening();
-
-    }*/
-
-    @Override
-    public void onStop(){
-        super.onStop();
-        fire_adapter.stopListening();
-    }
-
-    private void getEventDates(){
-        Query events = eventsReference.whereEqualTo("active", true);
 
     }
 
-
-
-        /*
-        //DONE: extract from firebase a list of all the active events' id
-        eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()){
-                            //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
-                            //Since query results contain only existing documents, the exists property will always be true
-                            for (QueryDocumentSnapshot document : task.getResult()){ //this is the syntax for a "for-each" loop (loops through each element in array)
-                                eventsDocRef.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
-                                dateLocation.add(String.valueOf(eventsReference.document(document.getString("location"))));
-                                eventsid.add(document.getId()); //adds documentid to eventsUid
-                            }
-                            Log.d(TAG, eventsDocRef.toString());
-                            Log.d(TAG, eventsid.toString());
-                            Log.d(TAG, dateLocation.toString());
-                            //Toast.makeText(getActivity(), eventsDocRef.toString(), Toast.LENGTH_SHORT).show();
-                        }else{
-                            Log.d(TAG, "Error getting the documents", task.getException());
-                        }
-                    }
-                });
-
-        swipeContainer.setRefreshing(true);
-        for(int i=0; i < eventsDocRef.size(); i++){
-            eventsDocRef.get(i).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if(documentSnapshot.exists()){
-                                Boolean eventActive = documentSnapshot.getBoolean("active");
-                                if (eventActive) {
-                                    String eventName = documentSnapshot.getString("name");
-                                    String eventImage = documentSnapshot.getString("imageref");
-                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
-                                    Long utcTimestamp = timestamp.getSeconds();
-                                    String eventDate = sdf.format(utcTimestamp);
-                                    Date newDate = timestamp.toDate();
-                                    //Log.d(TAG1, newDate.toString());
-                                    String eventLocation = documentSnapshot.getString("location");
-                                    String eventDescription = documentSnapshot.getString("description");
-                                    //cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
-                                    adapter.notifyDataSetChanged();
-                                    return;
-                                }
-                            } else {
-                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }*/
 
     public static class CardViewHolder extends RecyclerView.ViewHolder{
 
@@ -397,7 +463,6 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
     public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
         oneDayDecorators.setDate(date.getDate());
         widget.invalidateDecorators();
-
     }
 
     public void addEventDots(final MaterialCalendarView c) {
@@ -405,7 +470,9 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         final Calendar calendar = Calendar.getInstance();
         final List<CalendarDay> list = new ArrayList<CalendarDay>();
 
-        eventsReference.whereEqualTo("active", true).get()
+        
+
+        /*eventsReference.whereEqualTo("active", true).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -414,8 +481,8 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                             //Since query results contain only existing documents, the exists property will always be true
                             for (QueryDocumentSnapshot document : task.getResult()) { //this is the syntax for a "for-each" loop (loops through each element in array)
                                 eventsDocRef1.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
-                                dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
-                                Log.d(TAG3, dateTime.toString());
+                                //dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
+                                //Log.d(TAG3, dateTime.toString());
                             }
                         } else {
                             Log.d(TAG, "Error getting the documents", task.getException());
@@ -424,16 +491,43 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
                     //convert to Calendar
                     //use addDecorators to add the dots
                 });
+
+        for(int i=0; i < eventsDocRef.size(); i++){
+            eventsDocRef1.get(i).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if(documentSnapshot.exists()){
+                                Boolean eventActive = documentSnapshot.getBoolean("active");
+                                if(eventActive){
+                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
+                                    Date timeDate = timestamp.toDate();
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(timeDate);
+                                    int year = calendar.get(Calendar.YEAR);
+                                    int month = calendar.get(Calendar.MONTH);
+                                    int day = calendar.get(Calendar.DAY_OF_MONTH);
+                                    int color = R.color.colorAccent;
+                                    Log.d(TAG3, timeDate.toString());
+                                    //events.add(month);
+                                    //Log.d(TAG1, events.toString());
+                                    //dates = new GetEventDate(timeDate);
+                                    //EventDecorator decorator = new EventDecorator(color, year, month, day);
+                                    //c.addDecorator(decorator);
+                                }
+                            }else{
+                                Toast.makeText(getActivity(), "No Document", Toast.LENGTH_SHORT);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }*/
     }
-
-        //Log.d(TAG1, list.toString());
-        //List<CalendarDay> eventDays = list;
-        //c.addDecorators(new EventDecorator(Color.RED, eventDays));
-
-
-
-
-
 
 
     private class eventsListGenerator extends AsyncTask<Void, Void, List<CalendarDay>>{
@@ -463,21 +557,65 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         }
     }
 
-    //TODO:SET A MARKER ON ALL THE DATES THAT HAVE AN EVENT
-    //TODO:use dummy dates at the moment
-    //TODO:add the real dates
 
-    //TODO:add the My Events to the user
+  /*
+        //DONE: extract from firebase a list of all the active events' id
+        eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()){
+                            //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
+                            //Since query results contain only existing documents, the exists property will always be true
+                            for (QueryDocumentSnapshot document : task.getResult()){ //this is the syntax for a "for-each" loop (loops through each element in array)
+                                eventsDocRef.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
+                                dateLocation.add(String.valueOf(eventsReference.document(document.getString("location"))));
+                                eventsid.add(document.getId()); //adds documentid to eventsUid
+                            }
+                            Log.d(TAG, eventsDocRef.toString());
+                            Log.d(TAG, eventsid.toString());
+                            Log.d(TAG, dateLocation.toString());
+                            //Toast.makeText(getActivity(), eventsDocRef.toString(), Toast.LENGTH_SHORT).show();
+                        }else{
+                            Log.d(TAG, "Error getting the documents", task.getException());
+                        }
+                    }
+                });
 
-    //TODO:create the split calendar with All Events and My Events
-
-    //TODO:read the My Events section and add circles to those dates to the My Events calendar and add the events cards
-
-    //TODO:might have to create my own calendar
-
-
-
-
+        swipeContainer.setRefreshing(true);
+        for(int i=0; i < eventsDocRef.size(); i++){
+            eventsDocRef.get(i).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if(documentSnapshot.exists()){
+                                Boolean eventActive = documentSnapshot.getBoolean("active");
+                                if (eventActive) {
+                                    String eventName = documentSnapshot.getString("name");
+                                    String eventImage = documentSnapshot.getString("imageref");
+                                    Timestamp timestamp = documentSnapshot.getTimestamp("date");
+                                    Long utcTimestamp = timestamp.getSeconds();
+                                    String eventDate = sdf.format(utcTimestamp);
+                                    Date newDate = timestamp.toDate();
+                                    //Log.d(TAG1, newDate.toString());
+                                    String eventLocation = documentSnapshot.getString("location");
+                                    String eventDescription = documentSnapshot.getString("description");
+                                    //cards.add(new Card(eventName, eventDate, utcTimestamp, eventLocation, eventDescription, eventImage, friends, friendPics1, boolCase5));
+                                    adapter.notifyDataSetChanged();
+                                    return;
+                                }
+                            } else {
+                                Toast.makeText(getActivity(), "Document does not exist", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }*/
 
 
     /*
@@ -560,10 +698,6 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         };
         Log.d(TAG1, dateLocation.toString());
 */
-
-
-
-
 
 
 
