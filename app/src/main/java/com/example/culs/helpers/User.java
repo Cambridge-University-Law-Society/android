@@ -6,145 +6,96 @@ import java.util.ArrayList;
 
 public class User {
 
-    private String firstname;
-    private String lastname;
-    private String college;
-    private String year;
-    private String crsid;
-    private String uid;
-    private ArrayList<String> myevents;
-    private String bio;
-    private String status;
-    private String degree;
-    private String profilePicRef;
+    private String mFirstname;
+    private String mLastname;
+    private String mCollege;
+    private String mYear;
+    private String mCrsid;
+    private String mUid;
+    private ArrayList<String> mMyevents;
+    private String mBio;
+    private String mStatus;
+    private String mDegree;
+    private String mProfilePicRef;
 
     public User() {
     }
 
     public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String degree, String profilePicRef) {
-        /*if (firstname.trim().equals("")){
-            firstname = "First";
-        }
 
-        if (lastname.trim().equals("")){
-            lastname = "Last";
-        }
-
-        if (college.trim().equals("")){
-            college = "College";
-        }
-
-        if (year.trim().equals("")){
-            year = "Year";
-        }
-
-        if (bio.trim().equals("")){
-            bio = "bio";
-        }
-
-        if (crsid.trim().equals("")){
-            crsid = "crsid";
-        }*/
-
-
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.college = college;
-        this.year = year;
-        this.crsid = crsid;
-        this.uid = uid;
-        this.myevents = myevents;
-        this.bio = bio;
-        this.status = status;
-        this.degree = degree;
-        this.profilePicRef = profilePicRef;
+        mFirstname = firstname;
+        mLastname = lastname;
+        mCollege = college;
+        mYear = year;
+        mCrsid = crsid;
+        mUid = uid;
+        mMyevents = myevents;
+        mBio = bio;
+        mStatus = status;
+        mDegree = degree;
+        mProfilePicRef = profilePicRef;
     }
 
     public String getFirstname() {
-        return firstname;
+        return mFirstname;
     }
-
-    public void setFirst_name(String first_name) {
-        this.firstname = firstname;
-    }
-
     public String getLastname() {
-        return lastname;
+        return mLastname;
     }
-
-    public void setLast_name(String last_name) {
-        this.lastname = lastname;
-    }
-
     public String getCollege() {
-        return college;
+        return mCollege;
     }
-
-    public void setCollege(String college) {
-        this.college = college;
-    }
-
     public String getYear() {
-        return year;
+        return mYear;
     }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
     public String getCrsid() {
-        return crsid;
+        return mCrsid;
     }
-
-    public void setCrsid(String crsid) {
-        this.crsid = crsid;
-    }
-
     public String getUid() {
-        return uid;
+        return mUid;
     }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public ArrayList<String> getMyevents() {
-        return myevents;
-    }
-
-    public void setMyevents(ArrayList<String> myevents) {
-        this.myevents = myevents;
-    }
-
     public String getBio() {
-        return bio;
+        return mBio;
     }
-
-    public void setBio(String bio) {
-        this.bio = bio;
+    public ArrayList<String> getMyevents() {
+        return mMyevents;
     }
-
     public String getStatus() {
-        return status;
+        return mStatus;
     }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getDegree() {
-        return degree;
+        return mDegree;
     }
 
+    public void setFirstname(String firstname) {
+        this.mFirstname = firstname;
+    }
+    public void setLastname(String lastname) {
+        this.mLastname = lastname;
+    }
+    public void setCollege(String college) {
+        this.mCollege = college;
+    }
+    public void setYear(String year) {
+        this.mYear = year;
+    }
+    public void setCrsid(String crsid) {
+        this.mCrsid = crsid;
+    }
+    public void setUid(String uid) {
+        this.mUid = uid;
+    }
+    public void setMyevents(ArrayList<String> myevents) {
+        this.mMyevents = myevents;
+    }
+    public void setBio(String bio) {
+        this.mBio = bio;
+    }
+    public void setStatus(String status) {
+        this.mStatus = status;
+    }
     public void setDegree(String degree) {
-        this.degree = degree;
+        this.mDegree = degree;
     }
 
-    public String getProfilePicRef() {
-        return profilePicRef;
-    }
-
-    public void setProfilePic(Image profilePic) {
-        this.profilePicRef = profilePicRef;
-    }
 }

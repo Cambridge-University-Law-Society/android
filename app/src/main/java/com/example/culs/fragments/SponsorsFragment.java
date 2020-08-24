@@ -11,8 +11,6 @@ import android.widget.Toast;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
-import com.example.culs.helpers.CardAdapter;
-import com.example.culs.helpers.CardHolder;
 import com.example.culs.helpers.Sponsor;
 import com.example.culs.helpers.SponsorAdapter;
 import com.example.culs.helpers.SponsorHolder;

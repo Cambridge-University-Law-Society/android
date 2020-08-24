@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.culs"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -79,7 +79,7 @@ dependencies {
 
     //going to try using a third party calendar - (may have to create own calendar)
     //implementation 'com.applandeo:material-calendar-view:1.7.0'
-
+    implementation 'com.github.gifffert:ExpandableTextView:0.1.6'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
     implementation 'com.github.prolificinteractive:material-calendarview:2.0.1'
 

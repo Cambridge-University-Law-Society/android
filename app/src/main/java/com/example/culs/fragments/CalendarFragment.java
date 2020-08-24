@@ -28,7 +28,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
-import com.example.culs.helpers.CardHolder;
 import com.example.culs.helpers.EventDecorator;
 import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.OneDayDecorators;
@@ -65,7 +64,7 @@ import java.util.concurrent.Executors;
 
 //import java.time.LocalDate;
 
-public class CalendarFragment extends Fragment implements CardHolder.OnCardListener, OnDateSelectedListener {
+public class CalendarFragment extends Fragment implements OnDateSelectedListener {
     private RecyclerView eventsView;
     private SwipeRefreshLayout swipeContainer;
 
@@ -269,11 +268,11 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
 
     }*/
 
-    @Override
-    public void onStop(){
-        super.onStop();
-        fire_adapter.stopListening();
-    }
+//    @Override
+//    public void onStop(){
+//        super.onStop();
+//        fire_adapter.stopListening();
+//    }
 
     private void getEventDates(){
         Query events = eventsReference.whereEqualTo("active", true);
@@ -361,37 +360,37 @@ public class CalendarFragment extends Fragment implements CardHolder.OnCardListe
         }
     }
 
-    public void onCardClick(View v, int position, ArrayList<Card> cardList) {
-        Card currentCard = cardList.get(position);
-
-        Fragment nextFragment = new ExpandedEventFragment();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-            nextFragment.setEnterTransition(new android.transition.Fade());
-            nextFragment.setExitTransition(new android.transition.Fade());
-            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-        }
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("Current Card", currentCard);
-        nextFragment.setArguments(bundle);
-        // Step 2: Create an Intent to start the next Activity
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_description_text_view), "expandedDescrip");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_name_text_view), "expandedName");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_date_and_time_text_view), "expandedDNT");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_location_text_view), "expandedLoc");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_tag_holder), "expandedTagHold");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_icon), "expandedTagIcon");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_note), "expandedTagNote");
-        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
+//    public void onCardClick(View v, int position, ArrayList<Card> cardList) {
+//        Card currentCard = cardList.get(position);
+//
+//        Fragment nextFragment = new ExpandedEventFragment();
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+//            nextFragment.setEnterTransition(new android.transition.Fade());
+//            nextFragment.setExitTransition(new android.transition.Fade());
+//            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+//        }
+//
+//        Bundle bundle = new Bundle();
+//        bundle.putParcelable("Current Card", currentCard);
+//        nextFragment.setArguments(bundle);
+//        // Step 2: Create an Intent to start the next Activity
+//
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_description_text_view), "expandedDescrip");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_name_text_view), "expandedName");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_date_and_time_text_view), "expandedDNT");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_location_text_view), "expandedLoc");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_tag_holder), "expandedTagHold");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_icon), "expandedTagIcon");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_note), "expandedTagNote");
+//        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+//        fragmentTransaction.addToBackStack(null);
+//        fragmentTransaction.commit();
+//    }
 
     @Override
     public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {

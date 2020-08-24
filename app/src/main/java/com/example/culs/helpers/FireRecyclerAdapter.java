@@ -95,7 +95,6 @@ public class FireRecyclerAdapter extends FirestoreRecyclerAdapter<Card, FireRecy
 
         ImageView eventPic, eventTagIcon, eventSponsorLogo;
         TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote, eventSponsor;
-
         LinearLayout eventTagHolder;
 
         public CardViewHolder(@NonNull View itemView) {

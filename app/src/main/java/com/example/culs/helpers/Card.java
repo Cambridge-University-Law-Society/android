@@ -1,78 +1,42 @@
 package com.example.culs.helpers;
 
-
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.Date;
 import java.util.List;
-
 import com.google.firebase.Timestamp;
 
+import androidx.annotation.RequiresApi;
 
-public class Card implements Parcelable {
+
+public class Card implements PostType, Comparable<PostType>{
 
     private String mEventName;
     private Timestamp mEventUST;
-    private Date mEventDate;
-    private Long mEventDateLong;
     private String mEventLocation;
     private String mEventDescription;
     private String mEventImageURL;
     private List<String> mEventTags;
     private String mEventSponsor;
+    private String mEventID;
+    private Boolean mEventInterested = false;
 
     public Card(){}
 
-    public Card(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String eventImageURL, List<String> eventTags, String eventSponsor) {
+    public Card(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String eventImageURL, List<String> eventTags, String eventSponsor, String eventID, Boolean eventInterested) {
         mEventName = eventName;
         mEventUST = eventUST;
-        mEventDate = eventUST.toDate();
-        mEventDateLong = eventUST.toDate().getTime();
         mEventLocation = eventLocation;
         mEventDescription = eventDescription;
         mEventImageURL = eventImageURL;
         mEventTags = eventTags;
         mEventSponsor = eventSponsor;
+        mEventID = eventID;
+        mEventInterested = eventInterested;
     }
 
-    protected Card(Parcel in) {
-        mEventName = in.readString();
-        mEventDateLong = in.readLong();
-        mEventLocation = in.readString();
-        mEventImageURL = in.readString();
-        mEventDescription = in.readString();
-        mEventTags = in.createStringArrayList();
-        mEventSponsor = in.readString();
-    }
-
-    public static final Creator<Card> CREATOR = new Creator<Card>() {
-        @Override
-        public Card createFromParcel(Parcel in) {
-            return new Card(in);
-        }
-
-        @Override
-        public Card[] newArray(int size) {
-            return new Card[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(mEventName);
-        parcel.writeLong(mEventDateLong);
-        parcel.writeString(mEventLocation);
-        parcel.writeString(mEventDescription);
-        parcel.writeString(mEventImageURL);
-        parcel.writeString(mEventSponsor);
-        parcel.writeStringList(mEventTags);
-    }
-
+    public String getID() { return mEventID; }
     public String getName() {
         return mEventName;
     }
@@ -84,7 +48,9 @@ public class Card implements Parcelable {
     public String getImageURL() { return mEventImageURL; }
     public List<String> getTags() { return mEventTags; }
     public String getSponsor() { return mEventSponsor; }
+    public Boolean getInterested() { return mEventInterested; }
 
+    public void setID(String mEventID) { this.mEventID = mEventID; }
     public void setName(String mEventName) { this.mEventName = mEventName; }
     public void setDate(Timestamp mEventUST) { this.mEventUST = mEventUST; }
     public void setLocation(String mEventLocation) { this.mEventLocation = mEventLocation; }
@@ -92,4 +58,23 @@ public class Card implements Parcelable {
     public void setDescription(String mEventDescription) { this.mEventDescription = mEventDescription; }
     public void setTags(List<String> mEventTags) { this.mEventTags = mEventTags; }
     public void setSponsor(String mEventSponsor) { this.mEventSponsor = mEventSponsor; }
+    public void setInterested(Boolean mEventInterested) { this.mEventInterested = mEventInterested; }
+
+    @Override
+    public int getType() {
+        return PostType.TYPE_EVENT;
+    }
+
+    @Override
+    public long getTimediff() {
+        long now = (System.currentTimeMillis()/1000);
+        long then = (mEventUST.toDate().getTime()/1000);
+        return(Math.abs(then - now));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    public int compareTo(PostType postType) {
+        return Long.compare(getTimediff(), postType.getTimediff());
+    }
 }

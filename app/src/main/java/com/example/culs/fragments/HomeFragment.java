@@ -7,13 +7,25 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
-import com.example.culs.helpers.CardHolder;
-import com.example.culs.helpers.FireRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.example.culs.helpers.CustomAdapter;
+import com.example.culs.helpers.Post;
+import com.example.culs.helpers.PostType;
+import com.example.culs.helpers.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,24 +35,31 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.firebase.firestore.Query;
 
-public class HomeFragment extends Fragment implements CardHolder.OnCardListener {
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+public class HomeFragment extends Fragment {
     private RecyclerView eventsView;
     private View rootView;
-    private FireRecyclerAdapter fire_adapter;
-
+    private CustomAdapter customAdapter;
+    private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
+    private List<PostType> types = new ArrayList<>();
+    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
+    public static User currentUser;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
-        @Nullable
+    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
-        setupFireAdapter(rootView);
+        setupCustomAdapter(rootView);
         setupToolbarOptionsMenu(rootView);
         return rootView;
     }
@@ -48,24 +67,162 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
     @Override
     public void onStart() {
         super.onStart();
-            fire_adapter.startListening();
+        types.clear();
+        getListItems();
+        customAdapter.notifyDataSetChanged();
         }
 
     public void onStop() {
         super.onStop();
-        fire_adapter.stopListening();
     }
 
-    private void setupFireAdapter(View rootView) {
+    private void setupCustomAdapter(View rootView) {
         eventsView = (RecyclerView) rootView.findViewById(R.id.list);
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        customAdapter = new CustomAdapter(types);
+        eventsView.setAdapter(customAdapter);
 
-        Query query = FirebaseFirestore.getInstance().collection("Events").orderBy("date", Query.Direction.ASCENDING);
-        FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
-        fire_adapter = new FireRecyclerAdapter(options);
-        eventsView.setAdapter(fire_adapter);
+        customAdapter.setOnEventItemClickListener(new CustomAdapter.OnEventItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Card clickedCard = (Card) types.get(position);
+                onCardClick(v, clickedCard);
+            }
+
+            @Override
+            public void onInterestedClick(View v, int position) {
+                Card intCard = (Card) types.get(position);
+                if(HomeFragment.currentUser.getMyevents() == null){
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    ((Card) types.get(position)).setInterested(true);
+                    customAdapter.notifyItemChanged(position);
+                } else if(currentUser.getMyevents().contains(intCard.getID())){
+                    userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
+                    ((Card) types.get(position)).setInterested(false);
+                    customAdapter.notifyItemChanged(position);
+                } else {
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    ((Card) types.get(position)).setInterested(true);
+                    customAdapter.notifyItemChanged(position);
+                }
+            }
+        });
+
+        customAdapter.setOnPostItemClickListener(new CustomAdapter.OnPostItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Post clickedPost = (Post) types.get(position);
+                Toast.makeText(getContext(), "clicked on:" + clickedPost.getTitle(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    private void getListItems() {
+
+        userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    System.err.println("Listen failed: " + error);
+                    return;
+                }
+
+                if (value != null && value.exists()) {
+                    currentUser = value.toObject(User.class);
+                } else {
+                    System.out.print("Current data: null");
+                }
+            }
+        });
+
+        mFirebaseFirestore.collection("Events").orderBy("date", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                        if (error != null) {
+                            System.err.println("Listen failed:" + error);
+                            return;
+                        }
+
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Card cardAdded = dc.getDocument().toObject(Card.class);
+                                    cardAdded.setID(dc.getDocument().getId());
+                                    if(currentUser.getMyevents() == null){
+                                        cardAdded.setInterested(false);
+                                    } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                        cardAdded.setInterested(true);
+                                    } else {
+                                        cardAdded.setInterested(false);
+                                    }
+                                    types.add(dc.getNewIndex(), cardAdded);
+                                    break;
+                                case MODIFIED:
+                                    types.remove(dc.getOldIndex());
+                                    Card cardChanged = dc.getDocument().toObject(Card.class);
+                                    cardChanged.setID(dc.getDocument().getId());
+                                    if(currentUser.getMyevents() == null){
+                                        cardChanged.setInterested(false);
+                                    } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                        cardChanged.setInterested(true);
+                                    } else {
+                                        cardChanged.setInterested(false);
+                                    }
+                                    types.add(dc.getNewIndex(), cardChanged);
+                                    break;
+                                case REMOVED:
+                                    types.remove(dc.getOldIndex());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+
+        mFirebaseFirestore.collection("posts").orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            System.err.println("Listen failed:" + error);
+                            return;
+                        }
+
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Post postAdded = dc.getDocument().toObject(Post.class);
+                                    postAdded.setPostID(dc.getDocument().getId());
+                                    types.add(postAdded);
+                                    break;
+                                case MODIFIED:
+                                    types.remove(dc.getOldIndex());
+                                    Post postChanged = dc.getDocument().toObject(Post.class);
+                                    postChanged.setPostID(dc.getDocument().getId());
+                                    types.add(postChanged);
+                                    break;
+                                case REMOVED:
+                                    types.remove(dc.getOldIndex());
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }
+                        Collections.sort(types);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+
+
+
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
@@ -83,9 +240,7 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    @Override
-    public void onCardClick(View v, int position, ArrayList<Card> cardList) {
-        Card currentCard = cardList.get(position);
+    public void onCardClick(View v, Card currentCard) {
 
         Fragment nextFragment = new ExpandedEventFragment();
 
@@ -97,19 +252,11 @@ public class HomeFragment extends Fragment implements CardHolder.OnCardListener 
         }
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable("Current Card", currentCard);
+        bundle.putString("Current Card ID", currentCard.getID());
         nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
         fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_description_text_view), "expandedDescrip");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_name_text_view), "expandedName");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_date_and_time_text_view), "expandedDNT");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_location_text_view), "expandedLoc");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_tag_holder), "expandedTagHold");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_icon), "expandedTagIcon");
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_note), "expandedTagNote");
         fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
