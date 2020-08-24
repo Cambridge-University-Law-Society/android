@@ -1,15 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/gradient_background">
 
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-        android:id="@+id/calendarView"
+    <LinearLayout
+        android:id="@+id/buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/alleventsbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/allEvents"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ALL EVENTS"
+                android:padding="7dp"
+                android:textColor="#000"
+                android:fontFamily="sans-serif-medium"/>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/myeventsbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/myEvents"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MY EVENTS"
+                android:padding="7dp"
+                android:textColor="#000"
+                android:fontFamily="sans-serif-medium"/>
+        </androidx.cardview.widget.CardView>
+
+        <!--<Button
+            android:id="@+id/alleventsbtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="All Events"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/myeventsbtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@id/alleventsbtn"
+            android:text="My Events"
+            android:textSize="12sp"
+            />-->
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/calendarViews"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/gradient_background"
+        android:layout_below="@id/buttons"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="5dp"
+        android:layout_centerHorizontal="true">
+
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/allEventsCalendarView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            app:mcv_dateTextAppearance="@style/CalendarViewDateText"
+            app:mcv_headerTextAppearance="@style/CalendarViewHeader"
+            app:mcv_leftArrow="@color/background_light"
+            app:mcv_rightArrow="@color/background_light"
+            app:mcv_selectionColor="#2196F3"
+            app:mcv_selectionMode="single"
+            app:mcv_showWeekDays="true"
+            app:mcv_tileHeight="31sp"
+            app:mcv_weekDayTextAppearance="@style/CalendarViewWeekText" />
+
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/myEventsCalendarView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            app:mcv_dateTextAppearance="@style/CalendarViewDateText"
+            app:mcv_headerTextAppearance="@style/CalendarViewHeader"
+            app:mcv_leftArrow="@color/background_light"
+            app:mcv_rightArrow="@color/background_light"
+            app:mcv_selectionColor="#2196F3"
+            app:mcv_selectionMode="single"
+            app:mcv_showWeekDays="true"
+            app:mcv_tileHeight="31sp"
+            app:mcv_weekDayTextAppearance="@style/CalendarViewWeekText" />
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/cardlist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/calendarViews"
+        android:divider="@null"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!--<com.prolificinteractive.materialcalendarview.MaterialCalendarView
+        android:id="@+id/myeventCalendarView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alleventsbtn"
         app:mcv_tileHeight="31sp"
         app:mcv_leftArrow="@color/background_light"
         app:mcv_rightArrow="@color/background_light"
@@ -22,30 +136,23 @@
         app:mcv_headerTextAppearance="@style/CalendarViewHeader"
         app:mcv_dateTextAppearance="@style/CalendarViewDateText"
         app:mcv_weekDayTextAppearance="@style/CalendarViewWeekText"
-        app:mcv_showWeekDays="true"/>
+        app:mcv_showWeekDays="true"/>-->
 
-        <!--<CalendarView
+    <!--<androidx.recyclerview.widget.RecyclerView
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:id="@+id/myeventscardlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/myeventCalendarView"
+            android:orientation="vertical"
+            android:divider="@null" />-->
+
+
+    <!--<CalendarView
             android:id="@+id/calendarView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal" />-->
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swiperefresh"
-        android:layout_below="@id/calendarView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:id="@+id/cardlist"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:divider="@null" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
 </RelativeLayout>

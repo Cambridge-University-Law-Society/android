@@ -21,8 +21,11 @@ import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +50,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileEditActivity extends AppCompatActivity {
 
-    private EditText firstName, lastName, userCrsid, userBio, userCollege, userYear, userDegree, userInterests;
+    private EditText firstName, lastName, userCrsid, userBio, userYear, userDegree, userInterests;
+    private Spinner userCollege;
     private CircleImageView profileImage;
     private TextView save_btn;
     private TextView cancel_btn;
@@ -120,6 +124,16 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
+        //spinner stuff
+        Spinner userCollege = findViewById(R.id.edit_college_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        userCollege.setAdapter(adapter);
+
+
     }
 
     private void loadCurrentData() throws IOException {
@@ -129,7 +143,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         final EditText lastName = (EditText) findViewById(R.id.last_name);
         final EditText userCrsid = (EditText) findViewById(R.id.crsid);
         final EditText userBio = (EditText) findViewById(R.id.bio);
-        final EditText userCollege = (EditText) findViewById(R.id.edit_college);
+        //final EditText userCollege = (EditText) findViewById(R.id.edit_college);
         final EditText userYear = (EditText) findViewById(R.id.edit_useryear);
         final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
 
@@ -168,7 +182,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                             if (documentSnapshot.get("college") != null) {
                                 String college = documentSnapshot.getString("college");
 
-                                userCollege.setText(college);
+                                //userCollege.setText(college);
                             }else{
                             }
 
@@ -237,13 +251,13 @@ public class ProfileEditActivity extends AppCompatActivity {
         //TODO: MAKE THIS CODE BETTER
         //this will update the document with the information in the editText boxes
 
-        //TODO: Add the updated editview stuff here
+        //DONE: Add the updated editview stuff here
         //initalise the view first
         firstName = (EditText) findViewById(R.id.first_name);
         lastName = (EditText) findViewById(R.id.last_name);
         userCrsid = (EditText) findViewById(R.id.crsid);
         userBio = (EditText) findViewById(R.id.bio);
-        userCollege = (EditText) findViewById(R.id.edit_college);
+        //userCollege = (EditText) findViewById(R.id.edit_college);
         userYear = (EditText) findViewById(R.id.edit_useryear);
         userDegree = (EditText) findViewById(R.id.edit_degree);
 
@@ -252,7 +266,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         String last_name = lastName.getText().toString().trim();
         String user_crsid = userCrsid.getText().toString().trim();
         String user_bio = userBio.getText().toString().trim();
-        String user_college = userCollege.getText().toString().trim();
+        //String user_college = userCollege.getText().toString().trim();
         String user_year = userYear.getText().toString().trim();
         String user_degree = userDegree.getText().toString().trim();
 
@@ -260,11 +274,13 @@ public class ProfileEditActivity extends AppCompatActivity {
         docRef.update("lastname", last_name);
         docRef.update("crsid", user_crsid);
         docRef.update("bio", user_bio);
-        docRef.update("college", user_college);
+        //docRef.update("college", user_college);
         docRef.update("year", user_year);
         docRef.update("degree", user_degree);
 
+
     }
+
 
     //TODO: Add method to upload and change the profile picture
 
@@ -327,7 +343,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                         }
                     });
         }else{
-            Toast.makeText(ProfileEditActivity.this, "No File Selected", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ProfileEditActivity.this, "No File Selected", Toast.LENGTH_SHORT).show();
         }
     }
 }

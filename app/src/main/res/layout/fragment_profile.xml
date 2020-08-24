@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:fillViewport="true"
         android:scrollingCache = "true"
         tools:layout_behaviour = "@string/appbar_scrolling_view_behaviour">
 
@@ -140,6 +141,13 @@
                 app:cardCornerRadius="15sp"
                 app:cardElevation="10dp">
 
+                <androidx.core.widget.NestedScrollView
+                    android:scrollbars = "none"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:scrollingCache = "true"
+                    tools:layout_behaviour = "@string/appbar_scrolling_view_behaviour">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -152,7 +160,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="50sp"
                         android:fontFamily="sans-serif-medium"
-                        android:text="User Name"
+                        android:text="Name"
                         android:textColor="#000000"
                         android:textSize="20sp" />
 
@@ -180,196 +188,145 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
+                        android:layout_marginLeft="20sp"
                         android:layout_marginTop="20sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
+                        android:layout_marginRight="20sp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/collegeid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentLeft="true"
                             android:text="College:"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
+                            android:textColor="#818080"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/user_college"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/collegeid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200dp"
+                            android:layout_marginTop="25sp"
+                            android:layout_alignLeft="@id/collegeid"
+                            android:layout_alignTop="@id/collegeid"
                             android:fontFamily="sans-serif"
                             android:text="College"
                             android:textColor="#000000"
                             android:textSize="15sp" />
-                        <EditText
-                            android:id="@+id/edit_college"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/collegeid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Edit College"
-                            android:textColor="#000000"
-                            android:textSize="15sp"
-                            android:visibility="invisible"/>
 
                     </RelativeLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="30sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
+                        android:layout_marginLeft="20sp"
+                        android:layout_marginTop="20sp"
+                        android:layout_marginRight="20sp"
+                        android:orientation="vertical">
 
                         <TextView
-                        android:id="@+id/yearid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="200dp"
-                        android:text="Year:"
-                        android:textColor="#000000"
-                        android:textSize="15sp" />
+                            android:id="@+id/yearid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="8dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentLeft="true"
+                            android:text="Year:"
+                            android:textColor="#818080"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/user_year"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/yearid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200dp"
+                            android:layout_marginTop="25sp"
+                            android:layout_alignLeft="@id/yearid"
+                            android:layout_alignTop="@id/yearid"
                             android:fontFamily="sans-serif"
                             android:text="Year"
                             android:textColor="#000000"
                             android:textSize="15sp" />
-                        <EditText
-                            android:id="@+id/edit_useryear"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/yearid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200dp"
-                            android:fontFamily="sans-serif"
-                            android:text="Edit Year"
-                            android:textColor="#000000"
-                            android:textSize="15sp"
-                            android:visibility="invisible"/>
 
                     </RelativeLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="30sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
+                        android:layout_marginLeft="20sp"
+                        android:layout_marginTop="20sp"
+                        android:layout_marginRight="20sp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/gradid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentLeft="true"
                             android:text="Degree:"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
+                            android:textColor="#818080"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/user_degree"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/gradid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200sp"
+                            android:layout_marginTop="25sp"
+                            android:layout_alignLeft="@id/gradid"
+                            android:layout_alignTop="@id/gradid"
                             android:fontFamily="sans-serif"
-                            android:text="Subject"
+                            android:text="Degree"
                             android:textColor="#000000"
                             android:textSize="15sp" />
-                        <EditText
-                            android:id="@+id/edit_degree"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/gradid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200sp"
-                            android:fontFamily="sans-serif"
-                            android:text="Edit Grad Year"
-                            android:textColor="#000000"
-                            android:textSize="15sp"
-                            android:visibility="invisible"/>
 
                     </RelativeLayout>
 
                     <RelativeLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="30sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
+                        android:layout_marginLeft="20sp"
+                        android:layout_marginTop="20sp"
+                        android:layout_marginRight="20sp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/interestid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentLeft="true"
                             android:text="Interests:"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
+                            android:textColor="#818080"
+                            android:textSize="13sp" />
 
-                        <TextView
-                            android:id="@+id/user_interests1"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/interestid"
+                        <ListView
+                            xmlns:android="http://schemas.android.com/apk/res/android"
+                            android:id="@+id/myInterestsList"
+                            android:nestedScrollingEnabled="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15sp"
+                            android:layout_marginLeft="-8dp"
+                            android:paddingBottom="5sp"
+                            android:layout_alignTop="@+id/interestid"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200sp"
-                            android:fontFamily="sans-serif"
-                            android:text="Family Law"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:listSelector="@android:color/transparent"/>
 
-                        <TextView
-                            android:id="@+id/user_interests2"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_below="@id/user_interests1"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="200sp"
-                            android:layout_marginTop="10sp"
-                            android:fontFamily="sans-serif"
-                            android:paddingBottom="15sp"
-                            android:text="Environmental Law"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
 
                     </RelativeLayout>
 
                 </LinearLayout>
+                </androidx.core.widget.NestedScrollView>
 
             </androidx.cardview.widget.CardView>
+
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_image"

@@ -1,82 +1,44 @@
 package com.example.culs.fragments;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.ContentResolver;
 
-import com.bumptech.glide.Glide;
 import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
-import com.example.culs.activities.MainActivity;
 import com.example.culs.activities.ProfileEditActivity;
 import com.example.culs.helpers.GlideApp;
-import com.example.culs.helpers.User;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -85,6 +47,7 @@ public class ProfileFragment extends Fragment {
     private TextView signout_btn;
     private CircleImageView profileImage;
     private TextView edit_btn;
+    //private ListView myInterestsList;
 
     //Firebase Instance variables - add them when you need them and explain their function
 
@@ -95,6 +58,10 @@ public class ProfileFragment extends Fragment {
     final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
     //this retrieves the entire document with this specific uid
     private DocumentReference docRef = db.collection("users").document(userid);
+
+    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
+    ArrayAdapter<String> adapter;
+    List<String> myInterests;
 
 
     private String TAG = "ProfileFragment";
@@ -117,7 +84,7 @@ public class ProfileFragment extends Fragment {
 
         //TODO set an intent to send pressing the edit button to the ProfileEditActivity with a fade transition
         edit_btn = v.findViewById(R.id.edit_button);
-        edit_btn.setOnClickListener(new View.OnClickListener() {
+        edit_btn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), ProfileEditActivity.class);
@@ -129,6 +96,7 @@ public class ProfileFragment extends Fragment {
         return v;
 
     }
+
 
     public void onCreate(@Nullable Bundle savedInstanceState, LayoutInflater inflater, ViewGroup container) throws IOException {
         super.onCreate(savedInstanceState);
@@ -163,79 +131,108 @@ public class ProfileFragment extends Fragment {
         final TextView userYear = (TextView) v.findViewById(R.id.user_year);
         final TextView userDegree = (TextView) v.findViewById(R.id.user_degree);
         final TextView admin = (TextView) v.findViewById(R.id.admin_mode);
+        final ListView myInterestsList = (ListView) v.findViewById(R.id.myInterestsList);
+
+        /*//set up the adapter
+        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, myInterests);
+        myInterestsList.setAdapter(adapter);*/
 
         //method for loading textView data
 
-        docRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()){
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot.exists()){
 
-                            if (documentSnapshot.get("firstname") != null && documentSnapshot.get("lastname") != null) {
-                                String first_name = documentSnapshot.getString("firstname");
-                                String last_name = documentSnapshot.getString("lastname");
+                    if (documentSnapshot.get("firstname") != null && documentSnapshot.get("lastname") != null) {
+                        String first_name = documentSnapshot.getString("firstname");
+                        String last_name = documentSnapshot.getString("lastname");
 
-                                username.setText(first_name + " " + last_name);
-                            }else{
-                                username.setText("Username Here");
-                            }
+                        username.setText(first_name + " " + last_name);
+                    }else{
+                        username.setText("Username Here");
+                    }
 
-                            if (documentSnapshot.get("crsid") != null) {
-                                String crsid = documentSnapshot.getString("crsid");
+                    if (documentSnapshot.get("crsid") != null) {
+                        String crsid = documentSnapshot.getString("crsid");
 
-                                userCrsid.setText(crsid);
-                            }else{
-                                userCrsid.setText("CRSID");
-                            }
+                        userCrsid.setText(crsid);
+                    }else{
+                        userCrsid.setText("CRSID");
+                    }
 
-                            if (documentSnapshot.get("bio") != null) {
-                                String bio = documentSnapshot.getString("bio");
+                    if (documentSnapshot.get("bio") != null) {
+                        String bio = documentSnapshot.getString("bio");
 
-                                userBio.setText(bio);
-                            }else{
-                                userBio.setText("Add a description about yourself, including interests and ambitions.");
-                            }
+                        userBio.setText(bio);
+                    }else{
+                        userBio.setText("Add a description about yourself, including interests and ambitions.");
+                    }
 
-                            if (documentSnapshot.get("college") != null) {
-                                String college = documentSnapshot.getString("college");
+                    if (documentSnapshot.get("college") != null) {
+                        String college = documentSnapshot.getString("college");
 
-                                userCollege.setText(college);
-                            }else{
-                                userCollege.setText("Select a College");
-                            }
+                        userCollege.setText(college);
+                    }else{
+                        userCollege.setText("Select a College");
+                    }
 
-                            if (documentSnapshot.get("year") != null) {
-                                String year = documentSnapshot.getString("year");
+                    if (documentSnapshot.get("year") != null) {
+                        String year = documentSnapshot.getString("year");
 
-                                userYear.setText(year);
-                            }else{
-                                userBio.setText("Your Year");
-                            }
+                        userYear.setText(year);
+                    }else{
+                        userBio.setText("Your Year");
+                    }
 
-                            if (documentSnapshot.get("degree") != null) {
-                                String degree = documentSnapshot.getString("degree");
+                    if (documentSnapshot.get("degree") != null) {
+                        String degree = documentSnapshot.getString("degree");
 
-                                userDegree.setText(degree);
-                            }else{
-                                userDegree.setText("Your Degree");
-                            }
+                        userDegree.setText(degree);
+                    }else{
+                        userDegree.setText("Your Degree");
+                    }
 
-                            if (documentSnapshot.get("status").equals("admin")){
-                                admin.setVisibility(View.VISIBLE);
-                            }
+                    if (documentSnapshot.get("status").equals("admin")){
+                        admin.setVisibility(View.VISIBLE);
+                    }
 
+                    /*if (documentSnapshot.get("interests") != null){
+
+                        myInterests = documentSnapshot.get("interests");
+                                //toObject(MyInterestsList.class).interests;
+                        for (int i=0; i < myInterests.size(); i++){
+                            adapter.add(myInterests.get(i));
+                            adapter.notifyDataSetChanged();
                         }
+                    }*/
 
+                }
+
+            }
+        });
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        myInterests = (List<String>) document.get("interests");
+                        final ArrayList<String> list = new ArrayList<String>();
+                        for (int i = 0; i < myInterests.size(); ++i) {
+                            list.add(myInterests.get(i));
+                        }
+                        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, list);
+                        myInterestsList.setAdapter(adapter);
+                        setListViewHeight(myInterestsList);
+                        Log.d(TAG, list.toString());
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, e.toString());
-                    }
-                });
+                } else{
+                    Toast.makeText(getContext(), "didn't work", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
         //set the profile picture from firebase
@@ -247,6 +244,13 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    class MyInterestsList {
+
+        public List<String> interests;
+
+        public MyInterestsList(){}
+    }
+
     private void fetchImage(final CircleImageView image) throws IOException {
         //using glide method
 
@@ -256,24 +260,42 @@ public class ProfileFragment extends Fragment {
 
         // Create a reference with an initial file path and name
         StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
-        String downloadUrl = pathReference.toString();
-
-        //try to download to a local file
-        final File file = File.createTempFile("profilePic", "jpg");
-        pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                GlideApp.with(ProfileFragment.this).load(file).into(image);
+            public void onSuccess(Uri uri) {
+                String userProfileImageUri = uri.toString();
+                GlideApp.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "Error in loading", Toast.LENGTH_SHORT).show();
+                GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
             }
         });
 
-        //GlideApp.with(this.getContext()).load(pathReference).into(image);
+    }
 
+    public static void setListViewHeight(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = listView.getPaddingTop() + listView.getPaddingBottom();
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            if (listItem instanceof ViewGroup) {
+                listItem.setLayoutParams(new ViewGroup.LayoutParams(AbsListView.LayoutParams.WRAP_CONTENT, AbsListView.LayoutParams.WRAP_CONTENT));
+            }
+
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 
 }

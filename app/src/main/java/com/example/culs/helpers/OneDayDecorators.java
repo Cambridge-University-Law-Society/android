@@ -1,6 +1,8 @@
 package com.example.culs.helpers;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 
@@ -26,6 +28,7 @@ public class OneDayDecorators implements DayViewDecorator {
     @Override
     public void decorate(DayViewFacade view) {
         view.addSpan(new StyleSpan(Typeface.BOLD));
+        view.addSpan(new ForegroundColorSpan(Color.CYAN));
     }
 
     public void setDate(LocalDate date) {
