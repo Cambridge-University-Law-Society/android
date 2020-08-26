@@ -31,10 +31,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
+import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.EventDecorator;
 import com.example.culs.helpers.FireRecyclerAdapter;
 import com.example.culs.helpers.GetEventDate;
 import com.example.culs.helpers.OneDayDecorators;
+import com.example.culs.helpers.Post;
+import com.example.culs.helpers.PostType;
+import com.example.culs.helpers.User;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -43,9 +47,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
@@ -62,6 +68,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +98,8 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
 
     //this retrieves the entire document with this specific uid
     final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    private DocumentReference docRef = db.collection("users").document(userid);
+    private DocumentReference userDocRef = db.collection("users").document(userid);
+    public static User currentUser;
     private List<String> eventsid; //this kind of declaration of a list allows the list to be typecast into any other type of list
 
     private ArrayList<DocumentReference> eventsDocRef = new ArrayList<DocumentReference>();
@@ -104,6 +112,8 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     //card stuff
     private ArrayList<Card> cards = new ArrayList<Card>();
     private FireRecyclerAdapter fire_adapter;
+    private CustomAdapter customAdapter;
+    private List<PostType> types = new ArrayList<>();
 
     private ArrayList<Integer> events = new ArrayList<>();
 
@@ -123,9 +133,10 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     //@RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_calendar, container, false);
         setHasOptionsMenu(true);
+        setupCustomAdapter(v);
 
         allEventsCalendar = (MaterialCalendarView) v.findViewById(R.id.allEventsCalendarView);
         myEventsCalendar = (MaterialCalendarView) v.findViewById(R.id.myEventsCalendarView);
@@ -180,8 +191,9 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                     myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
                     myEventsText.setTextColor(Color.WHITE);
                     myEventsButton.setRadius(8);
-                    if (fire_adapter != null) {
-                        fire_adapter.stopListening();
+                    if (customAdapter != null) {
+                        types.clear();
+                        customAdapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -198,8 +210,9 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                     allEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
                     allEventsText.setTextColor(Color.WHITE);
                     allEventsButton.setRadius(8);
-                    if (fire_adapter != null) {
-                        fire_adapter.stopListening();
+                    if (customAdapter != null) {
+                        types.clear();
+                        customAdapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -219,6 +232,40 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.app_bar, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void setupCustomAdapter(View rootView) {
+        //eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
+        //eventsView.setHasFixedSize(true);
+        //eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //eventsView.setAdapter(customAdapter);
+        customAdapter = new CustomAdapter(types);
+
+        customAdapter.setOnEventItemClickListener(new CustomAdapter.OnEventItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Card clickedCard = (Card) types.get(position);
+                onCardClick(v, clickedCard);
+            }
+
+            @Override
+            public void onInterestedClick(View v, int position) {
+                Card intCard = (Card) types.get(position);
+                if(currentUser.getMyevents() == null){
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    ((Card) types.get(position)).setInterested(true);
+                    customAdapter.notifyItemChanged(position);
+                } else if(currentUser.getMyevents().contains(intCard.getID())){
+                    userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
+                    ((Card) types.get(position)).setInterested(false);
+                    customAdapter.notifyItemChanged(position);
+                } else {
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    ((Card) types.get(position)).setInterested(true);
+                    customAdapter.notifyItemChanged(position);
+                }
+            }
+        });
     }
 
     private void crossFade(final View fadeOutView, View fadeInView) {
@@ -274,6 +321,8 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                     Timestamp timestamp1 = new Timestamp(d2);
 
                     loadData(timestamp, timestamp1, view);
+                    types.clear();
+                    customAdapter.notifyDataSetChanged();
                     //Log.d(TAG1, timestamp.toString());
                     //Log.d(TAG1, timestamp1.toString());
                     //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
@@ -309,8 +358,10 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                     Timestamp timestamp1 = new Timestamp(d2);
 
                     loadMyEventsData(timestamp, timestamp1, view);
-                    Log.d(TAG1, d.toString());
-                    Log.d(TAG1, d2.toString());
+                    types.clear();
+                    customAdapter.notifyDataSetChanged();
+                    //Log.d(TAG1, d.toString());
+                    //Log.d(TAG1, d2.toString());
                     //Toast.makeText(getActivity(), timestamp1.toString(), Toast.LENGTH_SHORT).show();
                 } catch (ParseException ex) {
                     Log.v("Exception", ex.getLocalizedMessage());
@@ -319,9 +370,79 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         });
     }
 
+
     private void loadData(Timestamp timestamp, Timestamp timestamp2, View rootView) {
 
         eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
+        eventsView.setHasFixedSize(true);
+        eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    System.err.println("Listen failed: " + error);
+                    return;
+                }
+
+                if (value != null && value.exists()) {
+                    currentUser = value.toObject(User.class);
+                } else {
+                    System.out.print("Current data: null");
+                }
+            }
+        });
+
+        eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp)
+                .whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            System.err.println("Listen failed:" + error);
+                            return;
+                        }
+
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Card cardAdded = dc.getDocument().toObject(Card.class);
+                                    cardAdded.setID(dc.getDocument().getId());
+                                    if(currentUser.getMyevents() == null){
+                                        cardAdded.setInterested(false);
+                                    } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                        cardAdded.setInterested(true);
+                                    } else {
+                                        cardAdded.setInterested(false);
+                                    }
+                                    types.add(dc.getNewIndex(), cardAdded);
+                                    break;
+                                case MODIFIED:
+                                    types.remove(dc.getOldIndex());
+                                    Card cardChanged = dc.getDocument().toObject(Card.class);
+                                    cardChanged.setID(dc.getDocument().getId());
+                                    if(currentUser.getMyevents() == null){
+                                        cardChanged.setInterested(false);
+                                    } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                        cardChanged.setInterested(true);
+                                    } else {
+                                        cardChanged.setInterested(false);
+                                    }
+                                    types.add(dc.getNewIndex(), cardChanged);
+                                    break;
+                                case REMOVED:
+                                    types.remove(dc.getOldIndex());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        eventsView.setAdapter(customAdapter);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+
+        /*eventsView = (RecyclerView) rootView.findViewById(R.id.cardlist);
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -331,7 +452,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         fire_adapter = new FireRecyclerAdapter(options);
         eventsView.setAdapter(fire_adapter);
 
-        fire_adapter.startListening();
+        fire_adapter.startListening();*/
 
         /*fire_adapter = new FirestoreRecyclerAdapter<Card, CardViewHolder>(options) {
             @Override
@@ -403,13 +524,78 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        Query query = eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid)
+        userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    System.err.println("Listen failed: " + error);
+                    return;
+                }
+
+                if (value != null && value.exists()) {
+                    currentUser = value.toObject(User.class);
+                } else {
+                    System.out.print("Current data: null");
+                }
+            }
+        });
+
+        eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid)
+                .whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            System.err.println("Listen failed:" + error);
+                            return;
+                        }
+
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Card cardAdded = dc.getDocument().toObject(Card.class);
+                                    cardAdded.setID(dc.getDocument().getId());
+                                    if(currentUser.getMyevents() == null){
+                                        cardAdded.setInterested(false);
+                                    } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                        cardAdded.setInterested(true);
+                                    } else {
+                                        cardAdded.setInterested(false);
+                                    }
+                                    types.add(dc.getNewIndex(), cardAdded);
+                                    break;
+                                case MODIFIED:
+                                    types.remove(dc.getOldIndex());
+                                    Card cardChanged = dc.getDocument().toObject(Card.class);
+                                    cardChanged.setID(dc.getDocument().getId());
+                                    if(currentUser.getMyevents() == null){
+                                        cardChanged.setInterested(false);
+                                    } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                        cardChanged.setInterested(true);
+                                    } else {
+                                        cardChanged.setInterested(false);
+                                    }
+                                    types.add(dc.getNewIndex(), cardChanged);
+                                    break;
+                                case REMOVED:
+                                    types.remove(dc.getOldIndex());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        eventsView.setAdapter(customAdapter);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+
+        /*Query query = eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid)
                 .whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Card> options = new FirestoreRecyclerOptions.Builder<Card>().setQuery(query, Card.class).build();
         fire_adapter = new FireRecyclerAdapter(options);
         eventsView.setAdapter(fire_adapter);
 
-        fire_adapter.startListening();
+        fire_adapter.startListening();*/
 
     }
 
@@ -435,37 +621,27 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         }
     }
 
-//    public void onCardClick(View v, int position, ArrayList<Card> cardList) {
-//        Card currentCard = cardList.get(position);
-//
-//        Fragment nextFragment = new ExpandedEventFragment();
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-//            nextFragment.setEnterTransition(new android.transition.Fade());
-//            nextFragment.setExitTransition(new android.transition.Fade());
-//            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-//        }
-//
-//        Bundle bundle = new Bundle();
-//        bundle.putParcelable("Current Card", currentCard);
-//        nextFragment.setArguments(bundle);
-//        // Step 2: Create an Intent to start the next Activity
-//
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_description_text_view), "expandedDescrip");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_name_text_view), "expandedName");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_date_and_time_text_view), "expandedDNT");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_location_text_view), "expandedLoc");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_tag_holder), "expandedTagHold");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_icon), "expandedTagIcon");
-//        fragmentTransaction.addSharedElement(v.findViewById(R.id.tag_note), "expandedTagNote");
-//        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
-//        fragmentTransaction.addToBackStack(null);
-//        fragmentTransaction.commit();
-//    }
+    public void onCardClick(View v, Card currentCard) {
+
+        Fragment nextFragment = new ExpandedEventFragment();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+            nextFragment.setEnterTransition(new android.transition.Fade());
+            nextFragment.setExitTransition(new android.transition.Fade());
+            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putString("Current Card ID", currentCard.getID());
+        nextFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
+        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
 
     @Override
     public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {

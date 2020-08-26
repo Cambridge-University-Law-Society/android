@@ -244,13 +244,6 @@ public class ProfileFragment extends Fragment {
 
     }
 
-    class MyInterestsList {
-
-        public List<String> interests;
-
-        public MyInterestsList(){}
-    }
-
     private void fetchImage(final CircleImageView image) throws IOException {
         //using glide method
 

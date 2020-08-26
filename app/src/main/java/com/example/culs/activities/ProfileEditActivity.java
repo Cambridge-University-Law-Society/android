@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
+import com.example.culs.fragments.DetailsTransition;
+import com.example.culs.fragments.ExpandedEventFragment;
 import com.example.culs.fragments.ProfileFragment;
+import com.example.culs.helpers.Card;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -17,6 +21,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.View;
@@ -55,6 +62,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private CircleImageView profileImage;
     private TextView save_btn;
     private TextView cancel_btn;
+    private TextView editProfileImage;
 
     private static final int PICK_IMAGE_REQUEST =  1; //this is for the picture file intent in openFileChooser
 
@@ -96,6 +104,17 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
+        editProfileImage = findViewById(R.id.edit_profile_button);
+        editProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //when the image is pressed, an intent will be sent to open the images file for user to pick a new picture which will show on the page
+                openFileChooser();
+            }
+        });
+
+
+
         save_btn = findViewById(R.id.button_done);
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,9 +127,12 @@ public class ProfileEditActivity extends AppCompatActivity {
                     updateData();
                 }
 
-                Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
+                goToFragment();
+                //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
+
+                /*Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
             }
         });
 
@@ -118,22 +140,45 @@ public class ProfileEditActivity extends AppCompatActivity {
         cancel_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
+                goToFragment();
+                //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
+                /*Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
             }
         });
 
-        //spinner stuff
+        /*//SPINNER STUFF
         Spinner userCollege = findViewById(R.id.edit_college_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
-        userCollege.setAdapter(adapter);
+        userCollege.setAdapter(adapter);*/
 
 
+    }
+
+    public void goToFragment() {
+
+        Fragment nextFragment = new ProfileFragment();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+            nextFragment.setEnterTransition(new android.transition.Fade());
+            nextFragment.setExitTransition(new android.transition.Fade());
+            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+        }
+
+        Bundle bundle = new Bundle();
+        nextFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container2, nextFragment);
+        //fragmentTransaction.attach(nextFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     private void loadCurrentData() throws IOException {
@@ -143,7 +188,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         final EditText lastName = (EditText) findViewById(R.id.last_name);
         final EditText userCrsid = (EditText) findViewById(R.id.crsid);
         final EditText userBio = (EditText) findViewById(R.id.bio);
-        //final EditText userCollege = (EditText) findViewById(R.id.edit_college);
+        final TextView userCollege = (TextView) findViewById(R.id.selected_college);
         final EditText userYear = (EditText) findViewById(R.id.edit_useryear);
         final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
 
@@ -182,7 +227,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                             if (documentSnapshot.get("college") != null) {
                                 String college = documentSnapshot.getString("college");
 
-                                //userCollege.setText(college);
+                                userCollege.setText(college);
                             }else{
                             }
 

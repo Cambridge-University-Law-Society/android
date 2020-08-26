@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="@android:color/transparent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardMaxElevation="8dp"
+        app:strokeColor="#000000"
+        app:strokeWidth="5dp"
+        >
+
+        <TextView
+            android:id="@+id/interests_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:singleLine="true"
+            android:fontFamily="sans-serif"
+            android:textColor="#000000"
+            android:textSize="17dp"
+            android:text="Interests"
+
+            />
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

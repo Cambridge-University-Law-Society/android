@@ -3,9 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_container2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/gradient_background">
+    android:layout_height="match_parent">
+
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/my_scroll_view"
@@ -22,17 +23,6 @@
             android:adjustViewBounds="true">
 
             <TextView
-                android:id="@+id/sign_out"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20sp"
-                android:layout_marginTop="20sp"
-                android:fontFamily="sans-serif"
-                android:text="Sign Out"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:visibility="invisible"/>
-            <TextView
                 android:id="@+id/cancel_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -40,25 +30,10 @@
                 android:layout_marginTop="20sp"
                 android:fontFamily="sans-serif"
                 android:text="Cancel"
-                android:textColor="#FFFFFF"
+                android:textColor="#2196F3"
                 android:textSize="15sp"
                 android:visibility="visible"/>
 
-            <TextView
-                android:id="@+id/edit_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20sp"
-                android:layout_marginRight="20sp"
-                android:layout_alignParentEnd="true"
-                android:paddingRight="25sp"
-                android:paddingLeft="20sp"
-                android:fontFamily="sans-serif"
-                android:text="Edit"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:layout_alignParentRight="true"
-                android:visibility="gone"/>
             <TextView
                 android:id="@+id/button_done"
                 android:layout_width="wrap_content"
@@ -70,285 +45,307 @@
                 android:paddingLeft="20sp"
                 android:fontFamily="sans-serif"
                 android:text="Done"
-                android:textColor="#FFFFFF"
+                android:textColor="#2196F3"
                 android:textSize="15sp"
                 android:layout_alignParentRight="true"
                 android:visibility="visible"/>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/background_card"
+            <TextView
+                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
                 android:layout_marginTop="20sp"
-                android:layout_below="@id/cancel_button">
-
-                <ImageView
-                    android:id="@+id/profile_dummy"
-                    android:layout_width="match_parent"
-                    android:layout_height="161sp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    android:foreground="#FFFFFF"
-                    android:src="@drawable/ic_default_cover_photo"/>
-
-            </androidx.cardview.widget.CardView>
-
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardview1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
-                android:layout_marginLeft="12sp"
-                android:layout_marginRight="12sp"
-                android:layout_marginTop="21.5sp"
-                android:layout_below="@id/sign_out">
-
-                <ImageView
-                    android:id="@+id/profile_background"
-                    android:layout_width="match_parent"
-                    android:layout_height="158sp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_default_cover_photo" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardview2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/cardview1"
-                android:layout_marginLeft="10sp"
-                android:layout_marginTop="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginBottom="10sp"
-                app:cardBackgroundColor="#F8F5FA"
-                app:cardCornerRadius="15sp"
-                app:cardElevation="10dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <EditText
-                        android:id="@+id/first_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="50sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:hint="First"
-                        android:textColor="#000000"
-                        android:textSize="20sp" />
-
-                    <EditText
-                        android:id="@+id/last_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_alignBottom="@id/first_name"
-                        android:layout_alignRight="@id/first_name"
-                        android:fontFamily="sans-serif-medium"
-                        android:hint="Last"
-                        android:textColor="#000000"
-                        android:textSize="20sp" />
-
-                    <EditText
-                        android:id="@+id/crsid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="8sp"
-                        android:fontFamily="sans-serif-light"
-                        android:hint="crsid"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/bio"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:layout_margin="14sp"
-                        android:fontFamily="sans-serif"
-                        android:hint="bio"
-                        android:textColor="#000000"
-                        android:textSize="14sp" />
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="20sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/collegeid"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
-                            android:layout_marginTop="10sp"
-                            android:text="College:"
-                            android:textColor="#4E4D4D"
-                            android:textSize="15sp" />
-
-
-                        <Spinner
-                            android:id="@+id/edit_college_spinner"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="180dp"
-                            android:fontFamily="sans-serif"
-                            android:hint="Edit College"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
-
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="15sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/yearid"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
-                            android:layout_marginTop="10sp"
-                            android:text="Year:"
-                            android:textColor="#4E4D4D"
-                            android:textSize="15sp" />
-
-
-                        <EditText
-                            android:id="@+id/edit_useryear"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="180dp"
-                            android:fontFamily="sans-serif"
-                            android:hint="Edit Year"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
-
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="15sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/gradid"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
-                            android:layout_marginTop="10sp"
-                            android:text="Degree:"
-                            android:textColor="#4E4D4D"
-                            android:textSize="15sp" />
-
-
-                        <EditText
-                            android:id="@+id/edit_degree"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="180dp"
-                            android:fontFamily="sans-serif"
-                            android:hint="Edit Degree"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
-
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="14sp"
-                        android:layout_marginTop="15sp"
-                        android:layout_marginRight="14sp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/interestid"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="200dp"
-                            android:text="Interests:"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:id="@+id/user_interests1"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignBottom="@+id/interestid"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="180sp"
-                            android:fontFamily="sans-serif"
-                            android:text="Family Law"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:id="@+id/user_interests2"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_below="@id/user_interests1"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginLeft="180sp"
-                            android:layout_marginTop="10sp"
-                            android:fontFamily="sans-serif"
-                            android:paddingBottom="15sp"
-                            android:text="Environmental Law"
-                            android:textColor="#000000"
-                            android:textSize="15sp" />
-
-                    </RelativeLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+                android:layout_centerHorizontal="true"
+                android:paddingRight="25sp"
+                android:paddingLeft="20sp"
+                android:fontFamily="sans-serif"
+                android:text="Edit Profile"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:visibility="visible"/>
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_below="@id/cardview1"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="-50dp"
+                android:layout_below="@id/title"
+                android:layout_marginTop="50dp"
                 android:elevation="100dp"
                 android:src="@drawable/ic_profile_icon_24dp"
                 app:civ_border_color="#FFFFFF"
                 app:civ_border_width="3dp"/>
 
+            <TextView
+                android:id="@+id/edit_profile_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10sp"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/profile_image"
+                android:padding="10dp"
+                android:fontFamily="sans-serif"
+                android:text="Change Profile Picture"
+                android:textColor="#2196F3"
+                android:textSize="15sp"
+                android:visibility="visible"/>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_below="@id/edit_profile_button">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/first_name_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="First Name"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:padding="8dp"
+                            android:layout_alignBottom="@id/first_name"/>
+
+                        <EditText
+                            android:id="@+id/first_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="First"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/first_name_id"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp">
+
+                        <TextView
+                            android:id="@+id/last_name_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Last Name"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:padding="8dp"
+                            android:layout_alignBottom="@id/last_name"/>
+
+                        <EditText
+                            android:id="@+id/last_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="Last"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/last_name_id"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp">
+
+                        <TextView
+                            android:id="@+id/crsid_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CRSID"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingRight="41dp"
+                            android:layout_alignBottom="@id/crsid"/>
+
+                        <EditText
+                            android:id="@+id/crsid"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="crsid"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/crsid_id"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp">
+
+                        <TextView
+                            android:id="@+id/bio_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bio"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="61dp"
+                            android:layout_alignBottom="@id/bio"/>
+
+                        <EditText
+                            android:id="@+id/bio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="Bio"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/bio_id"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp">
+
+                        <TextView
+                            android:id="@+id/college_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="College"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="31dp"
+                            />
+
+                        <TextView
+                            android:id="@+id/selected_college"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="College"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/college_name"/>
+
+                        <!--<Spinner
+                            android:id="@+id/edit_college_spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignBottom="@id/college_name"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/college_name"/>-->
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp">
+
+                        <TextView
+                            android:id="@+id/degree_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Degree"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="33dp"
+                            android:layout_alignBottom="@id/edit_degree"/>
+
+                        <EditText
+                            android:id="@+id/edit_degree"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="Degree"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/degree_id"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:id="@+id/year_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Year"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="51dp"
+                            android:layout_alignBottom="@id/edit_useryear"/>
+
+                        <EditText
+                            android:id="@+id/edit_useryear"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="Year"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/year_id"/>
+                    </RelativeLayout>
+
+                    <ImageView
+                        android:layout_width="200dp"
+                        android:layout_height="150dp"
+                        android:src="@drawable/ic_culs_top_logo"
+                        android:layout_gravity="center_horizontal"
+                        />
+
+                </LinearLayout>
 
         </RelativeLayout>
 

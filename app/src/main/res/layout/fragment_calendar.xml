@@ -69,13 +69,11 @@
 
     <FrameLayout
         android:id="@+id/calendarViews"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/gradient_background"
         android:layout_below="@id/buttons"
-        android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="5dp"
         android:layout_centerHorizontal="true">
 
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
@@ -90,7 +88,7 @@
             app:mcv_selectionColor="#2196F3"
             app:mcv_selectionMode="single"
             app:mcv_showWeekDays="true"
-            app:mcv_tileHeight="31sp"
+            app:mcv_tileHeight="32sp"
             app:mcv_weekDayTextAppearance="@style/CalendarViewWeekText" />
 
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
@@ -105,7 +103,7 @@
             app:mcv_selectionColor="#2196F3"
             app:mcv_selectionMode="single"
             app:mcv_showWeekDays="true"
-            app:mcv_tileHeight="31sp"
+            app:mcv_tileHeight="32sp"
             app:mcv_weekDayTextAppearance="@style/CalendarViewWeekText" />
 
     </FrameLayout>
