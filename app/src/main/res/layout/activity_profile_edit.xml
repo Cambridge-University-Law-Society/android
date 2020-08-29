@@ -197,6 +197,53 @@
                         android:layout_marginTop="17dp">
 
                         <TextView
+                            android:id="@+id/college_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="College"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="31dp"
+                            />
+
+                        <!--<TextView
+                            android:id="@+id/selected_college"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="College"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/college_name"/>-->
+
+                        <Spinner
+                            android:id="@+id/edit_college_spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginTop="7dp"
+                            android:layout_marginLeft="7dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/college_name"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp">
+
+                        <TextView
                             android:id="@+id/bio_id"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -222,53 +269,6 @@
                             android:textColor="#000000"
                             android:textSize="16sp"
                             android:layout_toRightOf="@id/bio_id"/>
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="17dp">
-
-                        <TextView
-                            android:id="@+id/college_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="College"
-                            android:layout_marginLeft="10dp"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:paddingTop="8dp"
-                            android:paddingBottom="8dp"
-                            android:paddingLeft="8dp"
-                            android:paddingRight="31dp"
-                            />
-
-                        <TextView
-                            android:id="@+id/selected_college"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5sp"
-                            android:layout_marginLeft="12dp"
-                            android:layout_marginRight="10dp"
-                            android:fontFamily="sans-serif-light"
-                            android:hint="College"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_toRightOf="@id/college_name"/>
-
-                        <!--<Spinner
-                            android:id="@+id/edit_college_spinner"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_alignBottom="@id/college_name"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:fontFamily="sans-serif"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_toRightOf="@id/college_name"/>-->
                     </RelativeLayout>
 
                     <RelativeLayout

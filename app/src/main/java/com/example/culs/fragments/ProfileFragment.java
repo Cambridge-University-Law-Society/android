@@ -23,6 +23,7 @@ import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.ProfileEditActivity;
 import com.example.culs.helpers.GlideApp;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,6 +48,7 @@ public class ProfileFragment extends Fragment {
     private TextView signout_btn;
     private CircleImageView profileImage;
     private TextView edit_btn;
+    private GoogleSignInClient mSignInClient;
     //private ListView myInterestsList;
 
     //Firebase Instance variables - add them when you need them and explain their function
@@ -112,7 +114,8 @@ public class ProfileFragment extends Fragment {
         signout_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mFirebaseAuth.getInstance().signOut();
+                //mFirebaseAuth.getInstance().signOut();
+                FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
             }
@@ -142,74 +145,77 @@ public class ProfileFragment extends Fragment {
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if (documentSnapshot.exists()){
+                if(error == null){
+                    if (documentSnapshot.exists()){
 
-                    if (documentSnapshot.get("firstname") != null && documentSnapshot.get("lastname") != null) {
-                        String first_name = documentSnapshot.getString("firstname");
-                        String last_name = documentSnapshot.getString("lastname");
+                        if (documentSnapshot.get("firstname") != null && documentSnapshot.get("lastname") != null) {
+                            String first_name = documentSnapshot.getString("firstname");
+                            String last_name = documentSnapshot.getString("lastname");
 
-                        username.setText(first_name + " " + last_name);
-                    }else{
-                        username.setText("Username Here");
-                    }
-
-                    if (documentSnapshot.get("crsid") != null) {
-                        String crsid = documentSnapshot.getString("crsid");
-
-                        userCrsid.setText(crsid);
-                    }else{
-                        userCrsid.setText("CRSID");
-                    }
-
-                    if (documentSnapshot.get("bio") != null) {
-                        String bio = documentSnapshot.getString("bio");
-
-                        userBio.setText(bio);
-                    }else{
-                        userBio.setText("Add a description about yourself, including interests and ambitions.");
-                    }
-
-                    if (documentSnapshot.get("college") != null) {
-                        String college = documentSnapshot.getString("college");
-
-                        userCollege.setText(college);
-                    }else{
-                        userCollege.setText("Select a College");
-                    }
-
-                    if (documentSnapshot.get("year") != null) {
-                        String year = documentSnapshot.getString("year");
-
-                        userYear.setText(year);
-                    }else{
-                        userBio.setText("Your Year");
-                    }
-
-                    if (documentSnapshot.get("degree") != null) {
-                        String degree = documentSnapshot.getString("degree");
-
-                        userDegree.setText(degree);
-                    }else{
-                        userDegree.setText("Your Degree");
-                    }
-
-                    if (documentSnapshot.get("status").equals("admin")){
-                        admin.setVisibility(View.VISIBLE);
-                    }
-
-                    /*if (documentSnapshot.get("interests") != null){
-
-                        myInterests = documentSnapshot.get("interests");
-                                //toObject(MyInterestsList.class).interests;
-                        for (int i=0; i < myInterests.size(); i++){
-                            adapter.add(myInterests.get(i));
-                            adapter.notifyDataSetChanged();
+                            username.setText(first_name + " " + last_name);
+                        }else{
+                            username.setText("Username Here");
                         }
-                    }*/
+
+                        if (documentSnapshot.get("crsid") != null) {
+                            String crsid = documentSnapshot.getString("crsid");
+
+                            userCrsid.setText(crsid);
+                        }else{
+                            userCrsid.setText("CRSID");
+                        }
+
+                        if (documentSnapshot.get("bio") != null) {
+                            String bio = documentSnapshot.getString("bio");
+
+                            userBio.setText(bio);
+                        }else{
+                            userBio.setText("Add a description about yourself, including interests and ambitions.");
+                        }
+
+                        if (documentSnapshot.get("college") != null) {
+                            String college = documentSnapshot.getString("college");
+
+                            userCollege.setText(college);
+                        }else{
+                            userCollege.setText("Select a College");
+                        }
+
+                        if (documentSnapshot.get("year") != null) {
+                            String year = documentSnapshot.getString("year");
+
+                            userYear.setText(year);
+                        }else{
+                            userBio.setText("Your Year");
+                        }
+
+                        if (documentSnapshot.get("degree") != null) {
+                            String degree = documentSnapshot.getString("degree");
+
+                            userDegree.setText(degree);
+                        }else{
+                            userDegree.setText("Your Degree");
+                        }
+
+                        if (documentSnapshot.get("status").equals("admin")){
+                            admin.setVisibility(View.VISIBLE);
+                        }
+
+                        /*if (documentSnapshot.get("interests") != null){
+
+                            myInterests = documentSnapshot.get("interests");
+                                    //toObject(MyInterestsList.class).interests;
+                            for (int i=0; i < myInterests.size(); i++){
+                                adapter.add(myInterests.get(i));
+                                adapter.notifyDataSetChanged();
+                            }
+                        }*/
+
+                    }
 
                 }
-
             }
+
         });
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -220,8 +226,12 @@ public class ProfileFragment extends Fragment {
                     if (document.exists()) {
                         myInterests = (List<String>) document.get("interests");
                         final ArrayList<String> list = new ArrayList<String>();
-                        for (int i = 0; i < myInterests.size(); ++i) {
+                        if (myInterests == null){
+                            list.add("You don't have any interests");
+                        }else{
+                            for (int i = 0; i < myInterests.size(); ++i) {
                             list.add(myInterests.get(i));
+                            }
                         }
                         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, list);
                         myInterestsList.setAdapter(adapter);

@@ -9,4 +9,6 @@
     <color name="background_light">#FFFFFF</color>
     <color name="cards">#FFFFFF</color>
     <color name="dark_text">#000000</color>
+    <color name="edit_text_box">#F4F2F2</color>
+    <color name="edit_text_box_border">#E1E1E1</color>
 </resources>

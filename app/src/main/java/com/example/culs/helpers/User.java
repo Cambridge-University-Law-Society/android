@@ -18,11 +18,12 @@ public class User {
     private String mStatus;
     private String mDegree;
     private String mProfilePicRef;
+    private ArrayList<String> mMyInterests;
 
     public User() {
     }
 
-    public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String degree, String profilePicRef) {
+    public User(String firstname, String lastname, String college, String year, String crsid, String uid, ArrayList<String> myevents, String bio, String status, String degree, ArrayList<String> interests) {
 
         mFirstname = firstname;
         mLastname = lastname;
@@ -34,7 +35,7 @@ public class User {
         mBio = bio;
         mStatus = status;
         mDegree = degree;
-        mProfilePicRef = profilePicRef;
+        mMyInterests = interests;
     }
 
     public String getFirstname() {
@@ -67,6 +68,9 @@ public class User {
     public String getDegree() {
         return mDegree;
     }
+    public ArrayList<String> getMyInterests() {
+        return mMyInterests;
+    }
 
     public void setFirstname(String firstname) {
         this.mFirstname = firstname;
@@ -98,6 +102,7 @@ public class User {
     public void setDegree(String degree) {
         this.mDegree = degree;
     }
-
+    public void setMyInterests(ArrayList<String> interests) {this.mMyInterests = interests;}
 }
+
 

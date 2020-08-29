@@ -86,11 +86,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_edit);
 
-        try {
-            loadCurrentData();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
         firebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + userid);
@@ -113,7 +108,14 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
-
+        //SPINNER STUFF
+        final Spinner userCollege = findViewById(R.id.edit_college_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        // Apply the adapter to the spinner
+        userCollege.setAdapter(adapter);
 
         save_btn = findViewById(R.id.button_done);
         save_btn.setOnClickListener(new View.OnClickListener() {
@@ -124,15 +126,15 @@ public class ProfileEditActivity extends AppCompatActivity {
                     Toast.makeText(ProfileEditActivity.this, "Upload in Progress", Toast.LENGTH_SHORT).show();
                 }else {
                     uploadFile();
-                    updateData();
+                    updateData(userCollege);
                 }
 
-                goToFragment();
+                //goToFragment();
                 //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
 
-                /*Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
+                Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
 
@@ -140,24 +142,20 @@ public class ProfileEditActivity extends AppCompatActivity {
         cancel_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToFragment();
+                //goToFragment();
                 //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
-                /*Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
+                Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
 
-        /*//SPINNER STUFF
-        Spinner userCollege = findViewById(R.id.edit_college_spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        userCollege.setAdapter(adapter);*/
 
-
+        try {
+            loadCurrentData(adapter, userCollege);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void goToFragment() {
@@ -181,14 +179,14 @@ public class ProfileEditActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    private void loadCurrentData() throws IOException {
+    private void loadCurrentData(final ArrayAdapter<CharSequence> adapter, final Spinner mSpinner) throws IOException {
         //load the current data from firebase into the edit text views
 
         final EditText firstName = (EditText) findViewById(R.id.first_name);
         final EditText lastName = (EditText) findViewById(R.id.last_name);
         final EditText userCrsid = (EditText) findViewById(R.id.crsid);
         final EditText userBio = (EditText) findViewById(R.id.bio);
-        final TextView userCollege = (TextView) findViewById(R.id.selected_college);
+        //final TextView userCollege = (TextView) findViewById(R.id.selected_college);
         final EditText userYear = (EditText) findViewById(R.id.edit_useryear);
         final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
 
@@ -227,7 +225,12 @@ public class ProfileEditActivity extends AppCompatActivity {
                             if (documentSnapshot.get("college") != null) {
                                 String college = documentSnapshot.getString("college");
 
-                                userCollege.setText(college);
+                                if (college != null){
+                                    int spinnerPosition = adapter.getPosition(college);
+                                    mSpinner.setSelection(spinnerPosition);
+                                }
+
+                                //userCollege.setText(college);
                             }else{
                             }
 
@@ -292,7 +295,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     }
 
-    private void updateData() {
+    private void updateData(Spinner mSpinner) {
         //TODO: MAKE THIS CODE BETTER
         //this will update the document with the information in the editText boxes
 
@@ -315,13 +318,17 @@ public class ProfileEditActivity extends AppCompatActivity {
         String user_year = userYear.getText().toString().trim();
         String user_degree = userDegree.getText().toString().trim();
 
+        //get the value from the spinner
+        String user_college = mSpinner.getSelectedItem().toString();
+
         docRef.update("firstname", first_name);
         docRef.update("lastname", last_name);
         docRef.update("crsid", user_crsid);
         docRef.update("bio", user_bio);
-        //docRef.update("college", user_college);
+        docRef.update("college", user_college);
         docRef.update("year", user_year);
         docRef.update("degree", user_degree);
+
 
 
     }
