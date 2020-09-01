@@ -11,25 +11,66 @@
     android:background="@android:color/transparent">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/interests_card2"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardMaxElevation="8dp"
+        app:cardCornerRadius="5dp"
         app:strokeColor="#000000"
         app:strokeWidth="5dp"
+        android:backgroundTint="#000000"
+        >
+
+        <TextView
+            android:id="@+id/interests_tag2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:fontFamily="sans-serif"
+            android:textColor="#000000"
+            android:paddingTop="11dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="18dp"
+            android:text="Interests"
+            android:textSize="17sp"
+            />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/interests_card"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="4dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp"
+        app:strokeColor="#000000"
+        app:strokeWidth="5dp"
+        android:background="@color/cards"
+        android:elevation="1dp"
         >
 
         <TextView
             android:id="@+id/interests_tag"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:singleLine="true"
             android:fontFamily="sans-serif"
             android:textColor="#000000"
-            android:textSize="17dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="15dp"
+            android:paddingTop="15dp"
             android:text="Interests"
-
+            android:gravity="center_horizontal"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="16dp"
+            android:autoSizeMinTextSize="6dp"
+            android:autoSizeStepGranularity="2dp"
+            android:singleLine="true"
             />
 
     </androidx.cardview.widget.CardView>

@@ -14,13 +14,19 @@
         <activity
             android:name=".activities.ProfileEditActivity"
             android:label="@string/title_activity_profile_edit"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".activities.SignUpActivity">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".activities.SignUpActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LoginActivity">
+        <activity android:name=".activities.LoginActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +37,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.MainActivity"
-                android:hardwareAccelerated="true">
+                android:hardwareAccelerated="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
 
 
             <intent-filter>

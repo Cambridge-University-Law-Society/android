@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/interest_cardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/background"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:id="@+id/interests_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You don't have any interests"
+            android:textColor="@color/background_light"
+            android:layout_gravity="center_horizontal"
+            android:textSize="14dp"
+            android:padding="5dp"
+            android:layout_margin="5dp"/>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
