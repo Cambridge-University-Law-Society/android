@@ -11,13 +11,23 @@ import android.widget.Toast;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
+import com.example.culs.helpers.CustomAdapter;
+import com.example.culs.helpers.Post;
+import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.Sponsor;
-import com.example.culs.helpers.SponsorAdapter;
-import com.example.culs.helpers.SponsorHolder;
-import com.google.firebase.firestore.DocumentReference;
+import com.example.culs.helpers.User;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,37 +39,93 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class SponsorsFragment extends Fragment implements SponsorHolder.OnSponsorListener{
+public class SponsorsFragment extends Fragment {
     private RecyclerView sponsorsView;
-    private String[] linkstring = {"banana", "apple"};
+    private View rootView;
+    private CustomAdapter customAdapter;
+    private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
+    private List<PostType> types = new ArrayList<>();
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_sponsors, container, false);
-        setHasOptionsMenu(true);//Make sure you have this line of code.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setEnterTransition(new android.transition.Slide());
-            setExitTransition(new android.transition.Slide());
-        }
-
-        final ArrayList<Sponsor> sponsors = new ArrayList<Sponsor>();
-
-        SponsorAdapter adapter = new SponsorAdapter(getActivity() , R.layout.sponsor_item, sponsors, this);
-        sponsorsView = (RecyclerView) rootView.findViewById(R.id.sponsor_list);
-        sponsorsView.setAdapter(adapter);
-        sponsorsView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        Toolbar myToolbar = rootView.findViewById(R.id.my_sponsors_toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        setupCustomAdapter(rootView);
+        setupToolbarOptionsMenu(rootView);
         return rootView;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        types.clear();
+        getListItems();
+        customAdapter.notifyDataSetChanged();
+    }
+
+    public void onStop() {
+        super.onStop();
+    }
+
+    private void setupCustomAdapter(View rootView) {
+        sponsorsView = (RecyclerView) rootView.findViewById(R.id.list);
+        sponsorsView.setHasFixedSize(true);
+        sponsorsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        customAdapter = new CustomAdapter(types);
+        sponsorsView.setAdapter(customAdapter);
+
+        customAdapter.setOnSponsorItemClickListener(new CustomAdapter.OnSponsorItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Sponsor clickedPost = (Sponsor) types.get(position);
+                onSponsorClick(v, clickedPost);
+        }
+        });
+    }
+
+    private void getListItems() {
+
+        mFirebaseFirestore.collection("Sponsors").orderBy("name", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                        if (error != null) {
+                            System.err.println("Listen failed:" + error);
+                            return;
+                        }
+
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Sponsor sponsorAdded = dc.getDocument().toObject(Sponsor.class);
+                                    sponsorAdded.setSponsorID(dc.getDocument().getId());
+                                    types.add(dc.getNewIndex(), sponsorAdded);
+                                    break;
+                                case MODIFIED:
+                                    types.remove(dc.getOldIndex());
+                                    Sponsor sponsorChanged = dc.getDocument().toObject(Sponsor.class);
+                                    sponsorChanged.setSponsorID(dc.getDocument().getId());
+                                    types.add(dc.getNewIndex(), sponsorChanged);
+                                    break;
+                                case REMOVED:
+                                    types.remove(dc.getOldIndex());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
+
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
@@ -67,13 +133,36 @@ public class SponsorsFragment extends Fragment implements SponsorHolder.OnSponso
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    @Override
-    public void onSponsorClick(View v, int position, ArrayList<Sponsor> sponsorList) {
-        Sponsor currentSponsor = sponsorList.get(position);
-
-        Toast.makeText(getActivity(), currentSponsor.getSponsorName(), Toast.LENGTH_LONG).show();
+    private void setupToolbarOptionsMenu(View rootView) {
+        setHasOptionsMenu(true);
+        Toolbar myToolbar = rootView.findViewById(R.id.my_toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    public void onSponsorClick(View v, Sponsor currentSponsor) {
+
+        Fragment nextFragment = new ExpandedSponsorsFragment();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+            nextFragment.setEnterTransition(new android.transition.Fade());
+            nextFragment.setExitTransition(new android.transition.Fade());
+            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putString("Current Sponsor ID", currentSponsor.getSponsorID());
+        nextFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
 }
 
 

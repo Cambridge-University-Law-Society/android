@@ -3,6 +3,8 @@ package com.example.culs.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +18,7 @@ import com.example.culs.R;
 import com.example.culs.fragments.CalendarFragment;
 import com.example.culs.fragments.EventsFragment;
 import com.example.culs.fragments.HomeFragment;
+import com.example.culs.fragments.NotificationsFragment;
 import com.example.culs.fragments.ProfileFragment;
 import com.example.culs.fragments.SponsorsFragment;
 import com.firebase.ui.auth.AuthUI;
@@ -108,12 +111,19 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
 
-
-
     }
 
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.messenger:
+                Fragment notifications = new NotificationsFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, notifications).addToBackStack(null).commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onPause() {

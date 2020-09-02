@@ -1,80 +1,60 @@
 package com.example.culs.helpers;
 
+import java.util.List;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import java.net.URL;
-
-
-public class Sponsor implements Parcelable {
+public class Sponsor implements PostType {
 
     private String mSponsorName;
     private String mSponsorDescription;
     private String mSponsorURL;
-    private String mSponsorLinks[];
+    private List<String> mSponsorLinks;
     private String mSponsorTypes;
-    private int mSponsorLogo = NO_IMAGE_PROVIDED;
-    private static final int NO_IMAGE_PROVIDED = -1;
+    private String mSponsorID;
 
+    public Sponsor(){}
 
-    public Sponsor(String sponsorName, String sponsorDescription, int sponsorLogo, String sponsorTypes, String sponsorURL, String sponsorLinks[]) {
+    public Sponsor(String sponsorName, String sponsorDescription, String SponsorID, String sponsorTypes, String sponsorURL, List<String> sponsorLinks) {
         mSponsorName = sponsorName;
         mSponsorDescription = sponsorDescription;
         mSponsorURL = sponsorURL;
         mSponsorLinks = sponsorLinks;
-        mSponsorLogo = sponsorLogo;
+        mSponsorID = SponsorID;
         mSponsorTypes = sponsorTypes;
     }
 
-    public static final Creator<Sponsor> CREATOR = new Creator<Sponsor>() {
-        @Override
-        public Sponsor createFromParcel(Parcel in) {
-            return new Sponsor(in);
-        }
 
-        @Override
-        public Sponsor[] newArray(int size) {
-            return new Sponsor[size];
-        }
-    };
-
-    public Sponsor(Parcel in) {
-        mSponsorName = in.readString();
-        mSponsorDescription = in.readString();
-        mSponsorLogo = in.readInt();
-        mSponsorTypes = in.readString();
-        mSponsorURL = in.readString();
-        mSponsorLinks = in.createStringArray();
-
-    }
-
-    public String getSponsorName() {
+    public String getName() {
         return mSponsorName;
     }
-    public String getSponsorDescription() {
+    public String getBio() {
         return mSponsorDescription;
     }
-    public String getSponsorURL() { return mSponsorURL; }
-    public String[] getSponsorLinks() {
+    public String getWebsite() { return mSponsorURL; }
+    public List<String> getRelatedLinks() {
         return mSponsorLinks;
     }
-    public int getSponsorLogo() { return mSponsorLogo; }
-    public String getSponsorTypes() { return mSponsorTypes; }
+    public String getTypes() { return mSponsorTypes; }
+    public String getSponsorID() { return mSponsorID; }
+
+    public void setName(String mSponsorName) { this.mSponsorName = mSponsorName; }
+    public void setBio(String mSponsorDescription) { this.mSponsorDescription = mSponsorDescription; }
+    public void setWebsite(String mSponsorURL) { this.mSponsorURL = mSponsorURL; }
+    public void setRelatedLinks(List<String> mSponsorLinks) { this.mSponsorLinks = mSponsorLinks; }
+    public void setTypes(String mSponsorTypes) { this.mSponsorTypes = mSponsorTypes; }
+    public void setSponsorID(String mSponsorID) { this.mSponsorID = mSponsorID; }
 
     @Override
-    public int describeContents() {
+    public int getType() {
+        return TYPE_SPONSOR;
+    }
+
+    @Override
+    public long getTimediff() {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(mSponsorName);
-        parcel.writeString(mSponsorDescription);
-        parcel.writeString(mSponsorURL);
-        parcel.writeStringArray(mSponsorLinks);
-        parcel.writeString(mSponsorTypes);
-        parcel.writeInt(mSponsorLogo);
-
+    public int compareTo(PostType postType) {
+        return 0;
     }
 }
