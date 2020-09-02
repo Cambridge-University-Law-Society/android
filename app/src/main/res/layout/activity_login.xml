@@ -8,12 +8,22 @@
     tools:context=".activities.LoginActivity"
     >
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="110dp"
+            android:contentDescription="culs_logo"
+            app:srcCompat="@drawable/ic_culs_top_logo" />
 
         <!--<ImageView
             android:layout_width="wrap_content"
@@ -26,26 +36,94 @@
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_button"
-            android:layout_width="330sp"
-            android:layout_height="64sp"
+            android:layout_width="300sp"
+            android:layout_height="60sp"
             android:layout_below="@id/imageView2"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="250sp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="80sp"
             android:background="#00FFFFFF"
             android:text="Sign In with Raven"
             app:srcCompat="@drawable/ic_culs_signin_button" />
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="254dp"
+        <TextView
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
-            android:contentDescription="culs_logo"
-            app:srcCompat="@drawable/ic_culs_top_logo" />
+            android:layout_below="@id/sign_in_button"
+            android:layout_marginTop="5dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Join the CULS community and sign up with Raven"
+            android:fontFamily="sans-serif-light"
+            android:textStyle="bold"
+            android:textColor="#C6C2C2"
+            android:gravity="center_horizontal"
+            />
+
+        <LinearLayout
+            android:id="@+id/linear_layout2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal"
+            >
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/solid_line"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OR"
+                android:textStyle="bold"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"/>
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/solid_line"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Already have an account?"
+                    android:layout_gravity="center_horizontal"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Log in"
+                    android:textColor="#3F51B5"
+                    android:layout_gravity="center_horizontal"
+                    />
+
+            </LinearLayout>
+        </RelativeLayout>
 
 
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

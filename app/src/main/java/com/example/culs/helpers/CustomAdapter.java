@@ -5,6 +5,8 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,21 +19,29 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.embersoft.expandabletextview.ExpandableTextView;
 
-public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
     private List<PostType> mTypes;
+
+    //when we filter through the list we'll remove items from it but when we remove characters from the input edit text we need to put items back into the list
+    // therefore we create a copy of the list which always contains all the items
+    private List<PostType> mTypesFull;
+
     private SimpleDateFormat spf = new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
     private OnEventItemClickListener mEventListener;
     private OnPostItemClickListener mPostListener;
 
     public CustomAdapter(List<PostType> types) {
         mTypes = types;
+
+        mTypesFull = new ArrayList<>(mTypes); //a new array list that contains all the items in types but also is independent
     }
 
     public interface OnEventItemClickListener {
@@ -254,4 +264,52 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+
+
+
+    @Override
+    public Filter getFilter() {
+        return mTypesFilter;
+    }
+
+    private Filter mTypesFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            //performFiltering will work in the background so will not freeze the app
+            //the charSequence will be the input from the search - so use this as logic
+            List<PostType> filteredList = new ArrayList<>();
+
+
+            if (charSequence == null || charSequence.length() == 0){
+                filteredList.addAll(mTypesFull); //contains all the items
+            }else{
+                String filterInput = charSequence.toString().toLowerCase().trim();
+                for (int position=0 ; position < mTypesFull.size(); position++ ){
+                    PostType type = mTypesFull.get(position);
+                        if (type.getType() == PostType.TYPE_EVENT){
+                            Card card = (Card) mTypesFull.get(position);
+                            if (card.getName().toLowerCase().contains(filterInput)){
+                                filteredList.add(type);
+                            }
+                        }
+                        if (type.getType() == PostType.TYPE_POST){
+                            Post post = (Post) mTypesFull.get(position);
+                            if(post.getTitle().toLowerCase().contains(filterInput)){
+                                filteredList.add(type);
+                            }
+                        }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            mTypes.clear();//we only want to have the filtered results in this list
+            mTypes.addAll((List) filterResults.values);
+            notifyDataSetChanged();
+        }
+    };
 }
