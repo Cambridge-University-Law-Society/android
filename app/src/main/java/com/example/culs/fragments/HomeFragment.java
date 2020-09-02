@@ -1,12 +1,15 @@
 package com.example.culs.fragments;
 
+import android.app.SearchManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import com.example.culs.R;
@@ -16,6 +19,7 @@ import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.User;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,6 +33,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -53,6 +58,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 
     @Nullable
@@ -227,8 +233,142 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         inflater.inflate(R.menu.app_bar, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchView.setIconifiedByDefault(false);
+        searchView.setQueryHint("Search Event Names");
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                //customAdapter.getFilter().filter(s);
+                types.clear();
+                customAdapter.notifyDataSetChanged();
+                if (s == null || s.length() == 0){
+                    getListItems();
+                    types.clear();
+                    customAdapter.notifyDataSetChanged();
+                }else{
+                    String myString = s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
+                    userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                            if (error != null) {
+                                System.err.println("Listen failed: " + error);
+                                return;
+                            }
+
+                            if (value != null && value.exists()) {
+                                currentUser = value.toObject(User.class);
+                            } else {
+                                System.out.print("Current data: null");
+                            }
+                        }
+                    });
+
+
+
+                    mFirebaseFirestore.collection("Events").orderBy("name").startAt(myString.toUpperCase()).endAt(myString + "\ufBff")
+                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                                    if (error != null) {
+                                        System.err.println("Listen failed:" + error);
+                                        return;
+                                    }
+
+                                    for (DocumentChange dc : value.getDocumentChanges()) {
+                                        switch (dc.getType()) {
+                                            case ADDED:
+                                                Card cardAdded = dc.getDocument().toObject(Card.class);
+                                                cardAdded.setID(dc.getDocument().getId());
+                                                if(currentUser.getMyevents() == null){
+                                                    cardAdded.setInterested(false);
+                                                } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                                    cardAdded.setInterested(true);
+                                                } else {
+                                                    cardAdded.setInterested(false);
+                                                }
+                                                types.add(dc.getNewIndex(), cardAdded);
+                                                break;
+                                            case MODIFIED:
+                                                types.remove(dc.getOldIndex());
+                                                Card cardChanged = dc.getDocument().toObject(Card.class);
+                                                cardChanged.setID(dc.getDocument().getId());
+                                                if(currentUser.getMyevents() == null){
+                                                    cardChanged.setInterested(false);
+                                                } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
+                                                    cardChanged.setInterested(true);
+                                                } else {
+                                                    cardChanged.setInterested(false);
+                                                }
+                                                types.add(dc.getNewIndex(), cardChanged);
+                                                break;
+                                            case REMOVED:
+                                                types.remove(dc.getOldIndex());
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                    customAdapter.notifyDataSetChanged();
+                                }
+                            });
+
+                    mFirebaseFirestore.collection("posts").orderBy("title").startAt(s).endAt(s)
+                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                    if (error != null) {
+                                        System.err.println("Listen failed:" + error);
+                                        return;
+                                    }
+
+                                    for (DocumentChange dc : value.getDocumentChanges()) {
+                                        switch (dc.getType()) {
+                                            case ADDED:
+                                                Post postAdded = dc.getDocument().toObject(Post.class);
+                                                postAdded.setPostID(dc.getDocument().getId());
+                                                types.add(postAdded);
+                                                break;
+                                            case MODIFIED:
+                                                types.remove(dc.getOldIndex());
+                                                Post postChanged = dc.getDocument().toObject(Post.class);
+                                                postChanged.setPostID(dc.getDocument().getId());
+                                                types.add(postChanged);
+                                                break;
+                                            case REMOVED:
+                                                types.remove(dc.getOldIndex());
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
+                                    }
+                                    Collections.sort(types);
+                                    customAdapter.notifyDataSetChanged();
+                                }
+                            });
+
+
+                }
+                return false;
+            }
+        });
+
         super.onCreateOptionsMenu(menu, inflater);
     }
+
 
     private void setupToolbarOptionsMenu(View rootView) {
         setHasOptionsMenu(true);
@@ -236,8 +376,8 @@ public class HomeFragment extends Fragment {
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     public void onCardClick(View v, Card currentCard) {

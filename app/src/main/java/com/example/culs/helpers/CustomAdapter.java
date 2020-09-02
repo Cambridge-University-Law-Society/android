@@ -29,7 +29,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private SimpleDateFormat spf = new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
     private OnEventItemClickListener mEventListener;
     private OnPostItemClickListener mPostListener;
-    private OnSponsorItemClickListener mSponsorListener;
 
     public CustomAdapter(List<PostType> types) {
         mTypes = types;
@@ -44,20 +43,12 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         void onItemClick(View v, int position);
     }
 
-    public interface OnSponsorItemClickListener {
-        void onItemClick(View v, int position);
-    }
-
     public void setOnEventItemClickListener(OnEventItemClickListener listener) {
         mEventListener = listener;
     }
 
     public void setOnPostItemClickListener(OnPostItemClickListener listener) {
         mPostListener = listener;
-    }
-
-    public void setOnSponsorItemClickListener(OnSponsorItemClickListener listener) {
-        mSponsorListener = listener;
     }
 
     public class EventViewHolder extends RecyclerView.ViewHolder {
@@ -208,63 +199,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public class SponsorViewHolder extends RecyclerView.ViewHolder {
-
-        ImageView sponsorPic;
-        TextView sponsorName, sponsorDescription, sponsorTypes;
-
-        public SponsorViewHolder(@NonNull View itemView) {
-            super(itemView);
-            sponsorName = (TextView) itemView.findViewById(R.id.sponsor_name_text_view);
-            sponsorDescription = (TextView) itemView.findViewById(R.id.sponsor_description_text_view);
-            sponsorTypes = (TextView) itemView.findViewById(R.id.sponsor_law_types);
-            sponsorPic = (ImageView) itemView.findViewById(R.id.sponsor_logo_image_view);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mSponsorListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            mSponsorListener.onItemClick(v, position);
-                        }
-                    }
-                }
-            });
-        }
-
-        void bindView(int position) {
-
-            final Sponsor sponsor = (Sponsor) mTypes.get(position);
-
-            sponsorName.setText(sponsor.getName());
-            sponsorDescription.setText(sponsor.getBio());
-            sponsorTypes.setText(sponsor.getTypes());
-            sponsorPic.setImageDrawable(null);
-
-            FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
-            StorageReference sponsorStorageRef = sponsorStorage.getReference();
-            StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + sponsor.getName() + "/logo.png");
-            sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    String sponsorImageUri = uri.toString();
-                    GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(sponsorPic);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(sponsorPic);
-                }
-            });
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.sponsorPic.setTransitionName(sponsor.getName() + "_image");
-            }
-
-        }
-    }
-
     @Override
     public int getItemViewType(int position) {
         return mTypes.get(position).getType();
@@ -279,14 +213,11 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 itemView = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.card_item, parent, false);
                 return new EventViewHolder(itemView);
-            case PostType.TYPE_SPONSOR:
-                itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.sponsor_item, parent, false);
-                return new SponsorViewHolder(itemView);
             default:
                 itemView = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.post_item, parent, false);
                 return new PostViewHolder(itemView);
+
         }
     }
 
@@ -299,8 +230,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case PostType.TYPE_POST:
                 ((PostViewHolder) holder).bindView(position);
                 break;
-            case PostType.TYPE_SPONSOR:
-                ((SponsorViewHolder) holder).bindView(position);
 
         }
     }
@@ -324,4 +253,5 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             notifyItemRangeRemoved(0, size);
         }
     }
+
 }

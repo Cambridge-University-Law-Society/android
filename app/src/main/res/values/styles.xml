@@ -8,6 +8,25 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textColor">@color/background_light</item>
+        <item name="hintTextColor">@color/background_light</item>
+        <item name="android:actionMenuTextColor">@color/background_light</item>
+        <item name="actionBarTheme">@style/ActionBar</item>
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme1" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/navAndActionBar</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:textColor">@color/background_light</item>
+        <item name="hintTextColor">@color/background_light</item>
+        <item name="android:actionMenuTextColor">@color/background_light</item>
+        <item name="actionBarTheme">@style/ActionBar</item>
     </style>
 
     <style name="CalendarViewHeader">
@@ -31,6 +50,17 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ActionBar" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="searchViewStyle">@style/SearchViewStyle</item>
+    </style>
+    
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView.ActionBar">
+        <item name="android:textColor">@color/background_light</item>
+        <item name="hintTextColor">@color/background_light</item>
+        <item name="android:hint">"Search Event Name"</item>
+
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
