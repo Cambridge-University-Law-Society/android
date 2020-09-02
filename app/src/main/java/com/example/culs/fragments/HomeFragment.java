@@ -277,7 +277,7 @@ public class HomeFragment extends Fragment {
 
 
 
-                    mFirebaseFirestore.collection("Events").orderBy("name").startAt(myString.toUpperCase()).endAt(myString + "\ufBff")
+                    mFirebaseFirestore.collection("Events").orderBy("name").startAt(myString).endAt(myString + "\ufBff")
                             .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                 @Override
                                 public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
