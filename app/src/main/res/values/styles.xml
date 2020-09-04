@@ -1,19 +1,21 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/navAndActionBar</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_baseline_arrow_back_24</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:textColor">@color/background_light</item>
+        <item name="android:textSize">16dp</item>
         <item name="hintTextColor">@color/background_light</item>
         <item name="android:actionMenuTextColor">@color/background_light</item>
         <item name="actionBarTheme">@style/ActionBar</item>
-        <item name="android:editTextColor">@android:color/white</item>
-        <item name="android:textColorHint">@android:color/white</item>
+        <item name="android:editTextColor">@android:color/background_dark</item>
+        <item name="android:textColorHint">@android:color/darker_gray</item>
     </style>
 
     <style name="AppTheme1" parent="AppTheme">
@@ -27,6 +29,12 @@
         <item name="hintTextColor">@color/background_light</item>
         <item name="android:actionMenuTextColor">@color/background_light</item>
         <item name="actionBarTheme">@style/ActionBar</item>
+    </style>
+
+    <style name="CollapsingToolbarLayoutExpandedTextStyle" parent="AppTheme">
+        <item name="android:textColor">@android:color/transparent</item>
+        <item name="android:textSize">0sp</item>
+        <item name="android:src">@drawable/ic_culs_top_logo_invert</item>
     </style>
 
     <style name="CalendarViewHeader">

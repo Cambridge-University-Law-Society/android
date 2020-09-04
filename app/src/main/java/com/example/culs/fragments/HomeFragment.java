@@ -1,8 +1,13 @@
 package com.example.culs.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.SearchManager;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,11 +18,15 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import com.example.culs.R;
+import com.example.culs.helpers.AppBarStateChangeListener;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.User;
+import com.firebase.ui.auth.data.model.State;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
@@ -29,12 +38,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -55,10 +66,42 @@ public class HomeFragment extends Fragment {
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
 
+    private AppBarLayout appBarLayout1,appBarLayout2;
+    private Toolbar toolbar;
+    private int shortAnimationDuration;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+    }
+
+    private void crossFade(final View fadeOutView, View fadeInView) {
+
+        // Set the content view to 0% opacity but visible, so that it is visible
+        // (but fully transparent) during the animation.
+        fadeInView.setAlpha(0f);
+        fadeInView.setVisibility(View.VISIBLE);
+
+        // Animate the content view to 100% opacity, and clear any animation
+        // listener set on the view.
+        fadeInView.animate()
+                .alpha(1f)
+                .setDuration(shortAnimationDuration)
+                .setListener(null);
+
+        // Animate the loading view to 0% opacity. After the animation ends,
+        // set its visibility to GONE as an optimization step (it won't
+        // participate in layout passes, etc.)
+        fadeOutView.animate()
+                .alpha(0f)
+                .setDuration(shortAnimationDuration)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fadeOutView.setVisibility(View.GONE);
+                    }
+                });
     }
 
     @Nullable
@@ -66,7 +109,53 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         setupCustomAdapter(rootView);
-        setupToolbarOptionsMenu(rootView);
+
+        appBarLayout1 = (AppBarLayout) rootView.findViewById(R.id.appBarLayout);
+        appBarLayout2 = rootView.findViewById(R.id.appBarLayout2);
+        //toolbar = (Toolbar) rootView.findViewById(R.id.toolbar2);
+
+        /*appBarLayout1.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if(verticalOffset != 1) {
+                    appBarLayout2.setVisibility(View.INVISIBLE);
+                } else{
+                    appBarLayout2.setVisibility(View.VISIBLE);
+                }
+            }
+        });*/
+
+        /*appBarLayout1.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(AppBarLayout appBarLayout, State state) {
+                Log.d("STATE", state.name());
+                if (state.name().equals("IDLE")){
+                    appBarLayout2.animate()
+                            .alpha(1f)
+                            .setDuration(shortAnimationDuration)
+                            .setListener(null);
+                }else if(state.name().equals("COLLAPSED")){
+                    appBarLayout2.setVisibility(View.VISIBLE);
+                }
+                else{
+                    appBarLayout2.setVisibility(View.INVISIBLE);
+                }
+            }
+        });*/
+
+        appBarLayout1.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                float percentage = ((float)Math.abs(verticalOffset)/appBarLayout.getTotalScrollRange());
+                appBarLayout2.setAlpha(percentage);
+                Log.d("PERC", String.valueOf(percentage));
+                if(percentage==0){
+                    //toolbar.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        //setupToolbarOptionsMenu(rootView);
         return rootView;
     }
 
@@ -237,9 +326,12 @@ public class HomeFragment extends Fragment {
         MenuItem searchItem = menu.findItem(R.id.action_search);
 
         SearchView searchView = (SearchView) searchItem.getActionView();
+        SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         searchView.setIconifiedByDefault(false);
-        searchView.setQueryHint("Search Event Names");
+        searchView.setQueryHint(" Search Events");
+        searchView.setBackgroundColor(getResources().getColor(android.R.color.white));
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
@@ -254,9 +346,9 @@ public class HomeFragment extends Fragment {
                 types.clear();
                 customAdapter.notifyDataSetChanged();
                 if (s == null || s.length() == 0){
-                    getListItems();
+                    /*getListItems();
                     types.clear();
-                    customAdapter.notifyDataSetChanged();
+                    customAdapter.notifyDataSetChanged();*/
                 }else{
                     String myString = s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
                     userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -362,7 +454,7 @@ public class HomeFragment extends Fragment {
 
 
                 }
-                return false;
+                return true;
             }
         });
 
@@ -376,7 +468,7 @@ public class HomeFragment extends Fragment {
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-        //((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_culs_top_logo_invert);// set drawable icon
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
