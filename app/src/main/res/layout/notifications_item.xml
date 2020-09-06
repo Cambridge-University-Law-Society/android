@@ -42,7 +42,7 @@
                     >
 
                     <TextView
-                        android:id="@+id/post_title_text_view"
+                        android:id="@+id/notification_title_text_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
@@ -56,6 +56,7 @@
                         android:fontFamily="sans-serif"
                         tools:text="Fleek Fridays" />
 
+
                 </RelativeLayout>
 
                 <LinearLayout
@@ -68,7 +69,7 @@
                     android:layout_alignParentLeft="true">
 
                     <TextView
-                        android:id="@+id/post_date_and_time_text_view"
+                        android:id="@+id/notification_date_and_time_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="8dp"
@@ -81,6 +82,7 @@
                         android:fontFamily="sans-serif-light"
                         tools:text="Friday 15th October: 22:00" />
 
+
                     <TextView
                         android:id="@+id/notification_type_text_view"
                         android:layout_width="wrap_content"
@@ -91,17 +93,17 @@
                         android:textSize="12dp"
                         android:textColor="@android:color/darker_gray"
                         android:fontFamily="sans-serif-light"
-                        tools:text="Ballare, Regent's Street" />
+                        tools:text="Event" />
 
                 </LinearLayout>
 
                 <ru.embersoft.expandabletextview.ExpandableTextView
-                    android:id="@+id/post_content_text_view"
+                    android:id="@+id/notification_content_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/notification_date_loc_holder"
                     app:etv_animationTime="20"
-                    app:etv_expandLines="3"
+                    app:etv_expandLines="2"
                     app:etv_showLine="false"
                     app:etv_textContentSize="14sp"
                     app:etv_textExpand="Show more"

@@ -8,9 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.example.culs.helpers.GlideApp;
+
 import com.example.culs.R;
-import com.example.culs.fragments.HomeFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -28,7 +27,7 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<PostType> mTypes;
     private SimpleDateFormat spf = new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
     private OnEventItemClickListener mEventListener;
-    private OnPostItemClickListener mPostListener;
+    private OnSponsorItemClickListener mSponsorListener;
 
     public CustomAdapter(List<PostType> types) {
         mTypes = types;
@@ -39,7 +38,7 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         void onInterestedClick(View v, int position);
     }
 
-    public interface OnPostItemClickListener {
+    public interface OnSponsorItemClickListener {
         void onItemClick(View v, int position);
     }
 
@@ -47,8 +46,8 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         mEventListener = listener;
     }
 
-    public void setOnPostItemClickListener(OnPostItemClickListener listener) {
-        mPostListener = listener;
+    public void setOnSponsorItemClickListener(OnSponsorItemClickListener listener) {
+        mSponsorListener = listener;
     }
 
     public class EventViewHolder extends RecyclerView.ViewHolder {
@@ -161,20 +160,9 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             super(itemView);
             postContent = (TextView) itemView.findViewById(R.id.post_title_text_view);
             postTitle = (TextView) itemView.findViewById(R.id.post_date_and_time_text_view);
-            postSender = (TextView) itemView.findViewById(R.id.post_sender_text_view);
+            postSender = (TextView) itemView.findViewById(R.id.notification_type_text_view);
             postDateTime = (ExpandableTextView) itemView.findViewById(R.id.post_content_text_view);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mPostListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            mPostListener.onItemClick(v, position);
-                        }
-                    }
-                }
-            });
         }
 
         void bindView(final int position) {
@@ -199,9 +187,100 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+    public class SponsorViewHolder extends RecyclerView.ViewHolder {
+
+        ImageView sponsorPic;
+        TextView sponsorName, sponsorDescription, sponsorTypes;
+
+        public SponsorViewHolder(@NonNull View itemView) {
+            super(itemView);
+            sponsorName = (TextView) itemView.findViewById(R.id.sponsor_name_text_view);
+            sponsorDescription = (TextView) itemView.findViewById(R.id.sponsor_description_text_view);
+            sponsorTypes = (TextView) itemView.findViewById(R.id.sponsor_law_types);
+            sponsorPic = (ImageView) itemView.findViewById(R.id.sponsor_logo_image_view);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mSponsorListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            mSponsorListener.onItemClick(v, position);
+                        }
+                    }
+                }
+            });
+        }
+
+        void bindView(int position) {
+
+            final Sponsor sponsor = (Sponsor) mTypes.get(position);
+
+            sponsorName.setText(sponsor.getName());
+            sponsorDescription.setText(sponsor.getBio());
+            sponsorTypes.setText(sponsor.getTypes());
+            sponsorPic.setImageDrawable(null);
+
+            FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
+            StorageReference    sponsorStorageRef = sponsorStorage.getReference();
+            StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + sponsor.getName() + "/logo.png");
+            sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    String sponsorImageUri = uri.toString();
+                    GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(sponsorPic);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(sponsorPic);
+                }
+            });
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                this.sponsorPic.setTransitionName(sponsor.getName() + "_image");
+            }
+
+        }
+    }
+
+
+    public class NotificationViewHolder extends RecyclerView.ViewHolder {
+
+        TextView notificationTitle, notificationDateTime, notificationType;
+        ExpandableTextView notificationContent;
+
+        public NotificationViewHolder(@NonNull View itemView) {
+            super(itemView);
+            notificationTitle = (TextView) itemView.findViewById(R.id.notification_title_text_view);
+            notificationType = (TextView) itemView.findViewById(R.id.notification_type_text_view);
+            notificationDateTime = (TextView) itemView.findViewById(R.id.notification_date_and_time_text_view);
+            notificationContent = (ExpandableTextView) itemView.findViewById(R.id.notification_content_text_view);
+        }
+
+        void bindView(final int position) {
+
+            final Notification notification = (Notification) mTypes.get(position);
+            notificationType.setText(notification.getType());
+            notificationTitle.setText(notification.getTitle());
+            notificationDateTime.setText(spf.format(notification.getTimestamp().toDate()));
+            notificationContent.setText(notification.getContent());
+            notificationContent.setOnStateChangeListener(new ExpandableTextView.OnStateChangeListener() {
+                @Override
+                public void onStateChange(boolean isShrink) {
+                    notification.setShrink(isShrink);
+                    mTypes.set(position, notification);
+                }
+            });
+            notificationContent.setText(notification.getContent());
+            notificationContent.resetState(notification.isShrink());
+
+        }
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return mTypes.get(position).getType();
+        return mTypes.get(position).getPostType();
     }
 
     @NonNull
@@ -213,11 +292,18 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 itemView = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.card_item, parent, false);
                 return new EventViewHolder(itemView);
+            case PostType.TYPE_SPONSOR:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.sponsor_item, parent, false);
+                return new SponsorViewHolder(itemView);
+            case PostType.TYPE_NOTIFICATION:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.notifications_item, parent, false);
+                return new NotificationViewHolder(itemView);
             default:
                 itemView = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.post_item, parent, false);
                 return new PostViewHolder(itemView);
-
         }
     }
 
@@ -230,6 +316,11 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case PostType.TYPE_POST:
                 ((PostViewHolder) holder).bindView(position);
                 break;
+            case PostType.TYPE_SPONSOR:
+                ((SponsorViewHolder) holder).bindView(position);
+                break;
+            case PostType.TYPE_NOTIFICATION:
+                ((NotificationViewHolder) holder).bindView(position);
 
         }
     }
@@ -253,5 +344,4 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             notifyItemRangeRemoved(0, size);
         }
     }
-
 }

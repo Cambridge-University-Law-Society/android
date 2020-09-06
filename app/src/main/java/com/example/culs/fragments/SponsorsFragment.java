@@ -54,7 +54,7 @@ public class SponsorsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        rootView = inflater.inflate(R.layout.fragment_sponsors, container, false);
         setupCustomAdapter(rootView);
         setupToolbarOptionsMenu(rootView);
         return rootView;
@@ -73,7 +73,7 @@ public class SponsorsFragment extends Fragment {
     }
 
     private void setupCustomAdapter(View rootView) {
-        sponsorsView = (RecyclerView) rootView.findViewById(R.id.list);
+        sponsorsView = (RecyclerView) rootView.findViewById(R.id.sponsor_list);
         sponsorsView.setHasFixedSize(true);
         sponsorsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         customAdapter = new CustomAdapter(types);
@@ -129,18 +129,16 @@ public class SponsorsFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        inflater.inflate(R.menu.app_bar, menu);
+        inflater.inflate(R.menu.app_bar_two, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     private void setupToolbarOptionsMenu(View rootView) {
         setHasOptionsMenu(true);
-        Toolbar myToolbar = rootView.findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = rootView.findViewById(R.id.my_sponsors_toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void onSponsorClick(View v, Sponsor currentSponsor) {

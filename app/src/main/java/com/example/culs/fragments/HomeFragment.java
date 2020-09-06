@@ -3,6 +3,7 @@ package com.example.culs.fragments;
 import android.app.SearchManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,11 +14,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import com.example.culs.R;
+import com.example.culs.activities.MainActivity;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
@@ -76,6 +80,7 @@ public class HomeFragment extends Fragment {
         types.clear();
         getListItems();
         customAdapter.notifyDataSetChanged();
+
         }
 
     public void onStop() {
@@ -112,14 +117,6 @@ public class HomeFragment extends Fragment {
                     ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
                 }
-            }
-        });
-
-        customAdapter.setOnPostItemClickListener(new CustomAdapter.OnPostItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post clickedPost = (Post) types.get(position);
-                Toast.makeText(getContext(), "clicked on:" + clickedPost.getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -224,9 +221,6 @@ public class HomeFragment extends Fragment {
                         customAdapter.notifyDataSetChanged();
                     }
                 });
-
-
-
     }
 
 
@@ -384,19 +378,19 @@ public class HomeFragment extends Fragment {
 
         Fragment nextFragment = new ExpandedEventFragment();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-            nextFragment.setEnterTransition(new android.transition.Fade());
-            nextFragment.setExitTransition(new android.transition.Fade());
-            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+//            nextFragment.setEnterTransition(new android.transition.Fade());
+//            nextFragment.setExitTransition(new android.transition.Fade());
+//            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+//        }
 
         Bundle bundle = new Bundle();
         bundle.putString("Current Card ID", currentCard.getID());
         nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
         fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

@@ -1,6 +1,5 @@
 package com.example.culs.helpers;
 
-
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -27,19 +26,12 @@ public class Post implements PostType, Comparable<PostType> {
 
     public Post(){}
 
-    public Post(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String postID) {
-        mPostTitle = eventName;
-        mPostUST = eventUST;
-        mPostSender = eventLocation;
-        mPostContent = eventDescription;
+    public Post(String postTitle, Timestamp postUST, String postSender, String postContent, String postID) {
+        mPostTitle = postTitle;
+        mPostUST = postUST;
+        mPostSender = postSender;
+        mPostContent = postContent;
         mPostID = postID;
-    }
-
-    protected Post(Parcel in) {
-        mPostTitle = in.readString();
-        mPostSender = in.readString();
-        mPostContent = in.readString();
-        mPostID = in.readString();
     }
 
     public String getTitle() {
@@ -67,7 +59,7 @@ public class Post implements PostType, Comparable<PostType> {
     }
 
     @Override
-    public int getType() {
+    public int getPostType() {
         return PostType.TYPE_POST;
     }
 

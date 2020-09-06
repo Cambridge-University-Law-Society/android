@@ -44,7 +44,7 @@ public class Sponsor implements PostType {
     public void setSponsorID(String mSponsorID) { this.mSponsorID = mSponsorID; }
 
     @Override
-    public int getType() {
+    public int getPostType() {
         return TYPE_SPONSOR;
     }
 

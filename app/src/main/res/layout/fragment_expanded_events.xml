@@ -105,7 +105,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_below="@id/ex_sponsor_name_friends_holder"
                     android:orientation="vertical"
-                    android:id="@+id/event_date_loc_holder"
+                    android:id="@+id/notification_date_loc_holder"
                     android:layout_alignParentLeft="true">
 
                     <LinearLayout
@@ -175,7 +175,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:layout_below="@id/event_date_loc_holder"
+                    android:layout_below="@id/notification_date_loc_holder"
                     android:layout_marginLeft="4dp"
                     android:layout_centerInParent="true"
                     android:gravity="top"

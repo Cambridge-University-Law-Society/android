@@ -61,7 +61,7 @@ public class Card implements PostType, Comparable<PostType>{
     public void setInterested(Boolean mEventInterested) { this.mEventInterested = mEventInterested; }
 
     @Override
-    public int getType() {
+    public int getPostType() {
         return PostType.TYPE_EVENT;
     }
 

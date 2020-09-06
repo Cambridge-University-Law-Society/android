@@ -36,7 +36,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/list"
+        android:id="@+id/myevent_list"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
