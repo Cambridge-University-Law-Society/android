@@ -57,7 +57,7 @@ public class EventsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_events, container, false);
         setupCustomAdapter(rootView);
-        setupToolbarOptionsMenu(rootView);
+        //setupToolbarOptionsMenu(rootView);
         return rootView;
     }
 
@@ -166,12 +166,12 @@ public class EventsFragment extends Fragment {
 
     private void setupToolbarOptionsMenu(View rootView) {
         setHasOptionsMenu(true);
-        Toolbar myToolbar = rootView.findViewById(R.id.my_toolbar);
+        /*Toolbar myToolbar = rootView.findViewById(R.id.my_toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
     }
 
     public void onCardClick(View v, Card currentCard) {

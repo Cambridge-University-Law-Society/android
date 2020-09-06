@@ -37,6 +37,10 @@
         <item name="android:src">@drawable/ic_culs_top_logo_invert</item>
     </style>
 
+    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColor">@color/background_light</item>
+    </style>
+
     <style name="CalendarViewHeader">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>

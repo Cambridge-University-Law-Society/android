@@ -41,7 +41,7 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public CustomAdapter(List<PostType> types) {
         mTypes = types;
 
-        mTypesFull = new ArrayList<>(mTypes); //a new array list that contains all the items in types but also is independent
+        mTypesFull = new ArrayList<>(types); //a new array list that contains all the items in types but also is independent
     }
 
     public interface OnEventItemClickListener {
@@ -281,19 +281,19 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
             if (charSequence == null || charSequence.length() == 0){
-                filteredList.addAll(mTypesFull); //contains all the items
+                filteredList.addAll(mTypes); //contains all the items
             }else{
                 String filterInput = charSequence.toString().toLowerCase().trim();
-                for (int position=0 ; position < mTypesFull.size(); position++ ){
-                    PostType type = mTypesFull.get(position);
+                for (int position=0 ; position < mTypes.size(); position++ ){
+                    PostType type = mTypes.get(position);
                         if (type.getType() == PostType.TYPE_EVENT){
-                            Card card = (Card) mTypesFull.get(position);
-                            if (card.getName().toLowerCase().contains(filterInput)){
+                            Card card = (Card) mTypes.get(position);
+                            if (card.getName().toLowerCase().contains(filterInput)||card.getLocation().toLowerCase().contains(filterInput)||card.getSponsor().toLowerCase().contains(filterInput)){
                                 filteredList.add(type);
                             }
                         }
                         if (type.getType() == PostType.TYPE_POST){
-                            Post post = (Post) mTypesFull.get(position);
+                            Post post = (Post) mTypes.get(position);
                             if(post.getTitle().toLowerCase().contains(filterInput)){
                                 filteredList.add(type);
                             }

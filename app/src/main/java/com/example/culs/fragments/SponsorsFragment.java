@@ -51,12 +51,12 @@ public class SponsorsFragment extends Fragment implements SponsorHolder.OnSponso
         sponsorsView.setAdapter(adapter);
         sponsorsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        Toolbar myToolbar = rootView.findViewById(R.id.my_sponsors_toolbar);
+        /*Toolbar myToolbar = rootView.findViewById(R.id.my_sponsors_toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
 
         return rootView;
     }

@@ -8,35 +8,11 @@
     android:background="@android:color/transparent"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/background">
-
-        <androidx.appcompat.widget.Toolbar
-            android:layout_height="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:id="@+id/my_sponsors_toolbar"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            android:background="@color/background"
-            app:contentInsetStart="0dp">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:src="@drawable/ic_culs_logo_invert"
-                app:layout_collapseMode="parallax"
-                android:paddingTop="5dp"
-                android:layout_marginRight="24dp"
-                android:paddingBottom="5dp" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@+id/sponsor_list"
+        android:paddingTop="10dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
