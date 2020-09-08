@@ -48,6 +48,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class HomeFragment extends Fragment {
     private RecyclerView eventsView;
@@ -108,14 +109,47 @@ public class HomeFragment extends Fragment {
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
                     ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
+
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Removed from My Events.", Toast.LENGTH_SHORT).show();
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else {
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 }
             }
         });
