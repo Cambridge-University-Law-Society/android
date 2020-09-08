@@ -9,13 +9,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.culs.R;
 import com.example.culs.fragments.CalendarFragment;
 import com.example.culs.fragments.EventsFragment;
 import com.example.culs.fragments.HomeFragment;
+import com.example.culs.fragments.NotificationsFragment;
 import com.example.culs.fragments.ProfileFragment;
 import com.example.culs.fragments.SponsorsFragment;
 import com.firebase.ui.auth.AuthUI;
@@ -108,12 +108,19 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
 
-
-
     }
 
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.notifications:
+                Fragment notifications = new NotificationsFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, notifications).addToBackStack(null).commit();
+                return true;
+            default:
+                return false;
+        }
+    }
 
     @Override
     public void onPause() {

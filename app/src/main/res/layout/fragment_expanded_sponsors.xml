@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cards"
+    android:clickable="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/cards"
+        android:minHeight="@dimen/list_item_height">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:background="@color/cards">
+
+            <ImageView
+                android:id="@+id/ex_sponsor_pic_image_view"
+                android:transitionName="expandedImage"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                android:background="@color/cards"
+                android:layout_alignParentTop="true"
+                tools:src="@drawable/allbarone"/>
+
+            <RelativeLayout
+                android:id="@+id/ex_text_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/ex_sponsor_pic_image_view"
+                android:orientation="vertical"
+                android:background="@color/cards"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:id="@+id/ex_event_name_holder"
+                    >
+
+                    <TextView
+                        android:id="@+id/ex_sponsor_name_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerInParent="true"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center_horizontal"
+                        android:textAlignment="center"
+                        android:textColor="@color/dark_text"
+                        android:textSize="30sp"
+                        tools:text="Fleek Fridays" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/ex_sponsor_details_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ex_event_name_holder"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="top"
+                    android:text="About Us"
+                    android:textColor="@color/dark_text"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/ex_sponsor_details_text_view"/>
+
+                <TextView
+                    android:id="@+id/ex_sponsor_description_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_below="@id/divider2"
+                    android:gravity="top"
+                    android:textSize="16sp"
+                    android:textColor="@color/dark_text"
+                    android:fontFamily="sans-serif-light"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum elit lacus, sed blandit nisl bibendum et. Maecenas vel massa suscipit, scelerisque neque varius, tempus augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum eget risus ut tortor consectetur luctus quis eu quam. Proin ornare ex eget odio molestie, cursus suscipit risus auctor. Aliquam tempus diam sed semper auctor. Suspendisse tempor risus id est cursus, quis aliquam erat bibendum. Morbi tristique rutrum risus. Vestibulum elementum mi purus, quis ornare odio eleifend a." />
+
+                <View
+                    android:id="@+id/divider3"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="32dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/ex_sponsor_description_text_view"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_below="@id/divider3"
+                    android:id="@+id/website"
+                    android:orientation="horizontal">
+                    
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="8dp"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@color/dark_text"
+                        android:text="Website:"/>
+
+                    <TextView
+                        android:id="@+id/websitetext"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="2"
+                        android:singleLine="true"
+                        android:layout_marginLeft="8dp"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/holo_blue_bright"
+                        android:autoLink="web"
+                        tools:text="www.google.com"/>
+                    
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider4"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/website"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_below="@id/divider4"
+                    android:id="@+id/email"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="8dp"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@color/dark_text"
+                        android:text="Email:"/>
+
+                    <TextView
+                        android:id="@+id/emailtext"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="2"
+                        android:layout_marginLeft="8dp"
+                        android:singleLine="true"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/holo_blue_bright"
+                        android:autoLink="email"
+                        tools:text="joshishonak@gmail.com"/>
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider5"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/email"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_below="@id/divider5"
+                    android:id="@+id/CSLink"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="8dp"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@color/dark_text"
+                        android:text="Chambers Students Link:"/>
+
+                    <TextView
+                        android:id="@+id/CSLinkText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="2"
+                        android:autoLink="web"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/holo_blue_bright"
+                        android:textSize="18sp"
+                        tools:text="www.google.com" />
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider6"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/CSLink"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_below="@id/divider6"
+                    android:layout_marginBottom="20dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="8dp"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@color/dark_text"
+                        android:text="Applications Page"/>
+
+                    <TextView
+                        android:id="@+id/applications_page"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="2"
+                        android:layout_marginLeft="8dp"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/holo_blue_bright"
+                        android:autoLink="web"
+                        tools:text="www.google.com"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+        </RelativeLayout>
+    </LinearLayout>
+</ScrollView>

@@ -8,11 +8,9 @@
     android:background="@android:color/transparent"
     android:orientation="vertical">
 
-
     <androidx.recyclerview.widget.RecyclerView
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:paddingTop="10dp"
-        android:id="@+id/myevent_list"
+        android:id="@+id/notification_list"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

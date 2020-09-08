@@ -600,28 +600,6 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
 
     }
 
-
-    public static class CardViewHolder extends RecyclerView.ViewHolder {
-
-        ImageView eventPic, eventTagIcon, eventSponsorLogo;
-        TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote, eventSponsor;
-        LinearLayout eventTagHolder;
-
-        public CardViewHolder(@NonNull View itemView) {
-            super(itemView);
-            eventName = (TextView) itemView.findViewById(R.id.event_name_text_view);
-            eventDateTime = (TextView) itemView.findViewById(R.id.event_date_and_time_text_view);
-            eventLocation = (TextView) itemView.findViewById(R.id.event_location_text_view);
-            eventDescription = (TextView) itemView.findViewById(R.id.event_description_text_view);
-            eventPic = (ImageView) itemView.findViewById(R.id.event_pic_image_view);
-            eventTagIcon = (ImageView) itemView.findViewById(R.id.tag_icon);
-            eventTagNote = (TextView) itemView.findViewById(R.id.tag_note);
-            eventTagHolder = (LinearLayout) itemView.findViewById(R.id.event_tag_holder);
-            eventSponsor = (TextView) itemView.findViewById(R.id.event_sponsor_text_view);
-            eventSponsorLogo = (ImageView) itemView.findViewById(R.id.sponsor_logo);
-        }
-    }
-
     public void onCardClick(View v, Card currentCard) {
 
         Fragment nextFragment = new ExpandedEventFragment();

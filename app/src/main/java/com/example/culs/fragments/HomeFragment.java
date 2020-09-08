@@ -22,14 +22,18 @@ import android.widget.Toast;
 
 import com.example.culs.R;
 import com.example.culs.helpers.AppBarStateChangeListener;
+import com.example.culs.activities.MainActivity;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.User;
 import com.firebase.ui.auth.data.model.State;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
@@ -58,7 +62,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class HomeFragment extends Fragment {
     private RecyclerView eventsView;
@@ -84,7 +90,6 @@ public class HomeFragment extends Fragment {
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -98,14 +103,7 @@ public class HomeFragment extends Fragment {
         notificationsImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment nextFragment = new SponsorsFragment();
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-                    nextFragment.setEnterTransition(new android.transition.Fade());
-                    nextFragment.setExitTransition(new android.transition.Fade());
-                    nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-                }
+                Fragment nextFragment = new NotificationsFragment();
 
                 Bundle bundle = new Bundle();
                 nextFragment.setArguments(bundle);
@@ -205,23 +203,48 @@ public class HomeFragment extends Fragment {
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
                     ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
+
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Removed from My Events.", Toast.LENGTH_SHORT).show();
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else {
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
-                }
-            }
-        });
 
-        customAdapter.setOnPostItemClickListener(new CustomAdapter.OnPostItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post clickedPost = (Post) types.get(position);
-                Toast.makeText(getContext(), "clicked on:" + clickedPost.getTitle(), Toast.LENGTH_SHORT).show();
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Toast.makeText(getContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                }
             }
         });
     }
@@ -257,7 +280,7 @@ public class HomeFragment extends Fragment {
                         for (DocumentChange dc : value.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    Card cardAdded = dc.getDocument().toObject(Card.class);
+                                    final Card cardAdded = dc.getDocument().toObject(Card.class);
                                     cardAdded.setID(dc.getDocument().getId());
                                     if(currentUser.getMyevents() == null){
                                         cardAdded.setInterested(false);
@@ -266,11 +289,28 @@ public class HomeFragment extends Fragment {
                                     } else {
                                         cardAdded.setInterested(false);
                                     }
+
+                                    mFirebaseFirestore.collection("Sponsors")
+                                            .whereEqualTo("name", cardAdded.getSponsor())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            cardAdded.setEventSponsorID(document.getId());
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+
                                     types.add(dc.getNewIndex(), cardAdded);
                                     break;
                                 case MODIFIED:
                                     types.remove(dc.getOldIndex());
-                                    Card cardChanged = dc.getDocument().toObject(Card.class);
+                                    final Card cardChanged = dc.getDocument().toObject(Card.class);
                                     cardChanged.setID(dc.getDocument().getId());
                                     if(currentUser.getMyevents() == null){
                                         cardChanged.setInterested(false);
@@ -279,6 +319,23 @@ public class HomeFragment extends Fragment {
                                     } else {
                                         cardChanged.setInterested(false);
                                     }
+
+                                    mFirebaseFirestore.collection("Sponsors")
+                                            .whereEqualTo("name", cardChanged.getSponsor())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            cardChanged.setEventSponsorID(document.getId());
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+
                                     types.add(dc.getNewIndex(), cardChanged);
                                     break;
                                 case REMOVED:
@@ -304,14 +361,34 @@ public class HomeFragment extends Fragment {
                         for (DocumentChange dc : value.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    Post postAdded = dc.getDocument().toObject(Post.class);
+                                    final Post postAdded = dc.getDocument().toObject(Post.class);
                                     postAdded.setPostID(dc.getDocument().getId());
+
+                                    DocumentReference docRefAdded = mFirebaseFirestore.collection("users").document(postAdded.getSenderID());
+                                    docRefAdded.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            User postSender = documentSnapshot.toObject(User.class);
+                                            postAdded.setSenderName(postSender.getFirstname() + " " +postSender.getLastname());
+                                        }
+                                    });
+
                                     types.add(postAdded);
                                     break;
                                 case MODIFIED:
                                     types.remove(dc.getOldIndex());
-                                    Post postChanged = dc.getDocument().toObject(Post.class);
+                                    final Post postChanged = dc.getDocument().toObject(Post.class);
                                     postChanged.setPostID(dc.getDocument().getId());
+
+                                    DocumentReference docRefChanged = mFirebaseFirestore.collection("users").document(postChanged.getSenderID());
+                                    docRefChanged.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            User postSender = documentSnapshot.toObject(User.class);
+                                            postChanged.setSenderName(postSender.getFirstname() + " " +postSender.getLastname());
+                                        }
+                                    });
+
                                     types.add(postChanged);
                                     break;
                                 case REMOVED:
@@ -488,19 +565,19 @@ public class HomeFragment extends Fragment {
 
         Fragment nextFragment = new ExpandedEventFragment();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-            nextFragment.setEnterTransition(new android.transition.Fade());
-            nextFragment.setExitTransition(new android.transition.Fade());
-            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+//            nextFragment.setEnterTransition(new android.transition.Fade());
+//            nextFragment.setExitTransition(new android.transition.Fade());
+//            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+//        }
 
         Bundle bundle = new Bundle();
         bundle.putString("Current Card ID", currentCard.getID());
         nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
+//        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
         fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

@@ -1,7 +1,9 @@
 package com.example.culs.fragments;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,30 +14,46 @@ import android.widget.Toast;
 
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
+import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.GlideApp;
+import com.example.culs.helpers.Notification;
+import com.example.culs.helpers.PostType;
+import com.example.culs.helpers.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 public class ExpandedEventFragment extends Fragment implements View.OnClickListener {
-    private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote, exEventSponsorName;
-    private ImageView exEventPic, exEventTagIcon, exEventSponsorImage, exEventInterestedIcon;
-    private LinearLayout exEventSponsorHolder, exEventInterestedHolder;
+    private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote[] = new TextView[3], exEventSponsorName;
+    private ImageView exEventPic, exEventTagIcon[] = new ImageView[3], exEventSponsorImage, exEventInterestedIcon;
+    private LinearLayout exEventSponsorHolder, exEventInterestedHolder, exEventTagHolder[] = new LinearLayout[3];
     private View rootView;
     private Card expandedCard = new Card();
     private String cardId;
@@ -43,6 +61,10 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     private SimpleDateFormat spf = new SimpleDateFormat("EEE, dd MMM 'at' HH:mm");
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DocumentReference userDocRef = db.collection("users").document(userID);
+    private RecyclerView specificNotificationsView;
+    private CustomAdapter customAdapter;
+    private List<PostType> types = new ArrayList<>();
+    public String sponsorID;
 
     @Nullable
     @Override
@@ -54,9 +76,16 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         exEventDnT = rootView.findViewById(R.id.ex_event_date_and_time_text_view);
         exEventLoc = rootView.findViewById(R.id.ex_event_location_text_view);
         exEventDesc = rootView.findViewById(R.id.ex_event_description_text_view);
-        exEventTagNote = rootView.findViewById(R.id.ex_tag_note);
         exEventPic = rootView.findViewById(R.id.ex_event_pic_image_view);
-        exEventTagIcon = rootView.findViewById(R.id.ex_tag_icon);
+        exEventTagIcon[0] = (ImageView) rootView.findViewById(R.id.ex_tag_icon_one);
+        exEventTagNote[0] = (TextView) rootView.findViewById(R.id.ex_tag_note_one);
+        exEventTagIcon[1] = (ImageView) rootView.findViewById(R.id.ex_tag_icon_two);
+        exEventTagNote[1] = (TextView) rootView.findViewById(R.id.ex_tag_note_two);
+        exEventTagIcon[2] = (ImageView) rootView.findViewById(R.id.ex_tag_icon_three);
+        exEventTagNote[2] = (TextView) rootView.findViewById(R.id.ex_tag_note_three);
+        exEventTagHolder[0] = (LinearLayout) rootView.findViewById(R.id.ex_event_tag_holder_one);
+        exEventTagHolder[1] = (LinearLayout) rootView.findViewById(R.id.ex_event_tag_holder_two);
+        exEventTagHolder[2] = (LinearLayout) rootView.findViewById(R.id.ex_event_tag_holder_three);
         exEventSponsorImage = rootView.findViewById(R.id.ex_sponsor_logo_image_view);
         exEventInterestedIcon = rootView.findViewById(R.id.ex_event_interested_star);
         exEventSponsorHolder = rootView.findViewById(R.id.ex_event_sponsor_holder);
@@ -64,7 +93,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         exEventInterestedHolder = rootView.findViewById(R.id.ex_event_interested_button);
         exEventInterestedHolder.setOnClickListener(this);
         exEventSponsorHolder.setOnClickListener(this);
-
+        setupCustomAdapter(rootView);
         cardId = bundle.getString("Current Card ID");
         getCard();
 
@@ -74,8 +103,9 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
-
-
+        types.clear();
+        getListItems();
+        customAdapter.notifyDataSetChanged();
     }
 
     public void onStop() {
@@ -95,6 +125,22 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                 if (value != null && value.exists()) {
                     expandedCard = value.toObject(Card.class);
                     expandedCard.setID(cardId);
+                    db.collection("Sponsors")
+                            .whereEqualTo("name", expandedCard.getSponsor())
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            expandedCard.setEventSponsorID(document.getId());
+                                        }
+                                    } else {
+                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
                     if (HomeFragment.currentUser.getMyevents() == null) {
                         expandedCard.setInterested(false);
                     } else if (HomeFragment.currentUser.getMyevents().contains(cardId)) {
@@ -102,12 +148,32 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     } else {
                         expandedCard.setInterested(false);
                     }
-                    Toast.makeText(getContext(), expandedCard.getName(), Toast.LENGTH_SHORT).show();
                     exEventName.setText(expandedCard.getName());
                     exEventDnT.setText(spf.format(expandedCard.getDate().toDate()));
                     exEventLoc.setText(expandedCard.getLocation());
                     exEventDesc.setText(expandedCard.getDescription());
-                    exEventTagNote.setText(expandedCard.getTags().get(0));
+
+                    for (int i = 0; i < 3; i++){
+                        exEventTagHolder[i].setVisibility(View.INVISIBLE);
+                    }
+
+                    for (int i = 0; i < expandedCard.getTags().size(); i++) {
+                        exEventTagHolder[i].setVisibility(View.VISIBLE);
+                        exEventTagNote[i].setText(expandedCard.getTags().get(i));
+                        switch (expandedCard.getTags().get(i)){
+                            case "Careers":
+                                exEventTagIcon[i].setImageResource(R.drawable.ic_careers_icon_24dp);
+                                break;
+                            case "Networking":
+                                exEventTagIcon[i].setImageResource(R.drawable.ic_networking_icon_24dp);
+                                break;
+                            case "Social":
+                                exEventTagIcon[i].setImageResource(R.drawable.ic_socials_icon_24dp);
+                                break;
+                        }
+                        exEventTagHolder[i].animate().translationX(1f).setDuration(1000).setListener(null);
+                    }
+
                     if (expandedCard.getInterested()) {
                         exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
                     } else {
@@ -159,7 +225,21 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ex_event_sponsor_holder:
-                Toast.makeText(getContext(), "Clicked on:" + expandedCard.getSponsor(), Toast.LENGTH_SHORT).show();
+
+                if(expandedCard.getEventSponsorID() != null) {
+                    Fragment nextFragment = new ExpandedSponsorsFragment();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Current Sponsor ID", expandedCard.getEventSponsorID());
+                    nextFragment.setArguments(bundle);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                } else {
+                    Toast.makeText(getContext(), "No Sponsor Page", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.ex_event_interested_button:
                 if (HomeFragment.currentUser.getMyevents() == null) {
@@ -179,5 +259,50 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    private void setupCustomAdapter(View rootView) {
+        specificNotificationsView = (RecyclerView) rootView.findViewById(R.id.specific_notification_list);
+        specificNotificationsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        customAdapter = new CustomAdapter(types);
+        specificNotificationsView.setAdapter(customAdapter);
+    }
+
+    private void getListItems() {
+
+        db.collection("notifications").whereArrayContains("receiverID", cardId).orderBy("timestamp")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            System.err.println("Listen failed:" + error);
+                            return;
+                        }
+
+                        for (DocumentChange dc : value.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Notification notificationAdded = dc.getDocument().toObject(Notification.class);
+                                    notificationAdded.setNotificationID(dc.getDocument().getId());
+                                    types.add(notificationAdded);
+                                    break;
+                                case MODIFIED:
+                                    types.remove(dc.getOldIndex());
+                                    Notification notificationChanged = dc.getDocument().toObject(Notification.class);
+                                    notificationChanged.setNotificationID(dc.getDocument().getId());
+                                    types.add(notificationChanged);
+                                    break;
+                                case REMOVED:
+                                    types.remove(dc.getOldIndex());
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }
+                        Collections.sort(types);
+                        customAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 }

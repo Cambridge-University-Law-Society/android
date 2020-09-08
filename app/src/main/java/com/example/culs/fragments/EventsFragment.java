@@ -74,7 +74,7 @@ public class EventsFragment extends Fragment {
     }
 
     private void setupCustomAdapter(View rootView) {
-        eventsView = (RecyclerView) rootView.findViewById(R.id.list);
+        eventsView = (RecyclerView) rootView.findViewById(R.id.myevent_list);
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         customAdapter = new CustomAdapter(types);
@@ -108,13 +108,6 @@ public class EventsFragment extends Fragment {
             }
         });
 
-        customAdapter.setOnPostItemClickListener(new CustomAdapter.OnPostItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post clickedPost = (Post) types.get(position);
-                Toast.makeText(getContext(), "clicked on:" + clickedPost.getTitle(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void getListItems() {

@@ -34,35 +34,105 @@
                 tools:src="@drawable/allbarone"/>
 
             <LinearLayout
-                android:id="@+id/ex_event_tag_holder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_tags"
-                android:layout_marginTop="4dp">
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/ex_tag_icon"
+                <LinearLayout
+                    android:id="@+id/ex_event_tag_holder_one"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="24dp"
-                    android:maxHeight="24dp"
-                    android:layout_margin="4dp"
-                    tools:src="@drawable/ic_upcoming_tag_24dp"/>
+                    android:orientation="horizontal"
+                    android:background="@drawable/rounded_tags"
+                    android:layout_marginTop="8dp">
 
-                <TextView
-                    android:id="@+id/ex_tag_note"
+                    <ImageView
+                        android:id="@+id/ex_tag_icon_one"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="15dp"
+                        android:maxHeight="15dp"
+                        android:layout_margin="4dp"
+                        tools:src="@drawable/ic_upcoming_tag_24dp"/>
+
+                    <TextView
+                        android:id="@+id/ex_tag_note_one"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="8dp"
+                        android:textSize="12dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/cards"
+                        android:fontFamily="sans-serif-light"
+                        tools:text="Upcoming"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ex_event_tag_holder_two"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="8dp"
-                    android:textSize="14dp"
-                    android:textStyle="bold"
-                    android:textColor="@color/cards"
-                    android:fontFamily="sans-serif-light"
-                    tools:text="Upcoming"/>
+                    android:orientation="horizontal"
+                    android:background="@drawable/rounded_tags"
+                    android:layout_marginTop="4dp">
 
+                    <ImageView
+                        android:id="@+id/ex_tag_icon_two"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="15dp"
+                        android:maxHeight="15dp"
+                        android:layout_margin="4dp"
+                        tools:src="@drawable/ic_upcoming_tag_24dp"/>
+
+                    <TextView
+                        android:id="@+id/ex_tag_note_two"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="8dp"
+                        android:textSize="12dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/cards"
+                        android:fontFamily="sans-serif-light"
+                        tools:text="Upcoming"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ex_event_tag_holder_three"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/rounded_tags"
+                    android:layout_marginTop="4dp">
+
+                    <ImageView
+                        android:id="@+id/ex_tag_icon_three"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="15dp"
+                        android:maxHeight="15dp"
+                        android:layout_margin="4dp"
+                        tools:src="@drawable/ic_upcoming_tag_24dp"/>
+
+                    <TextView
+                        android:id="@+id/ex_tag_note_three"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="8dp"
+                        android:textSize="12dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/cards"
+                        android:fontFamily="sans-serif-light"
+                        tools:text="Upcoming"/>
+
+                </LinearLayout>
             </LinearLayout>
 
             <RelativeLayout
@@ -70,69 +140,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/ex_event_pic_image_view"
-                android:orientation="vertical"
+                android:layout_marginTop="0dp"
                 android:background="@color/cards"
+                android:orientation="vertical"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp">
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:id="@+id/ex_event_name_friends_holder"
-                    >
-
-                    <TextView
-                        android:id="@+id/ex_event_name_text_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginRight="4dp"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginTop="12dp"
-                        android:gravity="bottom"
-                        android:layout_centerInParent="true"
-                        android:textSize="28sp"
-                        android:textColor="@color/dark_text"
-                        android:fontFamily="sans-serif"
-                        tools:text="Fleek Fridays" />
-
-                </RelativeLayout>
-
                 <LinearLayout
+                    android:id="@+id/notification_date_loc_holder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_below="@id/ex_event_name_friends_holder"
-                    android:orientation="vertical"
-                    android:id="@+id/event_date_loc_holder"
-                    android:layout_alignParentLeft="true">
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/ex_event_name_holder"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_below="@id/ex_event_name_holder"
+                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="4dp"
-                        android:layout_below="@id/ex_event_name_friends_holder"
-                        android:orientation="horizontal"
-                        android:layout_gravity="center_horizontal">
+                        android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginRight="4dp"
                             android:scaleType="fitXY"
-                            android:src="@drawable/ic_time_icon_24dp"
-                            android:layout_marginRight="4dp" />
+                            android:src="@drawable/ic_time_icon_24dp" />
 
                         <TextView
                             android:id="@+id/ex_event_date_and_time_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="top"
-                            android:textSize="15dp"
                             android:layout_gravity="center"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/holo_red_light"
                             android:fontFamily="sans-serif-light"
+                            android:gravity="top"
+                            android:textColor="@android:color/holo_red_light"
+                            android:textSize="14dp"
+                            android:textStyle="bold"
                             tools:text="Friday 15th October: 22:00" />
 
                     </LinearLayout>
@@ -140,110 +187,67 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:layout_below="@id/ex_event_name_friends_holder"
-                        android:orientation="horizontal"
-                        android:layout_gravity="center_horizontal">
+                        android:layout_below="@id/ex_event_name_holder"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginRight="4dp"
                             android:scaleType="fitXY"
-                            android:src="@drawable/ic_location_icon_24dp"
-                            android:layout_marginRight="4dp" />
+                            android:src="@drawable/ic_location_icon_24dp" />
 
                         <TextView
                             android:id="@+id/ex_event_location_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:singleLine="true"
+                            android:layout_gravity="center"
                             android:ellipsize="end"
-                            android:gravity="top"
-                            android:textStyle="bold"
-                            android:textSize="15dp"
-                            android:textColor="@android:color/darker_gray"
                             android:fontFamily="sans-serif-light"
+                            android:gravity="top"
+                            android:singleLine="true"
+                            android:textColor="@android:color/darker_gray"
+                            android:textSize="14dp"
+                            android:textStyle="bold"
                             tools:text="Ballare, Regent's Street" />
 
                     </LinearLayout>
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/ex_event_details_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_below="@id/event_date_loc_holder"
-                    android:layout_marginLeft="4dp"
-                    android:layout_centerInParent="true"
-                    android:gravity="top"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/dark_text"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Details:"/>
-
-                <TextView
-                    android:id="@+id/ex_event_description_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:layout_below="@id/ex_event_details_text_view"
-                    android:gravity="top"
-                    android:textSize="16sp"
-                    android:textColor="@color/dark_text"
-                    android:fontFamily="sans-serif-light"
-                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum elit lacus, sed blandit nisl bibendum et. Maecenas vel massa suscipit, scelerisque neque varius, tempus augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum eget risus ut tortor consectetur luctus quis eu quam. Proin ornare ex eget odio molestie, cursus suscipit risus auctor. Aliquam tempus diam sed semper auctor. Suspendisse tempor risus id est cursus, quis aliquam erat bibendum. Morbi tristique rutrum risus. Vestibulum elementum mi purus, quis ornare odio eleifend a." />
-
-                <TextView
-                    android:id="@+id/ex_event_sponsors_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_marginTop="16dp"
-                    android:layout_below="@id/ex_event_description_text_view"
-                    android:layout_marginLeft="4dp"
-                    android:gravity="top"
-                    android:textSize="14sp"
-                    android:textStyle="normal"
-                    android:textColor="@color/dark_text"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Sponsored by:"/>
-
                 <LinearLayout
+                    android:id="@+id/ex_event_sponsor_holder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:id="@+id/ex_event_sponsor_holder"
                     android:layout_below="@id/ex_event_sponsors_text_view"
-                    android:orientation="vertical"
                     android:layout_centerInParent="true"
-                    android:gravity="center_horizontal">
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/ex_sponsor_logo_image_view"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:src="@drawable/ano_logo"
                         android:layout_gravity="center"
                         android:layout_margin="4dp"
-                        app:civ_border_width="1dp"
-                        app:civ_border_color="#6C6C6C"/>
+                        android:src="@drawable/ano_logo"
+                        app:civ_border_color="#6C6C6C"
+                        app:civ_border_width="1dp" />
 
                     <TextView
                         android:id="@+id/ex_sponsor_name_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif"
                         android:gravity="center_horizontal"
-                        android:textSize="18sp"
                         android:textAlignment="center"
                         android:textColor="@color/dark_text"
-                        android:fontFamily="sans-serif"
+                        android:textSize="18sp"
                         tools:text="Allen &amp; Overy" />
 
                 </LinearLayout>
@@ -252,37 +256,151 @@
                     android:id="@+id/ex_event_interested_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginBottom="24dp"
                     android:layout_below="@id/ex_event_sponsor_holder"
-                    android:orientation="horizontal"
-                    android:layout_centerHorizontal="true">
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="24dp"
+                    android:layout_marginTop="24dp"
+                    android:orientation="horizontal">
+
                     <ImageView
                         android:id="@+id/ex_event_interested_star"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitXY"
-                        android:layout_marginTop="4dp"
-                        android:gravity="bottom"
                         android:layout_marginRight="8dp"
+                        android:layout_marginTop="4dp"
+                        android:adjustViewBounds="true"
+                        android:gravity="bottom"
+                        android:scaleType="fitXY"
                         tools:src="@drawable/ic_interested_button_off_24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:gravity="top"
-                        android:textSize="15dp"
                         android:layout_gravity="center"
-                        android:textStyle="bold"
-                        android:textColor="#6E6E6E"
+                        android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif-light"
-                        android:text="Add to My Events"/>
+                        android:gravity="top"
+                        android:text="Add to My Events"
+                        android:textColor="#6E6E6E"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/ex_notifications_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ex_event_interested_button"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="28dp"
+                    android:layout_marginBottom="0dp"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="top"
+                    android:text="Updates:"
+                    android:textColor="@color/dark_text"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/divider3"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="6dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/ex_notifications_label"/>
+
+                <RelativeLayout
+                    android:id="@+id/ex_event_name_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/ex_event_name_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerInParent="true"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center_horizontal"
+                        android:textAlignment="center"
+                        android:textColor="@color/dark_text"
+                        android:textSize="30sp"
+                        tools:text="Fleek Fridays" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/ex_event_sponsors_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ex_event_description_text_view"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="32dp"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="top"
+                    android:text="Sponsored by:"
+                    android:textColor="@color/dark_text"
+                    android:textSize="14sp"
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:id="@+id/ex_event_details_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/notification_date_loc_holder"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="32dp"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="top"
+                    android:text="Details:"
+                    android:textColor="@color/dark_text"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/listDivider"
+                    android:layout_below="@+id/ex_event_details_text_view"/>
+
+                <TextView
+                    android:id="@+id/ex_event_description_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/divider2"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="0dp"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="top"
+                    android:textColor="@color/dark_text"
+                    android:textSize="16sp"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam rutrum elit lacus, sed blandit nisl bibendum et. Maecenas vel massa suscipit, scelerisque neque varius, tempus augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum eget risus ut tortor consectetur luctus quis eu quam. Proin ornare ex eget odio molestie, cursus suscipit risus auctor. Aliquam tempus diam sed semper auctor. Suspendisse tempor risus id est cursus, quis aliquam erat bibendum. Morbi tristique rutrum risus. Vestibulum elementum mi purus, quis ornare odio eleifend a." />
+
+
             </RelativeLayout>
         </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:id="@+id/specific_notification_list"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/cards"
+            android:divider="@null"/>
+
     </LinearLayout>
 </ScrollView>
