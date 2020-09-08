@@ -87,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         final Spinner userCollege = findViewById(R.id.college);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, R.layout.list_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         // Apply the adapter to the spinner

@@ -57,8 +57,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileEditActivity extends AppCompatActivity {
 
-    private EditText firstName, lastName, userCrsid, userBio, userYear, userDegree, userInterests;
-    private Spinner userCollege;
+    private EditText firstName, lastName, userCrsid, userBio, userYear, userInterests;
+    private Spinner userCollege, userDegree;
     private CircleImageView profileImage;
     private TextView save_btn;
     private TextView cancel_btn;
@@ -69,6 +69,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private Uri imageUri; //this is a uri (similar to url) that points to the image and uploads it to the firebase storage
     //for uploading profilepic to firebase
     private StorageReference storageRef;
+    private FirebaseDatabase mDatabase;
     private DatabaseReference firebaseDatabaseReference;
     private StorageTask uploadTask;
 
@@ -88,7 +89,12 @@ public class ProfileEditActivity extends AppCompatActivity {
 
 
         storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
-        firebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + userid);
+        if(mDatabase==null){
+            //mDatabase = FirebaseDatabase.getInstance();
+            //mDatabase.setPersistenceEnabled(true);
+            firebaseDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + userid);
+        }
+
 
         profileImage = findViewById(R.id.profile_image);
         profileImage.setOnClickListener(new View.OnClickListener() {
@@ -110,12 +116,16 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         //SPINNER STUFF
         final Spinner userCollege = findViewById(R.id.edit_college_spinner);
+        final Spinner userDegree = findViewById(R.id.edit_degree_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, R.layout.list_item);
+        ArrayAdapter<CharSequence> adapter_degree = ArrayAdapter.createFromResource(this, R.array.degree_names, R.layout.list_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        adapter_degree.setDropDownViewResource(android.R.layout.simple_list_item_1);
         // Apply the adapter to the spinner
         userCollege.setAdapter(adapter);
+        userDegree.setAdapter(adapter_degree);
 
         save_btn = findViewById(R.id.button_done);
         save_btn.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +136,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     Toast.makeText(ProfileEditActivity.this, "Upload in Progress", Toast.LENGTH_SHORT).show();
                 }else {
                     uploadFile();
-                    updateData(userCollege);
+                    updateData(userCollege, userDegree);
                 }
 
                 //goToFragment();
@@ -134,7 +144,8 @@ public class ProfileEditActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
+                //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
 
@@ -146,7 +157,8 @@ public class ProfileEditActivity extends AppCompatActivity {
                 //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
                 Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
                 startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
+                //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
 
@@ -188,7 +200,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         final EditText userBio = (EditText) findViewById(R.id.bio);
         //final TextView userCollege = (TextView) findViewById(R.id.selected_college);
         final EditText userYear = (EditText) findViewById(R.id.edit_useryear);
-        final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
+        //final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
 
         //method for loading textView data
         docRef.get()
@@ -241,13 +253,6 @@ public class ProfileEditActivity extends AppCompatActivity {
                             }else{
                             }
 
-                            if (documentSnapshot.get("degree") != null) {
-                                String degree = documentSnapshot.getString("degree");
-
-                                userDegree.setText(degree);
-                            }else{
-                                userDegree.setText("Your Degree");
-                            }
 
                         }
 
@@ -295,7 +300,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     }
 
-    private void updateData(Spinner mSpinner) {
+    private void updateData(Spinner mSpinner, Spinner mSpinner2) {
         //TODO: MAKE THIS CODE BETTER
         //this will update the document with the information in the editText boxes
 
@@ -307,7 +312,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         userBio = (EditText) findViewById(R.id.bio);
         //userCollege = (EditText) findViewById(R.id.edit_college);
         userYear = (EditText) findViewById(R.id.edit_useryear);
-        userDegree = (EditText) findViewById(R.id.edit_degree);
 
         //convert all textViews to string
         String first_name = firstName.getText().toString().trim();
@@ -316,10 +320,10 @@ public class ProfileEditActivity extends AppCompatActivity {
         String user_bio = userBio.getText().toString().trim();
         //String user_college = userCollege.getText().toString().trim();
         String user_year = userYear.getText().toString().trim();
-        String user_degree = userDegree.getText().toString().trim();
 
         //get the value from the spinner
         String user_college = mSpinner.getSelectedItem().toString();
+        String user_degree = mSpinner2.getSelectedItem().toString();
 
         docRef.update("firstname", first_name);
         docRef.update("lastname", last_name);
@@ -327,8 +331,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         docRef.update("bio", user_bio);
         docRef.update("college", user_college);
         docRef.update("year", user_year);
-        docRef.update("degree", user_degree);
-
 
 
     }

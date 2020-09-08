@@ -73,6 +73,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     private CardView allEventsButton;
     private CardView myEventsButton;
     private TextView allEventsText, myEventsText;
+    private ImageView allEventsBar, myEventsBar;
 
     //instantiate the short animation between the all events calendar view and myevents calendar view
     private int shortAnimationDuration;
@@ -128,19 +129,24 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         allEventsCalendar = (MaterialCalendarView) v.findViewById(R.id.allEventsCalendarView);
         myEventsCalendar = (MaterialCalendarView) v.findViewById(R.id.myEventsCalendarView);
 
+        allEventsBar = v.findViewById(R.id.allEventBar);
+        myEventsBar = v.findViewById(R.id.myEventsBar);
+
         //keep myEventsCalendar invisible on start
         myEventsCalendar.setVisibility(View.GONE);
 
         allEventsButton = v.findViewById(R.id.alleventsbutton);
         allEventsText = v.findViewById(R.id.allEvents);
-        allEventsButton.setCardBackgroundColor(Color.LTGRAY);
+        allEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
         allEventsButton.setRadius(6);
-        allEventsText.setTextColor(Color.BLACK);
+        allEventsText.setTextColor(Color.WHITE);
+        allEventsBar.setVisibility(View.VISIBLE);
 
         myEventsButton = v.findViewById(R.id.myeventsbutton);
         myEventsText = v.findViewById(R.id.myEvents);
         myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
         myEventsText.setTextColor(Color.WHITE);
+        myEventsBar.setVisibility(View.INVISIBLE);
 
         /*allEventsbtn = (Button) v.findViewById(R.id.alleventsbtn);
         allEventsbtn.setBackgroundColor(Color.LTGRAY);
@@ -172,12 +178,16 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
             public void onClick(View view) {
                 if (allEventsCalendar.getVisibility() == View.GONE) {
                     crossFade(myEventsCalendar, allEventsCalendar);
-                    allEventsButton.setCardBackgroundColor(Color.LTGRAY);
-                    allEventsText.setTextColor(Color.BLACK);
+                    crossFade(myEventsBar,allEventsBar);
+                    allEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
+                    allEventsText.setTextColor(Color.WHITE);
                     allEventsButton.setRadius(8);
+                    //allEventsBar.setVisibility(View.VISIBLE);
+
                     myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
                     myEventsText.setTextColor(Color.WHITE);
                     myEventsButton.setRadius(8);
+                    //myEventsBar.setVisibility(View.INVISIBLE);
                     if (customAdapter != null) {
                         types.clear();
                         customAdapter.notifyDataSetChanged();
@@ -191,12 +201,16 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
             public void onClick(View view) {
                 if (myEventsCalendar.getVisibility() == View.GONE) {
                     crossFade(allEventsCalendar, myEventsCalendar);
-                    myEventsButton.setCardBackgroundColor(Color.LTGRAY);
-                    myEventsText.setTextColor(Color.BLACK);
+                    myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
+                    myEventsText.setTextColor(Color.WHITE);
                     myEventsButton.setRadius(8);
+                    //myEventsBar.setVisibility(View.VISIBLE);
+                    crossFade(allEventsBar, myEventsBar);
+
                     allEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
                     allEventsText.setTextColor(Color.WHITE);
                     allEventsButton.setRadius(8);
+                    //allEventsBar.setVisibility(View.INVISIBLE);
                     if (customAdapter != null) {
                         types.clear();
                         customAdapter.notifyDataSetChanged();
@@ -761,64 +775,4 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         Log.d(TAG3, dates.toString());
     }
 
-
-    private class ApiSimulator extends AsyncTask<Void, Void, List<CalendarDay>> {
-
-        @Override
-        protected List<CalendarDay> doInBackground(@NonNull Void... voids) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            //create a list of event dates in the type CalendarDay
-
-            eventsReference.whereEqualTo("active", true).get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
-                                //Since query results contain only existing documents, the exists property will always be true
-                                for (QueryDocumentSnapshot document : task.getResult()) { //this is the syntax for a "for-each" loop (loops through each element in array)
-                                    eventsDocRef1.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
-                                    //dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
-                                    //Log.d(TAG3, dateTime.toString());
-                                }
-                            } else {
-                                Log.d(TAG, "Error getting the documents", task.getException());
-                            }
-                        }
-                        //convert to Calendar
-                        //use addDecorators to add the dots
-                    });
-            final ArrayList<CalendarDay> dates = new ArrayList<>();
-            for (int i = 0; i < eventsDocRef.size(); i++) {
-                eventsDocRef1.get(i).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (value.exists()) {
-                            Timestamp timestamp = value.getTimestamp("date");
-                            Date timeDate = timestamp.toDate();
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTime(timeDate);
-                            int year = calendar.get(Calendar.YEAR);
-                            int month = calendar.get(Calendar.MONTH);
-                            int day = calendar.get(Calendar.DAY_OF_MONTH);
-                            int color = R.color.colorAccent;
-                            final CalendarDay day1 = CalendarDay.from(year, month, day);
-                            dates.add(day1);
-                        }
-                    }
-                });
-            }
-            return dates;
-        }
-
-        protected void onPostExecute(@NonNull List<CalendarDay> calendarDays) {
-            super.onPostExecute(calendarDays);
-
-            //allEventsCalendar.addDecorator(new EventDecorator(Color.RED, calendarDays));
-        }
-    }
 }

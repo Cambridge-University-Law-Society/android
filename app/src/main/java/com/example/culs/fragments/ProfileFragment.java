@@ -417,9 +417,9 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                             userDegree.setText("Your Degree");
                         }
 
-                        if (documentSnapshot.get("status").equals("admin")){
+                        /*if (documentSnapshot.get("status").equals("admin")){
                             admin.setVisibility(View.VISIBLE);
-                        }
+                        }*/
 
                         /*if (documentSnapshot.get("interests") != null){
 
