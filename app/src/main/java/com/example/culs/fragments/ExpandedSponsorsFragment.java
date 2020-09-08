@@ -29,8 +29,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class ExpandedSponsorsFragment extends Fragment {
-    private TextView exSponsorName, exSponsorBio, exSponsorTypes, exSponsorWebsite, exSponsorLinks;
-    private ImageView exSponsorCover, exSponsorLogo;
+    private TextView exSponsorName, exSponsorBio, exSponsorApplication, exSponsorWebsite, exSponsorCSLink, exSponsorEmail;
+    private ImageView exSponsorCover;
     private View rootView;
     private Sponsor expandedSponsor = new Sponsor();
     private String sponsorID;
@@ -45,6 +45,10 @@ public class ExpandedSponsorsFragment extends Fragment {
         exSponsorName = rootView.findViewById(R.id.ex_sponsor_name_text_view);
         exSponsorBio = rootView.findViewById(R.id.ex_sponsor_description_text_view);
         exSponsorCover = rootView.findViewById(R.id.ex_sponsor_pic_image_view);
+        exSponsorApplication = rootView.findViewById(R.id.applications_page);
+        exSponsorCSLink = rootView.findViewById(R.id.CSLinkText);
+        exSponsorEmail = rootView.findViewById(R.id.emailtext);
+        exSponsorWebsite = rootView.findViewById(R.id.websitetext);
 
         sponsorID = bundle.getString("Current Sponsor ID");
         getSponsor();
@@ -77,6 +81,10 @@ public class ExpandedSponsorsFragment extends Fragment {
                     Toast.makeText(getContext(), expandedSponsor.getName(), Toast.LENGTH_SHORT).show();
                     exSponsorName.setText(expandedSponsor.getName());
                     exSponsorBio.setText(expandedSponsor.getBio());
+                    exSponsorApplication.setText(expandedSponsor.getApplicationpage());
+                    exSponsorCSLink.setText(expandedSponsor.getCslink());
+                    exSponsorWebsite.setText(expandedSponsor.getWebsite());
+                    exSponsorEmail.setText(expandedSponsor.getEmail());
 
                     FirebaseStorage eventStorage = FirebaseStorage.getInstance();
                     StorageReference eventStorageRef = eventStorage.getReference();
@@ -93,23 +101,6 @@ public class ExpandedSponsorsFragment extends Fragment {
                             GlideApp.with(getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
                         }
                     });
-
-//                    FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
-//                    StorageReference sponsorStorageRef = sponsorStorage.getReference();
-//                    StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + expandedSponsor.getName() + "/logo.png");
-//                    sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                        @Override
-//                        public void onSuccess(Uri uri) {
-//                            String sponsorImageUri = uri.toString();
-//                            GlideApp.with(getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-//                        }
-//                    }).addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception exception) {
-//                            GlideApp.with(getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-//                        }
-//                    });
-
 
                 } else {
                     System.out.print("Current data: null");

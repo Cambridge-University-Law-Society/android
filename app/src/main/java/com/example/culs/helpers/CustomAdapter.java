@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import com.example.culs.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -61,9 +63,9 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class EventViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView eventPic, eventTagIcon, eventSponsorLogo, eventInterested;
-        TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote, eventSponsor;
-        LinearLayout eventTagHolder;
+        ImageView eventPic, eventTagIcon[] = new ImageView[3], eventSponsorLogo, eventInterested;
+        TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote[] = new TextView[3], eventSponsor;
+        LinearLayout eventTagHolder[] = new LinearLayout[3];
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,9 +74,15 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             eventLocation = (TextView) itemView.findViewById(R.id.event_location_text_view);
             eventDescription = (TextView) itemView.findViewById(R.id.event_description_text_view);
             eventPic = (ImageView) itemView.findViewById(R.id.event_pic_image_view);
-            eventTagIcon = (ImageView) itemView.findViewById(R.id.tag_icon);
-            eventTagNote = (TextView) itemView.findViewById(R.id.tag_note);
-            eventTagHolder = (LinearLayout) itemView.findViewById(R.id.event_tag_holder);
+            eventTagIcon[0] = (ImageView) itemView.findViewById(R.id.tag_icon_one);
+            eventTagNote[0] = (TextView) itemView.findViewById(R.id.tag_note_one);
+            eventTagIcon[1] = (ImageView) itemView.findViewById(R.id.tag_icon_two);
+            eventTagNote[1] = (TextView) itemView.findViewById(R.id.tag_note_two);
+            eventTagIcon[2] = (ImageView) itemView.findViewById(R.id.tag_icon_three);
+            eventTagNote[2] = (TextView) itemView.findViewById(R.id.tag_note_three);
+            eventTagHolder[0] = (LinearLayout) itemView.findViewById(R.id.event_tag_holder_one);
+            eventTagHolder[1] = (LinearLayout) itemView.findViewById(R.id.event_tag_holder_two);
+            eventTagHolder[2] = (LinearLayout) itemView.findViewById(R.id.event_tag_holder_three);
             eventSponsor = (TextView) itemView.findViewById(R.id.event_sponsor_text_view);
             eventSponsorLogo = (ImageView) itemView.findViewById(R.id.sponsor_logo);
             eventInterested = (ImageView) itemView.findViewById(R.id.event_interested_button);
@@ -112,7 +120,28 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             eventLocation.setText(card.getLocation());
             eventDescription.setText(card.getDescription());
             eventPic.setImageDrawable(null);
-            eventTagNote.setText(card.getTags().get(0));
+
+            for (int i = 0; i < 3; i++){
+                eventTagHolder[i].setVisibility(View.INVISIBLE);
+            }
+
+            for (int i = 0; i < card.getTags().size(); i++) {
+                eventTagHolder[i].setVisibility(View.VISIBLE);
+                eventTagNote[i].setText(card.getTags().get(i));
+                switch (card.getTags().get(i)){
+                    case "Careers":
+                        eventTagIcon[i].setImageResource(R.drawable.ic_careers_icon_24dp);
+                        break;
+                    case "Networking":
+                        eventTagIcon[i].setImageResource(R.drawable.ic_networking_icon_24dp);
+                        break;
+                    case "Social":
+                        eventTagIcon[i].setImageResource(R.drawable.ic_socials_icon_24dp);
+                        break;
+                }
+                eventTagHolder[i].animate().translationX(1f).setDuration(1000).setListener(null);
+            }
+
             eventSponsor.setText(card.getSponsor());
             eventSponsorLogo.setImageResource(R.drawable.fbd_logo);
             if(card.getInterested()){
@@ -162,36 +191,53 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class PostViewHolder extends RecyclerView.ViewHolder {
 
-        TextView postTitle, postSender, postContent;
-        ExpandableTextView postDateTime;
+        TextView postTitle, postSender, postDateTime;
+        ExpandableTextView postContent;
+        ImageView postSenderPic;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
-            postContent = (TextView) itemView.findViewById(R.id.post_title_text_view);
-            postTitle = (TextView) itemView.findViewById(R.id.post_date_and_time_text_view);
-            postSender = (TextView) itemView.findViewById(R.id.notification_type_text_view);
-            postDateTime = (ExpandableTextView) itemView.findViewById(R.id.post_content_text_view);
+            postTitle = (TextView) itemView.findViewById(R.id.post_title_text_view);
+            postDateTime = (TextView) itemView.findViewById(R.id.post_timestamp_text_view);
+            postSender = (TextView) itemView.findViewById(R.id.post_sender_text_view);
+            postContent = (ExpandableTextView) itemView.findViewById(R.id.post_content_text_view);
+            postSenderPic = (ImageView) itemView.findViewById(R.id.post_profile_pic);
 
         }
 
         void bindView(final int position) {
 
             final Post post = (Post) mTypes.get(position);
-            postContent.setText(post.getTitle());
-            postTitle.setText(spf.format(post.getTimestamp().toDate()));
-            postSender.setText(post.getSenderID());
-            postDateTime.setText(post.getContent());
+            postTitle.setText(post.getTitle());
+            postDateTime.setText(spf.format(post.getTimestamp().toDate()));
+            postSender.setText(post.getSenderName());
 
-            postDateTime.setText(post.getContent());
-            postDateTime.setOnStateChangeListener(new ExpandableTextView.OnStateChangeListener() {
+            FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
+            StorageReference    sponsorStorageRef = sponsorStorage.getReference();
+            StorageReference sponsorPathReference = sponsorStorageRef.child("users/" + post.getSenderID() + "/profilePic");
+            sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    String sponsorImageUri = uri.toString();
+                    GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(postSenderPic);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(postSenderPic);
+                }
+            });
+
+            postContent.setText(post.getContent());
+            postContent.setOnStateChangeListener(new ExpandableTextView.OnStateChangeListener() {
                 @Override
                 public void onStateChange(boolean isShrink) {
                     post.setShrink(isShrink);
                     mTypes.set(position, post);
                 }
             });
-            postDateTime.setText(post.getContent());
-            postDateTime.resetState(post.isShrink());
+            postContent.setText(post.getContent());
+            postContent.resetState(post.isShrink());
 
         }
     }
@@ -205,7 +251,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             super(itemView);
             sponsorName = (TextView) itemView.findViewById(R.id.sponsor_name_text_view);
             sponsorDescription = (TextView) itemView.findViewById(R.id.sponsor_description_text_view);
-            sponsorTypes = (TextView) itemView.findViewById(R.id.sponsor_law_types);
             sponsorPic = (ImageView) itemView.findViewById(R.id.sponsor_logo_image_view);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -227,7 +272,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             sponsorName.setText(sponsor.getName());
             sponsorDescription.setText(sponsor.getBio());
-            sponsorTypes.setText(sponsor.getTypes());
             sponsorPic.setImageDrawable(null);
 
             FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();

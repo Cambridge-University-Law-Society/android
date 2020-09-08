@@ -38,7 +38,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:id="@+id/notification_name_friends_holder"
+                    android:id="@+id/post_sender_holder"
                     >
 
                     <TextView
@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:layout_below="@id/notification_name_friends_holder"
+                    android:layout_below="@id/post_sender_holder"
                     android:orientation="horizontal"
                     android:id="@+id/notification_date_loc_holder"
                     android:layout_alignParentLeft="true">

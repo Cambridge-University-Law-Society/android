@@ -21,10 +21,11 @@ public class Card implements PostType, Comparable<PostType>{
     private String mEventSponsor;
     private String mEventID;
     private Boolean mEventInterested = false;
+    private String mEventSponsorID;
 
     public Card(){}
 
-    public Card(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String eventImageURL, List<String> eventTags, String eventSponsor, String eventID, Boolean eventInterested) {
+    public Card(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String eventImageURL, List<String> eventTags, String eventSponsor, String eventID, Boolean eventInterested, String eventSponsorID) {
         mEventName = eventName;
         mEventUST = eventUST;
         mEventLocation = eventLocation;
@@ -34,6 +35,7 @@ public class Card implements PostType, Comparable<PostType>{
         mEventSponsor = eventSponsor;
         mEventID = eventID;
         mEventInterested = eventInterested;
+        mEventSponsorID = eventSponsorID;
     }
 
     public String getID() { return mEventID; }
@@ -49,6 +51,7 @@ public class Card implements PostType, Comparable<PostType>{
     public List<String> getTags() { return mEventTags; }
     public String getSponsor() { return mEventSponsor; }
     public Boolean getInterested() { return mEventInterested; }
+    public String getEventSponsorID() { return mEventSponsorID; }
 
     public void setID(String mEventID) { this.mEventID = mEventID; }
     public void setName(String mEventName) { this.mEventName = mEventName; }
@@ -59,6 +62,7 @@ public class Card implements PostType, Comparable<PostType>{
     public void setTags(List<String> mEventTags) { this.mEventTags = mEventTags; }
     public void setSponsor(String mEventSponsor) { this.mEventSponsor = mEventSponsor; }
     public void setInterested(Boolean mEventInterested) { this.mEventInterested = mEventInterested; }
+    public void setEventSponsorID(String mEventSponsorID) { this.mEventSponsorID = mEventSponsorID; }
 
     @Override
     public int getPostType() {

@@ -37,9 +37,70 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal"
-                    android:id="@+id/notification_name_friends_holder"
+                    android:id="@+id/post_sender_holder"
                     >
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/post_profile_pic"
+                        android:layout_width="44sp"
+                        android:layout_height="44sp"
+                        android:elevation="1dp"
+                        android:gravity="bottom"
+                        tools:src="@tools:sample/avatars" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_toRightOf="@id/post_profile_pic"
+                        android:layout_alignParentTop="true"
+                        >
+
+                    <TextView
+                        android:id="@+id/post_sender_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="0dp"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif"
+                        android:gravity="bottom"
+                        android:singleLine="true"
+                        android:textColor="@color/dark_text"
+                        android:textSize="16sp"
+                        tools:text="Shonak Joshi" />
+
+                        <TextView
+                            android:id="@+id/post_timestamp_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/post_sender_text_view"
+                            android:layout_marginRight="8dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_marginTop="0dp"
+                            android:ellipsize="end"
+                            android:fontFamily="sans-serif"
+                            android:gravity="bottom"
+                            android:singleLine="true"
+                            android:textColor="@android:color/darker_gray"
+                            android:textSize="11sp"
+                            tools:text="9:15 Tue 11th Sept" />
+
+                    </RelativeLayout>
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_below="@id/post_sender_holder"
+                    android:orientation="horizontal"
+                    android:id="@+id/notification_date_loc_holder"
+                    android:layout_alignParentLeft="true">
 
                     <TextView
                         android:id="@+id/post_title_text_view"
@@ -47,51 +108,13 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_marginRight="8dp"
-                        android:paddingTop="8dp"
-                        android:gravity="bottom"
-                        android:textSize="22sp"
-                        android:singleLine="true"
+                        android:layout_marginTop="8dp"
                         android:ellipsize="end"
-                        android:textColor="@color/dark_text"
                         android:fontFamily="sans-serif"
-                        tools:text="Fleek Fridays" />
-
-                </RelativeLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_below="@id/notification_name_friends_holder"
-                    android:orientation="horizontal"
-                    android:id="@+id/notification_date_loc_holder"
-                    android:layout_alignParentLeft="true">
-
-                    <TextView
-                        android:id="@+id/post_date_and_time_text_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:gravity="top"
-                        android:textSize="12dp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/holo_red_light"
-                        android:fontFamily="sans-serif-light"
-                        tools:text="Friday 15th October: 22:00" />
-
-                    <TextView
-                        android:id="@+id/notification_type_text_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:gravity="top"
-                        android:textSize="12dp"
-                        android:textColor="@android:color/darker_gray"
-                        android:fontFamily="sans-serif-light"
-                        tools:text="Ballare, Regent's Street" />
+                        android:gravity="bottom"
+                        android:textColor="@color/dark_text"
+                        android:textSize="20sp"
+                        tools:text="Allen and Overy Application Deadline" />
 
                 </LinearLayout>
 
@@ -108,7 +131,8 @@
                     app:etv_textShrink="Show less"
                     app:etv_textContentColor="#8A000000"
                     app:etv_textStateColor="#8A000000"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="4dp"
                     style="@style/TextAppearance.AppCompat.Body1"
                     tools:text="hiehehiehfilaehflahnflkajshddfnlahdlsakdhnlkad"/>
 
