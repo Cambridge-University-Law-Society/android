@@ -32,6 +32,7 @@ import com.example.culs.activities.ProfileEditActivity;
 import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.InterestsAdapter;
 import com.example.culs.helpers.InterestsModel;
+import com.example.culs.helpers.MyInterestsAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -60,7 +61,6 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     private CircleImageView profileImage;
     private TextView edit_btn;
     private GoogleSignInClient mSignInClient;
-    private ListView myInterestsList;
     private ImageView add_interests_btn, done_interests_btn;
 
     //Firebase Instance variables - add them when you need them and explain their function
@@ -80,10 +80,11 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
 
     //GridLayout stuff
-    private GridLayoutManager gridLayoutManager;
-    private RecyclerView.Adapter recyclerAdapter;
-    private RecyclerView recyclerView;
+    private GridLayoutManager gridLayoutManager, all_gridLayoutManager;
+    private RecyclerView.Adapter recyclerAdapter, all_recyclerAdapter;
+    private RecyclerView recyclerView, all_recyclerView;
     private ArrayList<InterestsModel> interestsModel;
+    private ArrayList<InterestsModel> myInterestsList;
 
 
     private String TAG = "ProfileFragment";
@@ -100,11 +101,19 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         recyclerView = (RecyclerView) v.findViewById(R.id.interests_recycler);
         recyclerView.setHasFixedSize(true);
 
+        all_recyclerView = (RecyclerView) v.findViewById(R.id.all_interests_recycler);
+
         gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        all_gridLayoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        all_recyclerView.setLayoutManager(all_gridLayoutManager);
+        all_recyclerView.setItemAnimator(new DefaultItemAnimator());
+
         interestsModel = new ArrayList<InterestsModel>();
+        myInterestsList = new ArrayList<InterestsModel>(); //creates a list of all the interests
+
         /*for (int i = 0; i < DataSet.all_interests.size(); i++){
             data.add(new InterestsModel(
                DataSet.all_interests.get(i)
@@ -118,6 +127,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         myInterests = (List<String>) document.get("interests");
                         //final ArrayList<String> list = new ArrayList<String>();
@@ -126,6 +136,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                         }else{
                             for (int i = 0; i < myInterests.size(); ++i) {
                                 interestsModel.add(new InterestsModel(myInterests.get(i)));
+                                myInterestsList.add(new InterestsModel(myInterests.get(i)));
                             }
                         }
 
@@ -137,7 +148,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                         myInterestsList.setAdapter(adapter);
                         setListViewHeight(myInterestsList);*/
 
-                        initRecyclerView();
+                        initMyRecyclerView();
 
                         Log.d(TAG, interestsModel.toString());
                     }
@@ -163,8 +174,8 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                     ));
                 }
 
-                initRecyclerView();
-                recyclerView.setClickable(false);
+
+                initAllRecyclerView();
                 done_interests_btn.setVisibility(View.VISIBLE);
                 add_interests_btn.setVisibility(View.INVISIBLE);
 
@@ -199,7 +210,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                                 myInterestsList.setAdapter(adapter);
                                 setListViewHeight(myInterestsList);*/
 
-                                initRecyclerView();
+                                initMyRecyclerView();
                                 done_interests_btn.setVisibility(View.INVISIBLE);
                                 add_interests_btn.setVisibility(View.VISIBLE);
                                 Log.d(TAG, interestsModel.toString());
@@ -211,8 +222,6 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                 });
             }
         });
-
-
 
 
         //call signout function
@@ -240,24 +249,37 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
     }
 
-    public void initRecyclerView(){
-        recyclerAdapter = new InterestsAdapter(interestsModel, this);
+
+    public void initAllRecyclerView(){
+        all_recyclerAdapter = new InterestsAdapter(interestsModel, this);
+        all_recyclerView.setAdapter(all_recyclerAdapter);
+        all_recyclerAdapter.notifyDataSetChanged();
+        all_recyclerView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+    }
+
+    public void initMyRecyclerView(){
+        recyclerAdapter = new MyInterestsAdapter(interestsModel);
         recyclerView.setAdapter(recyclerAdapter);
         recyclerAdapter.notifyDataSetChanged();
+        recyclerView.setVisibility(View.VISIBLE);
+        all_recyclerView.setVisibility(View.GONE);
     }
 
     @Override
-    public void onNoteClick(int position, CardView cardView) {
+    public void onNoteClick(int position, CardView cardView, TextView textView) {
         //here do the things you want to do on a click event
         //e.g create an intent to go somewhere
         String one_interest = interestsModel.get(position).getInterests(); //this gets a reference to the object that is pressed
         Log.d(TAG, "onNoteClick: " + String.valueOf(one_interest));
-        if (cardView.getCardBackgroundColor() == ColorStateList.valueOf(getResources().getColor(android.R.color.holo_purple))){
+        if (cardView.getCardBackgroundColor() == ColorStateList.valueOf(getResources().getColor(R.color.colorAccent))){
             cardView.setCardBackgroundColor(Color.WHITE);
+            textView.setTextColor(Color.BLACK);
             docRef.update("interests", FieldValue.arrayRemove(one_interest));
         }
         else{
-            cardView.setCardBackgroundColor(getResources().getColor(android.R.color.holo_purple));
+            cardView.setCardBackgroundColor(getResources().getColor(R.color.colorAccent));
+            textView.setTextColor(Color.WHITE);
             docRef.update("interests", FieldValue.arrayUnion(one_interest));
         }
         //cardView.setCardBackgroundColor(Color.BLACK);

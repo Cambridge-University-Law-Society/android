@@ -9,14 +9,11 @@
         android:title="notifications"
         app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_search_icon_24dp"
-        android:orderInCategory="1"
-        android:title="Search"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
+<!--    <item-->
+<!--        android:id="@+id/search"-->
+<!--        android:icon="@drawable/ic_search_icon_24dp"-->
+<!--        android:title="search"-->
+<!--        app:showAsAction="always"/>-->
 
-        />
 
 </menu>

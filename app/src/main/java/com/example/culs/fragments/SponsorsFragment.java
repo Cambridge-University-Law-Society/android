@@ -56,7 +56,6 @@ public class SponsorsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_sponsors, container, false);
         setupCustomAdapter(rootView);
-        setupToolbarOptionsMenu(rootView);
         return rootView;
     }
 
@@ -133,13 +132,6 @@ public class SponsorsFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private void setupToolbarOptionsMenu(View rootView) {
-        setHasOptionsMenu(true);
-        Toolbar myToolbar = rootView.findViewById(R.id.my_sponsors_toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-    }
 
     public void onSponsorClick(View v, Sponsor currentSponsor) {
 

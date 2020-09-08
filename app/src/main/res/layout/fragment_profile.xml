@@ -391,7 +391,7 @@
                         android:id="@+id/done_interests_button"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:layout_alignRight="@id/interests_recycler"
+                        android:layout_alignRight="@id/all_interests_recycler"
                         android:elevation="10dp"
                         android:padding="5dp"
                         android:src="@drawable/ic_tick_icon"
@@ -401,11 +401,21 @@
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/interests_recycler"
-                        android:layout_below="@id/interestid2"
+                        android:layout_below="@id/done_interests_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
+                        android:layout_marginTop="1dp"
                         android:layout_marginBottom="5dp"
+                        />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/all_interests_recycler"
+                        android:layout_below="@id/done_interests_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginBottom="5dp"
+                        android:visibility="invisible"
                         />
 
                 </RelativeLayout>

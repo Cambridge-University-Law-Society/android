@@ -1,6 +1,10 @@
 package com.example.culs.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.SearchManager;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,15 +15,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.culs.R;
+import com.example.culs.helpers.AppBarStateChangeListener;
 import com.example.culs.activities.MainActivity;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.User;
+import com.firebase.ui.auth.data.model.State;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,12 +44,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -60,6 +74,14 @@ public class HomeFragment extends Fragment {
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
 
+    private AppBarLayout appBarLayout1,appBarLayout2;
+    private Toolbar toolbar, loadedToolbar;
+    private int shortAnimationDuration;
+    private RelativeLayout relativeLayout;
+    private CardView loadedCardView, searchBar;
+    private SearchView searchView;
+    private ImageView notificationsImageBtn;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +93,33 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         setupCustomAdapter(rootView);
-        setupToolbarOptionsMenu(rootView);
+        //setupToolbarOptionsMenu(rootView);
+        setupCollapsingToolbar(rootView);
+        setSearchView(rootView);
+
+        notificationsImageBtn = (ImageView) rootView.findViewById(R.id.notifications_btn);
+        notificationsImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment nextFragment = new SponsorsFragment();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    nextFragment.setSharedElementEnterTransition(new DetailsTransition());
+                    nextFragment.setEnterTransition(new android.transition.Fade());
+                    nextFragment.setExitTransition(new android.transition.Fade());
+                    nextFragment.setSharedElementReturnTransition(new DetailsTransition());
+                }
+
+                Bundle bundle = new Bundle();
+                nextFragment.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
         return rootView;
     }
 
@@ -81,11 +129,62 @@ public class HomeFragment extends Fragment {
         types.clear();
         getListItems();
         customAdapter.notifyDataSetChanged();
-
         }
 
     public void onStop() {
         super.onStop();
+    }
+
+
+    private void setSearchView(View rootView){
+        searchView = rootView.findViewById(R.id.search_bar);
+        searchView.setQueryHint("Search");
+        EditText editText = (EditText) searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+        editText.setTextColor(Color.WHITE);
+        searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchView.setIconified(false);
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                customAdapter.getFilter().filter(newText);
+                if (newText== null || newText.length() == 0){
+                    types.clear();
+                    getListItems();
+                    customAdapter.notifyDataSetChanged();
+                }
+                return false;
+            }
+        });
+    }
+
+
+    private void setupCollapsingToolbar(View rootView){
+        appBarLayout1 = (AppBarLayout) rootView.findViewById(R.id.appBarLayout);
+        relativeLayout = rootView.findViewById(R.id.relative_layout);
+        loadedCardView = rootView.findViewById(R.id.final_card_view);
+        searchBar = rootView.findViewById(R.id.searchbar);
+        loadedToolbar = rootView.findViewById(R.id.final_toolbar);
+
+        appBarLayout1.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                float percentage = ((float)Math.abs(verticalOffset)/appBarLayout.getTotalScrollRange());
+                Log.d("PERC", String.valueOf(percentage));
+                //relativeLayout.setAlpha(percentage);
+                //loadedCardView.setAlpha(percentage);
+                loadedToolbar.setAlpha(percentage);
+                searchBar.setAlpha(1-percentage);
+            }
+        });
     }
 
     private void setupCustomAdapter(View rootView) {
@@ -255,6 +354,9 @@ public class HomeFragment extends Fragment {
                         customAdapter.notifyDataSetChanged();
                     }
                 });
+
+
+
     }
 
 
@@ -262,12 +364,14 @@ public class HomeFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         inflater.inflate(R.menu.app_bar, menu);
 
-        MenuItem searchItem = menu.findItem(R.id.action_search);
 
-        SearchView searchView = (SearchView) searchItem.getActionView();
+        /*SearchView searchView = (SearchView) searchItem.getActionView();
+        SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         searchView.setIconifiedByDefault(false);
-        searchView.setQueryHint("Search Event Names");
+        searchView.setQueryHint(" Search Events");
+        searchView.setBackgroundColor(getResources().getColor(android.R.color.white));
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
@@ -281,11 +385,11 @@ public class HomeFragment extends Fragment {
                 //customAdapter.getFilter().filter(s);
                 types.clear();
                 customAdapter.notifyDataSetChanged();
-                if (s == null || s.length() == 0){
-                    getListItems();
+                if (s == null || s.length() == 0){*/
+                    /*getListItems();
                     types.clear();
-                    customAdapter.notifyDataSetChanged();
-                }else{
+                    customAdapter.notifyDataSetChanged();*/
+                /*}else{
                     String myString = s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
                     userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
@@ -305,7 +409,7 @@ public class HomeFragment extends Fragment {
 
 
 
-                    mFirebaseFirestore.collection("Events").orderBy("name").startAt(myString.toUpperCase()).endAt(myString + "\ufBff")
+                    mFirebaseFirestore.collection("Events").orderBy("name").startAt(myString).endAt(myString + "\ufBff")
                             .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                 @Override
                                 public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -390,9 +494,9 @@ public class HomeFragment extends Fragment {
 
 
                 }
-                return false;
+                return true;
             }
-        });
+        });*/
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -400,11 +504,11 @@ public class HomeFragment extends Fragment {
 
     private void setupToolbarOptionsMenu(View rootView) {
         setHasOptionsMenu(true);
-        Toolbar myToolbar = rootView.findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = rootView.findViewById(R.id.final_toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-        //((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_search_icon_24dp);// set drawable icon
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_culs_top_logo_invert);// set drawable icon
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
