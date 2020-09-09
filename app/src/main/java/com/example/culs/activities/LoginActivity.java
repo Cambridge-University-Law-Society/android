@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.FirebaseDatabase;
@@ -102,6 +103,17 @@ public class LoginActivity extends AppCompatActivity{
         }
     }*/
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser user = mFirebaseAuth.getCurrentUser();
+        if (user!=null){
+            Intent intent = new Intent(getApplicationContext(), OpeningTitlePage.class);
+            startActivity(intent);
+        }
+    }
+
     //add required sign in method that actually presents the user with the google sign in ui
     private void signIn() {
         Intent signInIntent = mSignInClient.getSignInIntent();
@@ -145,6 +157,7 @@ public class LoginActivity extends AppCompatActivity{
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            FirebaseUser user = mFirebaseAuth.getCurrentUser();
                             FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
                             Log.d(TAG, "onComplete: " + mFirebaseAuth.getUid());
                             DocumentReference docIdRef = rootRef.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getUid()));
