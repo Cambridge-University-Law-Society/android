@@ -156,7 +156,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please fill out all the fields", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    User users = new User(first_name, last_name, user_college, year_id, personEmail, userid, null, null, "admin",  user_degree, null);
+                    User users = new User(first_name, last_name, user_college, year_id, null, userid, null, null, "admin",  user_degree, null);
                     docRef.set(users)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override

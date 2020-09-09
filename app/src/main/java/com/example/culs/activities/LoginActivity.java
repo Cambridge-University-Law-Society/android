@@ -107,11 +107,11 @@ public class LoginActivity extends AppCompatActivity{
     protected void onStart() {
         super.onStart();
 
-        FirebaseUser user = mFirebaseAuth.getCurrentUser();
+        /*FirebaseUser user = mFirebaseAuth.getCurrentUser();
         if (user!=null){
-            Intent intent = new Intent(getApplicationContext(), OpeningTitlePage.class);
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
-        }
+        }*/
     }
 
     //add required sign in method that actually presents the user with the google sign in ui

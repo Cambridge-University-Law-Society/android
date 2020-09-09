@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -71,7 +72,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     private FirebaseAuth mFirebaseAuth;
     //this will get the current instance of the document in cloud firestore
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    final String userid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     //this retrieves the entire document with this specific uid
     private DocumentReference docRef = db.collection("users").document(userid);
 

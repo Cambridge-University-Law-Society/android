@@ -45,6 +45,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
@@ -72,7 +73,7 @@ public class HomeFragment extends Fragment {
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
-    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private String userID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
 
