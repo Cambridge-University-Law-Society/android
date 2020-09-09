@@ -425,7 +425,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             //the charSequence will be the input from the search - so use this as logic
             List<PostType> filteredList = new ArrayList<>();
 
-
             if (charSequence == null || charSequence.length() == 0){
                 filteredList.addAll(mTypes); //contains all the items
             }else{

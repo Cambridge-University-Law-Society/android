@@ -87,7 +87,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 
     @Nullable
@@ -97,7 +96,6 @@ public class HomeFragment extends Fragment {
         setupCustomAdapter(rootView);
         //setupToolbarOptionsMenu(rootView);
         setupCollapsingToolbar(rootView);
-        setSearchView(rootView);
 
         notificationsImageBtn = (ImageView) rootView.findViewById(R.id.notifications_btn);
         notificationsImageBtn.setOnClickListener(new View.OnClickListener() {
@@ -124,6 +122,7 @@ public class HomeFragment extends Fragment {
         types.clear();
         getListItems();
         customAdapter.notifyDataSetChanged();
+        setSearchView(rootView);
         }
 
     public void onStop() {
@@ -140,23 +139,23 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 searchView.setIconified(false);
-            }
-        });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                customAdapter.getFilter().filter(newText);
-                if (newText== null || newText.length() == 0){
-                    types.clear();
-                    getListItems();
-                    customAdapter.notifyDataSetChanged();
-                }
-                return false;
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        customAdapter.getFilter().filter(newText);
+                        if (newText== null || newText.length() == 0){
+                            types.clear();
+                            getListItems();
+                            customAdapter.notifyDataSetChanged();
+                        }
+                        return false;
+                    }
+                });
             }
         });
     }
@@ -406,148 +405,6 @@ public class HomeFragment extends Fragment {
 
 
 
-    }
-
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        inflater.inflate(R.menu.app_bar, menu);
-
-
-        /*SearchView searchView = (SearchView) searchItem.getActionView();
-        SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        searchView.setIconifiedByDefault(false);
-        searchView.setQueryHint(" Search Events");
-        searchView.setBackgroundColor(getResources().getColor(android.R.color.white));
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                //customAdapter.getFilter().filter(s);
-                types.clear();
-                customAdapter.notifyDataSetChanged();
-                if (s == null || s.length() == 0){*/
-                    /*getListItems();
-                    types.clear();
-                    customAdapter.notifyDataSetChanged();*/
-                /*}else{
-                    String myString = s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
-                    userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                            if (error != null) {
-                                System.err.println("Listen failed: " + error);
-                                return;
-                            }
-
-                            if (value != null && value.exists()) {
-                                currentUser = value.toObject(User.class);
-                            } else {
-                                System.out.print("Current data: null");
-                            }
-                        }
-                    });
-
-
-
-                    mFirebaseFirestore.collection("Events").orderBy("name").startAt(myString).endAt(myString + "\ufBff")
-                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                @Override
-                                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-
-                                    if (error != null) {
-                                        System.err.println("Listen failed:" + error);
-                                        return;
-                                    }
-
-                                    for (DocumentChange dc : value.getDocumentChanges()) {
-                                        switch (dc.getType()) {
-                                            case ADDED:
-                                                Card cardAdded = dc.getDocument().toObject(Card.class);
-                                                cardAdded.setID(dc.getDocument().getId());
-                                                if(currentUser.getMyevents() == null){
-                                                    cardAdded.setInterested(false);
-                                                } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
-                                                    cardAdded.setInterested(true);
-                                                } else {
-                                                    cardAdded.setInterested(false);
-                                                }
-                                                types.add(dc.getNewIndex(), cardAdded);
-                                                break;
-                                            case MODIFIED:
-                                                types.remove(dc.getOldIndex());
-                                                Card cardChanged = dc.getDocument().toObject(Card.class);
-                                                cardChanged.setID(dc.getDocument().getId());
-                                                if(currentUser.getMyevents() == null){
-                                                    cardChanged.setInterested(false);
-                                                } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
-                                                    cardChanged.setInterested(true);
-                                                } else {
-                                                    cardChanged.setInterested(false);
-                                                }
-                                                types.add(dc.getNewIndex(), cardChanged);
-                                                break;
-                                            case REMOVED:
-                                                types.remove(dc.getOldIndex());
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }
-                                    customAdapter.notifyDataSetChanged();
-                                }
-                            });
-
-                    mFirebaseFirestore.collection("posts").orderBy("title").startAt(s).endAt(s)
-                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                @Override
-                                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                    if (error != null) {
-                                        System.err.println("Listen failed:" + error);
-                                        return;
-                                    }
-
-                                    for (DocumentChange dc : value.getDocumentChanges()) {
-                                        switch (dc.getType()) {
-                                            case ADDED:
-                                                Post postAdded = dc.getDocument().toObject(Post.class);
-                                                postAdded.setPostID(dc.getDocument().getId());
-                                                types.add(postAdded);
-                                                break;
-                                            case MODIFIED:
-                                                types.remove(dc.getOldIndex());
-                                                Post postChanged = dc.getDocument().toObject(Post.class);
-                                                postChanged.setPostID(dc.getDocument().getId());
-                                                types.add(postChanged);
-                                                break;
-                                            case REMOVED:
-                                                types.remove(dc.getOldIndex());
-                                                break;
-                                            default:
-                                                break;
-                                        }
-
-                                    }
-                                    Collections.sort(types);
-                                    customAdapter.notifyDataSetChanged();
-                                }
-                            });
-
-
-                }
-                return true;
-            }
-        });*/
-
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
 

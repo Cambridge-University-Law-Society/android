@@ -48,7 +48,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     EditText txtfirstname, txtlastname, txtyearid, txtdegree;
     CardView signupbtn;
-    Spinner txtcollegeid;
+    Spinner txtcollegeid, txtdegreeid;
     CircleImageView profilePic;
 
     String personName, personGivenName, personFamilyName, personEmail, personId;
@@ -86,17 +86,21 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         final Spinner userCollege = findViewById(R.id.college);
+        final Spinner userDegree = findViewById(R.id.degree);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, R.layout.list_item);
+        ArrayAdapter<CharSequence> adapter_degree = ArrayAdapter.createFromResource(this, R.array.degree_names, R.layout.list_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        adapter_degree.setDropDownViewResource(android.R.layout.simple_list_item_1);
         // Apply the adapter to the spinner
         userCollege.setAdapter(adapter);
+        userDegree.setAdapter(adapter_degree);
 
         txtfirstname = (EditText) findViewById(R.id.first);
         txtlastname = (EditText) findViewById(R.id.last);
         txtyearid = (EditText) findViewById(R.id.year);
-        txtdegree = (EditText) findViewById(R.id.degree);
+        //txtdegree = (EditText) findViewById(R.id.degree);
         signupbtn = (CardView) findViewById(R.id.signupbtn);
         profilePic = findViewById(R.id.original_profile_image);
 
@@ -142,16 +146,17 @@ public class SignUpActivity extends AppCompatActivity {
                 String last_name = txtlastname.getText().toString().trim();
                 //String college_id = txtcollegeid.getText().toString().trim();
                 String year_id = txtyearid.getText().toString().trim();
-                String degree_id = txtdegree.getText().toString().trim();
+                //String degree_id = txtdegree.getText().toString().trim();
 
                 //get the value from the spinner
                 String user_college = userCollege.getSelectedItem().toString();
+                String user_degree = userDegree.getSelectedItem().toString();
 
-                if(first_name.isEmpty() || last_name.isEmpty() || year_id.isEmpty() || degree_id.isEmpty()){
+                if(first_name.isEmpty() || last_name.isEmpty() || year_id.isEmpty()){
                     Toast.makeText(getApplicationContext(), "Please fill out all the fields", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    User users = new User(first_name, last_name, user_college, year_id, personEmail, userid, null, null, "admin",  degree_id, null);
+                    User users = new User(first_name, last_name, user_college, year_id, personEmail, userid, null, null, "admin",  user_degree, null);
                     docRef.set(users)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override

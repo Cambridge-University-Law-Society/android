@@ -119,21 +119,6 @@ public class LoginActivity extends AppCompatActivity{
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
-                /*mFirebaseAuth.fetchSignInMethodsForEmail(account.getId())
-                        .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                                boolean check = !task.getResult().getSignInMethods().isEmpty();
-
-                                if(!check){ //if no email exists already
-
-                                }
-                                else{
-                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                    finish();
-                                }
-                            }
-                        });*/
                 firebaseAuthWithGoogle(account);
 
             } catch (ApiException e) {

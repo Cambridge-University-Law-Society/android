@@ -1,42 +1,34 @@
-package com.example.culs.activities;
+package com.example.culs.fragments;
 
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
-import com.bumptech.glide.Glide;
-import com.example.culs.fragments.DetailsTransition;
-import com.example.culs.fragments.ExpandedEventFragment;
-import com.example.culs.fragments.ProfileFragment;
-import com.example.culs.helpers.Card;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.example.culs.helpers.GlideApp;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.culs.R;
+import com.example.culs.activities.MainActivity;
+import com.example.culs.activities.ProfileEditActivity;
+import com.example.culs.helpers.GlideApp;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -55,7 +47,7 @@ import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileEditActivity extends AppCompatActivity {
+public class ProfileEditFragment extends Fragment {
 
     private EditText firstName, lastName, userCrsid, userBio, userYear, userInterests;
     private Spinner userCollege, userDegree;
@@ -82,11 +74,12 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     private String TAG = "ProfileEditFragment";
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_edit);
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //return super.onCreateView(inflater, container, savedInstanceState);
+        final View v = inflater.inflate(R.layout.activity_profile_edit, container, false);
+        v.setBackgroundColor(Color.WHITE);
 
         storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
         if(mDatabase==null){
@@ -96,7 +89,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         }
 
 
-        profileImage = findViewById(R.id.profile_image);
+        profileImage = v.findViewById(R.id.profile_image);
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,7 +98,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
-        editProfileImage = findViewById(R.id.edit_profile_button);
+        editProfileImage = v.findViewById(R.id.edit_profile_button);
         editProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,33 +108,35 @@ public class ProfileEditActivity extends AppCompatActivity {
         });
 
         //SPINNER STUFF
-        final Spinner userCollege = findViewById(R.id.edit_college_spinner);
-        final Spinner userDegree = findViewById(R.id.edit_degree_spinner);
+        final Spinner userCollege = v.findViewById(R.id.edit_college_spinner);
+        final Spinner userDegree = v.findViewById(R.id.edit_degree_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.college_names, R.layout.list_item);
-        ArrayAdapter<CharSequence> adapter_degree = ArrayAdapter.createFromResource(this, R.array.degree_names, R.layout.list_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.college_names, R.layout.list_item);
+        ArrayAdapter<CharSequence> adapter_degree = ArrayAdapter.createFromResource(getContext(), R.array.degree_names, R.layout.list_item);
         // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
-        adapter_degree.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        adapter.setDropDownViewResource(R.layout.list_item_2);
+        adapter_degree.setDropDownViewResource(R.layout.list_item_2);
         // Apply the adapter to the spinner
         userCollege.setAdapter(adapter);
         userDegree.setAdapter(adapter_degree);
 
-        save_btn = findViewById(R.id.button_done);
+        save_btn = v.findViewById(R.id.button_done);
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //this will upload the new profile picture to firebase storage
                 if (uploadTask != null){
-                    Toast.makeText(ProfileEditActivity.this, "Upload in Progress", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Upload in Progress", Toast.LENGTH_SHORT).show();
                 }else {
                     uploadFile();
-                    updateData(userCollege, userDegree);
+                    updateData(userCollege, userDegree, v);
                 }
 
-                Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                sendToProfileFragment();
+
+                //Intent intent = new Intent(getActivity(), MainActivity.class);
+                //startActivity(intent);
+                //finish();
 
                 //goToFragment();
                 //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
@@ -149,57 +144,51 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
-        cancel_btn = findViewById(R.id.cancel_button);
+        cancel_btn = v.findViewById(R.id.cancel_button);
         cancel_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                sendToProfileFragment();
                 //goToFragment();
                 //getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, new ProfileFragment()).commit();
-                Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                //Intent intent = new Intent(ProfileEditActivity.this, MainActivity.class);
+                //startActivity(intent);
+                //finish();
                 //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
 
 
         try {
-            loadCurrentData(adapter, userCollege);
+            loadCurrentData(adapter, userCollege, v);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return v;
     }
 
-    public void goToFragment() {
-
+    private void sendToProfileFragment(){
         Fragment nextFragment = new ProfileFragment();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-            nextFragment.setEnterTransition(new android.transition.Fade());
-            nextFragment.setExitTransition(new android.transition.Fade());
-            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-        }
 
         Bundle bundle = new Bundle();
         nextFragment.setArguments(bundle);
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container2, nextFragment);
-        //fragmentTransaction.attach(nextFragment);
+        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
-    private void loadCurrentData(final ArrayAdapter<CharSequence> adapter, final Spinner mSpinner) throws IOException {
+    private void loadCurrentData(final ArrayAdapter<CharSequence> adapter, final Spinner mSpinner, View v) throws IOException {
         //load the current data from firebase into the edit text views
 
-        final EditText firstName = (EditText) findViewById(R.id.first_name);
-        final EditText lastName = (EditText) findViewById(R.id.last_name);
-        final EditText userCrsid = (EditText) findViewById(R.id.crsid);
-        final EditText userBio = (EditText) findViewById(R.id.bio);
+        final EditText firstName = (EditText) v.findViewById(R.id.first_name);
+        final EditText lastName = (EditText) v.findViewById(R.id.last_name);
+        final EditText userCrsid = (EditText) v.findViewById(R.id.crsid);
+        final EditText userBio = (EditText) v.findViewById(R.id.bio);
         //final TextView userCollege = (TextView) findViewById(R.id.selected_college);
-        final EditText userYear = (EditText) findViewById(R.id.edit_useryear);
+        final EditText userYear = (EditText) v.findViewById(R.id.edit_useryear);
         //final EditText userDegree = (EditText) findViewById(R.id.edit_degree);
 
         //method for loading textView data
@@ -261,14 +250,14 @@ public class ProfileEditActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(ProfileEditActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, e.toString());
                     }
                 });
 
 
         //set the profile picture from firebase
-        profileImage = findViewById(R.id.profile_image);
+        profileImage = v.findViewById(R.id.profile_image);
         fetchImage(profileImage);
 
 
@@ -289,29 +278,29 @@ public class ProfileEditActivity extends AppCompatActivity {
         pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                GlideApp.with(ProfileEditActivity.this).load(file).into(image);
+                GlideApp.with(getActivity()).load(file).into(image);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(ProfileEditActivity.this, "Error in loading", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Error in loading", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
-    private void updateData(Spinner mSpinner, Spinner mSpinner2) {
+    private void updateData(Spinner mSpinner, Spinner mSpinner2, View v) {
         //TODO: MAKE THIS CODE BETTER
         //this will update the document with the information in the editText boxes
 
         //DONE: Add the updated editview stuff here
         //initalise the view first
-        firstName = (EditText) findViewById(R.id.first_name);
-        lastName = (EditText) findViewById(R.id.last_name);
-        userCrsid = (EditText) findViewById(R.id.crsid);
-        userBio = (EditText) findViewById(R.id.bio);
+        firstName = (EditText) v.findViewById(R.id.first_name);
+        lastName = (EditText) v.findViewById(R.id.last_name);
+        userCrsid = (EditText) v.findViewById(R.id.crsid);
+        userBio = (EditText) v.findViewById(R.id.bio);
         //userCollege = (EditText) findViewById(R.id.edit_college);
-        userYear = (EditText) findViewById(R.id.edit_useryear);
+        userYear = (EditText) v.findViewById(R.id.edit_useryear);
 
         //convert all textViews to string
         String first_name = firstName.getText().toString().trim();
@@ -332,11 +321,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         docRef.update("college", user_college);
         docRef.update("year", user_year);
         docRef.update("degree", user_degree);
-
     }
-
-
-    //TODO: Add method to upload and change the profile picture
 
     private void openFileChooser(){
         Intent intent = new Intent();
@@ -346,7 +331,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null & data.getData() != null){
@@ -363,7 +348,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     private String getFileExtension(Uri uri){
         //this function gets the file extension of the image (e.g. it will get .jpg)
-        ContentResolver cR = this.getApplicationContext().getContentResolver();
+        ContentResolver cR = getActivity().getApplicationContext().getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
     }
@@ -380,7 +365,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(ProfileEditActivity.this, "Upload successful", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Upload successful", Toast.LENGTH_SHORT).show();
                             if (taskSnapshot.getMetadata()!= null){
                                 if (taskSnapshot.getMetadata().getReference()!=null){
                                     String result = taskSnapshot.getStorage().getPath();
@@ -393,7 +378,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(ProfileEditActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }else{
