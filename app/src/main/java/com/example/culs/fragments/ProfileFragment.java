@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -94,8 +96,6 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         //return inflater.inflate(R.layout.fragment_profile, container, false);
 
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
-
-
 
 
         recyclerView = (RecyclerView) v.findViewById(R.id.interests_recycler);
@@ -239,16 +239,24 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         edit_btn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), ProfileEditActivity.class);
+                /*Intent intent = new Intent(getActivity(), ProfileEditActivity.class);
                 startActivity(intent);
-                getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
+                Fragment nextFragment = new ProfileEditFragment();
+
+                Bundle bundle = new Bundle();
+                nextFragment.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
         return v;
 
     }
-
 
     public void initAllRecyclerView(){
         all_recyclerAdapter = new InterestsAdapter(interestsModel, this);
@@ -417,9 +425,9 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                             userDegree.setText("Your Degree");
                         }
 
-                        if (documentSnapshot.get("status").equals("admin")){
+                        /*if (documentSnapshot.get("status").equals("admin")){
                             admin.setVisibility(View.VISIBLE);
-                        }
+                        }*/
 
                         /*if (documentSnapshot.get("interests") != null){
 
@@ -438,37 +446,6 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
         });
 
-        /*docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        myInterests = (List<String>) document.get("interests");
-                        final ArrayList<String> list = new ArrayList<String>();
-                        if (myInterests == null){
-                            list.add("You don't have any interests");
-                        }else{
-                            for (int i = 0; i < myInterests.size(); ++i) {
-                            list.add(myInterests.get(i));
-                            }
-                        }
-
-                        //GridAdapter gridAdapter = new GridAdapter(getContext(), list);
-                        //gridView.setAdapter(gridAdapter);
-
-                        //this is for the list view
-                        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, list);
-                        myInterestsList.setAdapter(adapter);
-                        setListViewHeight(myInterestsList);
-
-                        Log.d(TAG, list.toString());
-                    }
-                } else{
-                    Toast.makeText(getContext(), "didn't work", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });*/
 
 
         //set the profile picture from firebase

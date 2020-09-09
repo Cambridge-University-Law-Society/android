@@ -14,11 +14,12 @@
         <activity
             android:name=".activities.ProfileEditActivity"
             android:label="@string/title_activity_profile_edit"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Spinner"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.SignUpActivity"
             android:configChanges="orientation"
+            android:theme="@style/Spinner"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,6 +35,7 @@
                 uncomment this if you want the login page to come up every time the user closes the app
                 <category android:name="android.intent.category.LAUNCHER" />
                 -->
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".activities.OpeningTitlePage"

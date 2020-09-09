@@ -10,6 +10,12 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.BaseRequestOptions;
+import com.bumptech.glide.request.RequestOptions;
+import com.example.culs.helpers.GlideApp;
 import java.util.ArrayList;
 import com.example.culs.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -150,6 +156,7 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 eventInterested.setImageResource(R.drawable.ic_interested_button_off_24dp);
             }
 
+            final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
             FirebaseStorage eventStorage = FirebaseStorage.getInstance();
             StorageReference eventStorageRef = eventStorage.getReference();
             StorageReference eventPathReference = eventStorageRef.child("Events/" + card.getID() + "/coverPhoto");
@@ -157,12 +164,15 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onSuccess(Uri uri) {
                     String eventImageUri = uri.toString();
-                    GlideApp.with(itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(eventPic);
+                    //GlideApp.with(itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(eventPic);
+                    Glide.with(itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventPic);
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(eventPic);
+                    //GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(eventPic);
+                    Glide.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventPic);
                 }
             });
 
@@ -173,12 +183,14 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onSuccess(Uri uri) {
                     String sponsorImageUri = uri.toString();
-                    GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(eventSponsorLogo);
+                    //GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(eventSponsorLogo);
+                    Glide.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventSponsorLogo);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    GlideApp.with(itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(eventSponsorLogo);
+                    //GlideApp.with(itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(eventSponsorLogo);
+                    Glide.with(itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventSponsorLogo);
                 }
             });
 
@@ -412,7 +424,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             //performFiltering will work in the background so will not freeze the app
             //the charSequence will be the input from the search - so use this as logic
             List<PostType> filteredList = new ArrayList<>();
-
 
             if (charSequence == null || charSequence.length() == 0){
                 filteredList.addAll(mTypes); //contains all the items

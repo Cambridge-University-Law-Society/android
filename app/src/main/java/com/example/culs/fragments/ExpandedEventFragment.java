@@ -52,7 +52,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ExpandedEventFragment extends Fragment implements View.OnClickListener {
     private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote[] = new TextView[3], exEventSponsorName;
-    private ImageView exEventPic, exEventTagIcon[] = new ImageView[3], exEventSponsorImage, exEventInterestedIcon;
+    private ImageView exEventPic, exEventTagIcon[] = new ImageView[3], exEventSponsorImage, exEventInterestedIcon, backbutton;
     private LinearLayout exEventSponsorHolder, exEventInterestedHolder, exEventTagHolder[] = new LinearLayout[3];
     private View rootView;
     private Card expandedCard = new Card();
@@ -96,6 +96,16 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         setupCustomAdapter(rootView);
         cardId = bundle.getString("Current Card ID");
         getCard();
+
+        backbutton = rootView.findViewById(R.id.back_button);
+        backbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = getFragmentManager();
+                assert fragmentManager != null;
+                fragmentManager.popBackStack(null, 0);
+            }
+        });
 
         return rootView;
     }

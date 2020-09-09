@@ -6,22 +6,33 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/culs_purple_logo"
+        android:src="@drawable/culs_purple_logo_nopadding"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="125sp"
         />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Developed by Sam Phillips, Shonak Joshi and Rajan Mahoon"
-        android:textColor="@color/gray"
+        android:textColor="#FFFFFF"
         android:layout_alignParentBottom="true"
+        android:textSize="12sp"
         android:gravity="center_horizontal"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="75dp"
+        android:layout_marginRight="75dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="10dp"
         />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/splash"
+        android:scaleType="fitXY"/>
+
 
 
 </RelativeLayout>

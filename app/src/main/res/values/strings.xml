@@ -45,4 +45,36 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="degree_names">
+        <item>Law</item>
+        <item>Anglo-Saxon, Norse, and Celtic</item>
+        <item>Archaeology</item>
+        <item>Architecture</item>
+        <item>Asian and Middle Eastern Studies</item>
+        <item>Chemical Engineering</item>
+        <item>Classics</item>
+        <item>Computer Science</item>
+        <item>Economics</item>
+        <item>Education</item>
+        <item>English</item>
+        <item>Engineering</item>
+        <item>Geography</item>
+        <item>History</item>
+        <item>History and Medieval Languages</item>
+        <item>History and Politics</item>
+        <item>History of Art</item>
+        <item>Human, Social, and Political Sciences</item>
+        <item>Land Economy</item>
+        <item>Linguistics</item>
+        <item>Mathematics</item>
+        <item>Medicine</item>
+        <item>Modern and Medieval Languages</item>
+        <item>Music</item>
+        <item>Natural Sciences</item>
+        <item>Philosophy</item>
+        <item>Psychological and Behavioural Sciences</item>
+        <item>Theology, Religion, and Philosophy of Religion</item>
+        <item>Veterinary Medicine</item>
+    </string-array>
+
 </resources>

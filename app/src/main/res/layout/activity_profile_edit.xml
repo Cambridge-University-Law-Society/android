@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_container2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:backgroundTint="@color/background_light">
 
 
     <androidx.core.widget.NestedScrollView
@@ -73,7 +74,7 @@
                 android:layout_below="@id/title"
                 android:layout_marginTop="50dp"
                 android:elevation="100dp"
-                android:src="@drawable/ic_profile_icon_24dp"
+                android:src="@drawable/noprofilepicture"
                 app:civ_border_color="#FFFFFF"
                 app:civ_border_width="3dp"/>
 
@@ -230,7 +231,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentRight="true"
                             android:layout_marginTop="7dp"
-                            android:layout_marginLeft="7dp"
+                            android:layout_marginLeft="13dp"
                             android:layout_marginRight="10dp"
                             android:fontFamily="sans-serif-light"
                             android:textColor="#000000"
@@ -287,10 +288,9 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:paddingLeft="8dp"
-                            android:paddingRight="33dp"
-                            android:layout_alignBottom="@id/edit_degree"/>
+                            android:paddingRight="33dp" />
 
-                        <EditText
+                        <!--<EditText
                             android:id="@+id/edit_degree"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -299,6 +299,20 @@
                             android:layout_marginRight="10dp"
                             android:fontFamily="sans-serif-light"
                             android:hint="Degree"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/degree_id"/>-->
+
+                        <Spinner
+                            android:id="@+id/edit_degree_spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginTop="7dp"
+                            android:layout_marginLeft="13dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
                             android:textColor="#000000"
                             android:textSize="16sp"
                             android:layout_toRightOf="@id/degree_id"/>

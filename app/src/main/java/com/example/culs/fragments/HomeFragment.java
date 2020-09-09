@@ -92,7 +92,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 
     @Nullable
@@ -148,23 +147,23 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 searchView.setIconified(false);
-            }
-        });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                customAdapter.getFilter().filter(newText);
-                if (newText== null || newText.length() == 0){
-                    types.clear();
-                    getListItems();
-                    customAdapter.notifyDataSetChanged();
-                }
-                return false;
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        customAdapter.getFilter().filter(newText);
+                        if (newText== null || newText.length() == 0){
+                            types.clear();
+                            getListItems();
+                            customAdapter.notifyDataSetChanged();
+                        }
+                        return false;
+                    }
+                });
             }
         });
     }
@@ -457,7 +456,17 @@ public class HomeFragment extends Fragment {
                         customAdapter.notifyDataSetChanged();
                     }
                 });
+    }
 
+
+    private void setupToolbarOptionsMenu(View rootView) {
+        setHasOptionsMenu(true);
+        Toolbar myToolbar = rootView.findViewById(R.id.final_toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(myToolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_culs_top_logo_invert);// set drawable icon
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     public void onCardClick(View v, Card currentCard) {
