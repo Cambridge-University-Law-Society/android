@@ -160,43 +160,12 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             FirebaseStorage eventStorage = FirebaseStorage.getInstance();
             StorageReference eventStorageRef = eventStorage.getReference();
             StorageReference eventPathReference = eventStorageRef.child("Events/" + card.getID() + "/coverPhoto");
-            eventPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    String eventImageUri = uri.toString();
-                    //GlideApp.with(itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(eventPic);
-                    Glide.with(itemView.getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventPic);
-
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    //GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(eventPic);
-                    Glide.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventPic);
-                }
-            });
+            Glide.with(itemView.getContext()).load(eventPathReference).placeholder(R.drawable.image_placeholder).apply(requestOptions).fitCenter().into(eventPic);
 
             FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
             StorageReference sponsorStorageRef = sponsorStorage.getReference();
             StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + card.getSponsor() + "/logo.png");
-            sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    String sponsorImageUri = uri.toString();
-                    //GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(eventSponsorLogo);
-                    Glide.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventSponsorLogo);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    //GlideApp.with(itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(eventSponsorLogo);
-                    Glide.with(itemView.getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).apply(requestOptions).fitCenter().into(eventSponsorLogo);
-                }
-            });
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.eventPic.setTransitionName(card.getName() + "_image");
-            }
+            Glide.with(itemView.getContext()).load(sponsorPathReference).placeholder(R.drawable.image_placeholder).apply(requestOptions).fitCenter().into(eventSponsorLogo);
 
         }
     }
@@ -225,20 +194,9 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             postSender.setText(post.getSenderName());
 
             FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
-            StorageReference    sponsorStorageRef = sponsorStorage.getReference();
-            StorageReference sponsorPathReference = sponsorStorageRef.child("users/" + post.getSenderID() + "/profilePic");
-            sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    String sponsorImageUri = uri.toString();
-                    GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(postSenderPic);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(postSenderPic);
-                }
-            });
+            StorageReference    postStorageRef = sponsorStorage.getReference();
+            StorageReference postPathReference = postStorageRef.child("users/" + post.getSenderID() + "/profilePic");
+            Glide.with(itemView.getContext()).load(postPathReference).placeholder(R.drawable.image_placeholder).fitCenter().into(postSenderPic);
 
             postContent.setText(post.getContent());
             postContent.setOnStateChangeListener(new ExpandableTextView.OnStateChangeListener() {
@@ -289,23 +247,7 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
             StorageReference    sponsorStorageRef = sponsorStorage.getReference();
             StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + sponsor.getName() + "/logo.png");
-            sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    String sponsorImageUri = uri.toString();
-                    GlideApp.with(itemView.getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(sponsorPic);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    GlideApp.with(itemView.getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(sponsorPic);
-                }
-            });
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                this.sponsorPic.setTransitionName(sponsor.getName() + "_image");
-            }
-
+            Glide.with(itemView.getContext()).load(sponsorPathReference).placeholder(R.drawable.image_placeholder).fitCenter().into(sponsorPic);
         }
     }
 

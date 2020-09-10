@@ -22,6 +22,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,7 +96,11 @@ public class NotificationsFragment extends Fragment {
 
     private void getListItems() {
 
-        mFirebaseFirestore.collection("notifications").orderBy("timestamp")
+        ArrayList<String> notifsArrayList = HomeFragment.currentUser.getMyevents();
+        notifsArrayList.add(HomeFragment.currentUser.getUid());
+        String notifsList[] = notifsArrayList.toArray(new String[0]);
+
+        mFirebaseFirestore.collection("notifications").whereArrayContainsAny("receiverID", Arrays.asList(notifsList)).orderBy("timestamp")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -110,23 +115,25 @@ public class NotificationsFragment extends Fragment {
                                     Notification notificationAdded = dc.getDocument().toObject(Notification.class);
                                     notificationAdded.setNotificationID(dc.getDocument().getId());
                                     types.add(notificationAdded);
+                                    customAdapter.notifyItemInserted(dc.getNewIndex());
                                     break;
                                 case MODIFIED:
                                     types.remove(dc.getOldIndex());
+                                    customAdapter.notifyItemRemoved(dc.getOldIndex());
                                     Notification notificationChanged = dc.getDocument().toObject(Notification.class);
                                     notificationChanged.setNotificationID(dc.getDocument().getId());
                                     types.add(notificationChanged);
+                                    customAdapter.notifyItemChanged(dc.getNewIndex());
                                     break;
                                 case REMOVED:
                                     types.remove(dc.getOldIndex());
+                                    customAdapter.notifyItemRemoved(dc.getOldIndex());
                                     break;
                                 default:
                                     break;
                             }
 
                         }
-                        Collections.sort(types);
-                        customAdapter.notifyDataSetChanged();
                     }
                 });
     }
