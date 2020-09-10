@@ -14,7 +14,11 @@ import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.Notification;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.Sponsor;
+import com.example.culs.helpers.User;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -22,7 +26,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +47,7 @@ public class NotificationsFragment extends Fragment {
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
     private ImageView backbtn;
+    public static User currentUser;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,11 +100,7 @@ public class NotificationsFragment extends Fragment {
 
     private void getListItems() {
 
-        ArrayList<String> notifsArrayList = HomeFragment.currentUser.getMyevents();
-        notifsArrayList.add(HomeFragment.currentUser.getUid());
-        String notifsList[] = notifsArrayList.toArray(new String[0]);
-
-        mFirebaseFirestore.collection("notifications").whereArrayContainsAny("receiverID", Arrays.asList(notifsList)).orderBy("timestamp")
+        mFirebaseFirestore.collection("notifications").orderBy("timestamp")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -109,31 +109,58 @@ public class NotificationsFragment extends Fragment {
                             return;
                         }
 
-                        for (DocumentChange dc : value.getDocumentChanges()) {
+                        for (final DocumentChange dc : value.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    Notification notificationAdded = dc.getDocument().toObject(Notification.class);
+                                    final Notification notificationAdded = dc.getDocument().toObject(Notification.class);
                                     notificationAdded.setNotificationID(dc.getDocument().getId());
+
+                                    DocumentReference docRefAdded = mFirebaseFirestore.collection("users").document(notificationAdded.getSenderID());
+                                    docRefAdded.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if(documentSnapshot.exists()){
+                                                User notificationSender = documentSnapshot.toObject(User.class);
+                                                notificationAdded.setNotificationSenderName(notificationSender.getFirstname() + " " + notificationSender.getLastname());
+                                            }else{
+                                                DocumentReference docRefDelete = mFirebaseFirestore.collection("notifications").document(dc.getDocument().getId());
+                                                docRefDelete.delete();
+                                            }
+                                        }
+                                    });
                                     types.add(notificationAdded);
-                                    customAdapter.notifyItemInserted(dc.getNewIndex());
                                     break;
                                 case MODIFIED:
                                     types.remove(dc.getOldIndex());
-                                    customAdapter.notifyItemRemoved(dc.getOldIndex());
-                                    Notification notificationChanged = dc.getDocument().toObject(Notification.class);
+                                    final Notification notificationChanged = dc.getDocument().toObject(Notification.class);
                                     notificationChanged.setNotificationID(dc.getDocument().getId());
+
+                                    DocumentReference docRefChanged = mFirebaseFirestore.collection("users").document(notificationChanged.getSenderID());
+                                    docRefChanged.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()){
+                                                User notificationSender = documentSnapshot.toObject(User.class);
+                                                notificationChanged.setNotificationSenderName(notificationSender.getFirstname() + " " + notificationSender.getLastname());
+                                            }else {
+                                                //notificationChanged.setNotificationSenderName("CULS Admin");
+                                                DocumentReference docRefDelete = mFirebaseFirestore.collection("notifications").document(dc.getDocument().getId());
+                                                docRefDelete.delete();
+                                            }
+                                        }
+                                    });
                                     types.add(notificationChanged);
-                                    customAdapter.notifyItemChanged(dc.getNewIndex());
                                     break;
                                 case REMOVED:
                                     types.remove(dc.getOldIndex());
-                                    customAdapter.notifyItemRemoved(dc.getOldIndex());
                                     break;
                                 default:
                                     break;
                             }
 
                         }
+                        Collections.sort(types);
+                        customAdapter.notifyDataSetChanged();
                     }
                 });
     }

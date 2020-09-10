@@ -56,6 +56,7 @@
                 android:background="@drawable/edit_text_box"
                 android:padding="9dp"
                 android:textSize="16dp"
+                android:fontFamily="sans-serif-light"
                 android:hint="First Name"
                 android:inputType="text" />
 
@@ -68,6 +69,7 @@
                 android:padding="9dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
+                android:fontFamily="sans-serif-light"
                 android:textSize="16dp"
                 android:hint="Last Name"
                 android:inputType="text" />
@@ -109,6 +111,7 @@
                 android:textSize="16dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
+                android:fontFamily="sans-serif-light"
                 android:hint="Year"
                 android:inputType="text" />
 

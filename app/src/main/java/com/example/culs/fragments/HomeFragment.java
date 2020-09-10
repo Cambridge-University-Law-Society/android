@@ -45,6 +45,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
@@ -73,7 +74,7 @@ public class HomeFragment extends Fragment {
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
-    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private String userID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
 
@@ -134,7 +135,7 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
         eventsReg.remove();
-        postsReg.remove();
+        //postsReg.remove();
     }
 
 
@@ -440,7 +441,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
 
-        postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        /*postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
@@ -527,7 +528,7 @@ public class HomeFragment extends Fragment {
                         Collections.sort(types);
                         customAdapter.notifyDataSetChanged();
                     }
-                });
+                });*/
     }
 
 

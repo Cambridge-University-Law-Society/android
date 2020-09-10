@@ -28,6 +28,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.BaseRequestOptions;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.ProfileEditActivity;
@@ -47,6 +51,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -54,12 +59,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileFragment extends Fragment implements InterestsAdapter.OnNoteListener {
     private TextView username, userCrsid, userBio, userCollege, userYear, userGradYear, userInterests, admin;
-    private TextView signout_btn;
+    private TextView signout_btn, noInterests;
     private CircleImageView profileImage;
     private TextView edit_btn;
     private GoogleSignInClient mSignInClient;
@@ -71,7 +77,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     private FirebaseAuth mFirebaseAuth;
     //this will get the current instance of the document in cloud firestore
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    final String userid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     //this retrieves the entire document with this specific uid
     private DocumentReference docRef = db.collection("users").document(userid);
 
@@ -97,6 +103,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        noInterests = (TextView) v.findViewById(R.id.no_interests);
 
         recyclerView = (RecyclerView) v.findViewById(R.id.interests_recycler);
         recyclerView.setHasFixedSize(true);
@@ -131,10 +138,12 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                     if (document.exists()) {
                         myInterests = (List<String>) document.get("interests");
                         //final ArrayList<String> list = new ArrayList<String>();
-                        if (myInterests == null){
-                            interestsModel.add(new InterestsModel("You don't have any interests"));
+                        if (myInterests == null||myInterests.isEmpty()){
+                            //interestsModel.add(new InterestsModel("You don't have any interests"));
+                            noInterests.setVisibility(View.VISIBLE);
                         }else{
                             for (int i = 0; i < myInterests.size(); ++i) {
+                                noInterests.setVisibility(View.GONE);
                                 interestsModel.add(new InterestsModel(myInterests.get(i)));
                                 myInterestsList.add(new InterestsModel(myInterests.get(i)));
                             }
@@ -176,6 +185,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
 
                 initAllRecyclerView();
+                noInterests.setVisibility(View.GONE);
                 done_interests_btn.setVisibility(View.VISIBLE);
                 add_interests_btn.setVisibility(View.INVISIBLE);
 
@@ -194,10 +204,12 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                                 myInterests = (List<String>) document.get("interests");
                                 interestsModel.clear();
                                 //final ArrayList<String> list = new ArrayList<String>();
-                                if (myInterests == null){
-                                    interestsModel.add(new InterestsModel("You don't have any interests"));
+                                if (myInterests == null||myInterests.isEmpty()){
+                                    //interestsModel.add(new InterestsModel("You don't have any interests"));
+                                    noInterests.setVisibility(View.VISIBLE);
                                 }else{
                                     for (int i = 0; i < myInterests.size(); ++i) {
+                                        noInterests.setVisibility(View.GONE);
                                         interestsModel.add(new InterestsModel(myInterests.get(i)));
                                     }
                                 }
@@ -342,6 +354,16 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
             public void onClick(View view) {
                 //mFirebaseAuth.getInstance().signOut();
                 FirebaseAuth.getInstance().signOut();
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(userid)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Toast.makeText(getContext(), "Removed from My Events.", Toast.LENGTH_SHORT).show();
+                                if (!task.isSuccessful()) {
+                                    Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
             }
@@ -385,20 +407,22 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                             username.setText("Username Here");
                         }
 
-                        if (documentSnapshot.get("crsid") != null) {
+                        if (documentSnapshot.get("crsid") == null||documentSnapshot.get("crsid").toString().equals("")) {
+                            userCrsid.setText("crsid");
+
+                        } else{
                             String crsid = documentSnapshot.getString("crsid");
 
                             userCrsid.setText(crsid);
-                        }else{
-                            userCrsid.setText("CRSID");
                         }
 
-                        if (documentSnapshot.get("bio") != null) {
+                        if (documentSnapshot.get("bio") == null||documentSnapshot.get("bio").toString().equals("")) {
+                            userBio.setText("Add a description about yourself, including interests and ambitions.");
+
+                        }else{
                             String bio = documentSnapshot.getString("bio");
 
                             userBio.setText(bio);
-                        }else{
-                            userBio.setText("Add a description about yourself, including interests and ambitions.");
                         }
 
                         if (documentSnapshot.get("college") != null) {
@@ -463,19 +487,22 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         //Reference to an image file in cloud storage
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
+        final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
 
         // Create a reference with an initial file path and name
-        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
+        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic");
         pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 String userProfileImageUri = uri.toString();
-                GlideApp.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
+                //GlideApp.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
+                Glide.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
+                //GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
+                Glide.with(getContext()).load(R.drawable.noprofilepicture).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
             }
         });
 
