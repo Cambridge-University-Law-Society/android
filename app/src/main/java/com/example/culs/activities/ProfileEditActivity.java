@@ -282,10 +282,10 @@ public class ProfileEditActivity extends AppCompatActivity {
         StorageReference storageRef = storage.getReference();
 
         // Create a reference with an initial file path and name
-        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
+        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic");
 
         //try to download to a local file
-        final File file = File.createTempFile("profilePic", "jpg");
+        /*final File file = File.createTempFile("profilePic", "jpg");
         pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -296,7 +296,9 @@ public class ProfileEditActivity extends AppCompatActivity {
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(ProfileEditActivity.this, "Error in loading", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
+
+
 
     }
 
@@ -327,8 +329,16 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         docRef.update("firstname", first_name);
         docRef.update("lastname", last_name);
-        docRef.update("crsid", user_crsid);
-        docRef.update("bio", user_bio);
+        if (user_crsid.equals("")){
+            docRef.update("crsid", null);
+        }else{
+            docRef.update("crsid", user_crsid);
+        }
+        if (user_bio.equals("")){
+            docRef.update("bio", null);
+        }else{
+            docRef.update("bio", user_bio);
+        }
         docRef.update("college", user_college);
         docRef.update("year", user_year);
         docRef.update("degree", user_degree);
@@ -372,7 +382,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private void uploadFile(){
         if (imageUri != null){
             //set the picture name to profilePic
-            StorageReference fileReference = storageRef.child("profilePic."+ getFileExtension(imageUri));
+            StorageReference fileReference = storageRef.child("profilePic");//+ getFileExtension(imageUri)
 
             //this puts the file into storage
             uploadTask = fileReference.putFile(imageUri)

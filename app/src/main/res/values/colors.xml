@@ -13,7 +13,4 @@
     <color name="dark_text">#000000</color>
     <color name="edit_text_box">#F4F2F2</color>
     <color name="edit_text_box_border">#E1E1E1</color>
-    <color name="interested">#2F0B3A</color>
-    <color name="notinterested">#6E6E6E</color>
-
 </resources>
