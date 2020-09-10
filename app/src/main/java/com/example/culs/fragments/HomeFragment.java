@@ -220,8 +220,7 @@ public class HomeFragment extends Fragment {
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
                     ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
-                    DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(intCard.getID());
-                    eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
+
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
                     customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
