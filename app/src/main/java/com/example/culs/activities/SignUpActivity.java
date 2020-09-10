@@ -24,14 +24,17 @@ import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
@@ -96,6 +99,8 @@ public class SignUpActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         userCollege.setAdapter(adapter);
         userDegree.setAdapter(adapter_degree);
+
+        storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
 
         txtfirstname = (EditText) findViewById(R.id.first);
         txtlastname = (EditText) findViewById(R.id.last);
@@ -171,6 +176,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 }
                             });
 
+                    uploadFile();
                     startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                     finish();
                 }
@@ -214,7 +220,7 @@ public class SignUpActivity extends AppCompatActivity {
     private void uploadFile(){
         if (imageUri != null){
             //set the picture name to profilePic
-            StorageReference fileReference = storageRef.child("profilePic."+ getFileExtension(imageUri));
+            StorageReference fileReference = storageRef.child("profilePic");//+ getFileExtension(imageUri)
 
             //this puts the file into storage
             uploadTask = fileReference.putFile(imageUri)

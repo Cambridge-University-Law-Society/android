@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
         eventsReg.remove();
-        postsReg.remove();
+        //postsReg.remove();
     }
 
 
@@ -381,7 +381,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
 
-        postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        /*postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
@@ -456,7 +456,7 @@ public class HomeFragment extends Fragment {
                         Collections.sort(types);
                         customAdapter.notifyDataSetChanged();
                     }
-                });
+                });*/
     }
 
 
