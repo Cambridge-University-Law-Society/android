@@ -205,8 +205,7 @@ public class HomeFragment extends Fragment {
                 Card intCard = (Card) types.get(position);
                 if(HomeFragment.currentUser.getMyevents() == null){
                     ((Card) types.get(position)).setInterested(true);
-                    DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(intCard.getID());
-                    eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
+
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
@@ -221,8 +220,7 @@ public class HomeFragment extends Fragment {
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
                     ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
-                    DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(intCard.getID());
-                    eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
+
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
                     customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
@@ -289,10 +287,16 @@ public class HomeFragment extends Fragment {
                                     cardAdded.setID(dc.getDocument().getId());
                                     if(currentUser.getMyevents() == null){
                                         cardAdded.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                         cardAdded.setInterested(true);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
                                     } else {
                                         cardAdded.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     }
 
                                     mFirebaseFirestore.collection("Sponsors")
@@ -367,10 +371,16 @@ public class HomeFragment extends Fragment {
 
                                     if(currentUser.getMyevents() == null){
                                         cardChanged.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardChanged.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                         cardChanged.setInterested(true);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardChanged.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
                                     } else {
                                         cardChanged.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardChanged.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     }
 
                                     mFirebaseFirestore.collection("Sponsors")
