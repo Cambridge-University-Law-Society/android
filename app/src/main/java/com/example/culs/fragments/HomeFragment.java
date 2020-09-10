@@ -134,7 +134,7 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
         eventsReg.remove();
-        postsReg.remove();
+//        postsReg.remove();
     }
 
 

@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
@@ -201,35 +202,12 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     FirebaseStorage eventStorage = FirebaseStorage.getInstance();
                     StorageReference eventStorageRef = eventStorage.getReference();
                     StorageReference eventPathReference = eventStorageRef.child("Events/" + expandedCard.getID() + "/coverPhoto");
-                    eventPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String eventImageUri = uri.toString();
-                            GlideApp.with(getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            GlideApp.with(getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
-                        }
-                    });
+                    Glide.with(getContext()).load(eventPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
 
                     FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
                     StorageReference sponsorStorageRef = sponsorStorage.getReference();
                     StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + expandedCard.getSponsor() + "/logo.png");
-                    sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String sponsorImageUri = uri.toString();
-                            GlideApp.with(getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            GlideApp.with(getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-                        }
-                    });
-
+                    Glide.with(getContext()).load(sponsorPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
 
                 } else {
                     System.out.print("Current data: null");
