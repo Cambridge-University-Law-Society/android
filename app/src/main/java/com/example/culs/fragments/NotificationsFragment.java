@@ -122,6 +122,7 @@ public class NotificationsFragment extends Fragment {
                                             if(documentSnapshot.exists()){
                                                 User notificationSender = documentSnapshot.toObject(User.class);
                                                 notificationAdded.setNotificationSenderName(notificationSender.getFirstname() + " " + notificationSender.getLastname());
+                                                customAdapter.notifyItemChanged(dc.getNewIndex());
                                             }else{
                                                 DocumentReference docRefDelete = mFirebaseFirestore.collection("notifications").document(dc.getDocument().getId());
                                                 docRefDelete.delete();
@@ -149,9 +150,11 @@ public class NotificationsFragment extends Fragment {
                                             }
                                         }
                                     });
+                                    customAdapter.notifyItemChanged(dc.getNewIndex());
                                     types.add(notificationChanged);
                                     break;
                                 case REMOVED:
+                                    customAdapter.notifyItemChanged(dc.getNewIndex());
                                     types.remove(dc.getOldIndex());
                                     break;
                                 default:

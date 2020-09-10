@@ -471,6 +471,16 @@ public class HomeFragment extends Fragment {
                                             if(documentSnapshot.exists()) {
                                                 User postSender = documentSnapshot.toObject(User.class);
                                                 postAdded.setSenderName(postSender.getFirstname() + " " + postSender.getLastname());
+                                                int index = 0;
+                                                for(int i = 0; i < types.size(); i++){
+                                                    if (types.get(i).getPostType() == PostType.TYPE_POST ){
+                                                        Post testPost = (Post) types.get(i);
+                                                        if (testPost.getPostID().equals(postAdded.getPostID()))
+                                                        index = i;
+                                                        customAdapter.notifyItemChanged(i);
+                                                    }
+                                                }
+
                                             } else {
                                                 DocumentReference postDocRef = mFirebaseFirestore.collection("posts").document(postAdded.getPostID());
                                                 postDocRef.update("archived", true);
