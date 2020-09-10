@@ -45,7 +45,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
@@ -74,7 +73,7 @@ public class HomeFragment extends Fragment {
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
-    private String userID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
 
@@ -135,7 +134,7 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
         eventsReg.remove();
-        //postsReg.remove();
+        postsReg.remove();
     }
 
 
@@ -205,45 +204,45 @@ public class HomeFragment extends Fragment {
             public void onInterestedClick(View v, int position) {
                 Card intCard = (Card) types.get(position);
                 if(HomeFragment.currentUser.getMyevents() == null){
-                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     ((Card) types.get(position)).setInterested(true);
-                    customAdapter.notifyItemChanged(position);
 
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    Toast.makeText(getContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
                                     if (!task.isSuccessful()) {
                                         Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
-                    userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
                     ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
 
+                    userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
+                    customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    Toast.makeText(getContext(), "Removed from My Events.", Toast.LENGTH_SHORT).show();
                                     if (!task.isSuccessful()) {
                                         Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
                 } else {
-                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
                     ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
-
+                    DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(intCard.getID());
+                    eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    Toast.makeText(getContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
                                     if (!task.isSuccessful()) {
                                         Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
                                     }
@@ -288,10 +287,16 @@ public class HomeFragment extends Fragment {
                                     cardAdded.setID(dc.getDocument().getId());
                                     if(currentUser.getMyevents() == null){
                                         cardAdded.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                         cardAdded.setInterested(true);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
                                     } else {
                                         cardAdded.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     }
 
                                     mFirebaseFirestore.collection("Sponsors")
@@ -311,30 +316,71 @@ public class HomeFragment extends Fragment {
                                             });
                                     if (dc.getDocument().getBoolean("active")) {
                                         if (!dc.getDocument().getBoolean("archived")) {
-                                            types.add(dc.getNewIndex(), cardAdded);
+                                            types.add(cardAdded);
+                                            Collections.sort(types);
+                                            int index = 0;
+
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardAdded.getID())){
+                                                        index = i;
+                                                    }
+                                                }
+                                            }
+                                            customAdapter.notifyItemInserted(index);
+                                        } else {
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardAdded.getID())){
+                                                        types.remove(i);
+                                                        customAdapter.notifyItemRemoved(i);
+                                                        Collections.sort(types);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for(int i = 0; i < types.size(); i++){
+                                            if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                Card testCard = (Card) types.get(i);
+                                                if(testCard.getID().equals(cardAdded.getID())){
+                                                    types.remove(i);
+                                                    customAdapter.notifyItemRemoved(i);
+                                                    Collections.sort(types);
+                                                }
+                                            }
                                         }
                                     }
                                     break;
                                 case MODIFIED:
                                     final Card cardChanged = dc.getDocument().toObject(Card.class);
                                     cardChanged.setID(dc.getDocument().getId());
+                                    int index = 0;
 
                                     for(int i = 0; i < types.size(); i++){
                                         if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
                                             Card testCard = (Card) types.get(i);
                                             if(testCard.getID().equals(cardChanged.getID())){
                                                 types.remove(i);
-                                                customAdapter.notifyItemRemoved(i);
+                                                index = i;
                                             }
                                         }
                                     }
 
                                     if(currentUser.getMyevents() == null){
                                         cardChanged.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardChanged.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                         cardChanged.setInterested(true);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardChanged.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
                                     } else {
                                         cardChanged.setInterested(false);
+                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardChanged.getID());
+                                        eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                                     }
 
                                     mFirebaseFirestore.collection("Sponsors")
@@ -354,7 +400,31 @@ public class HomeFragment extends Fragment {
                                             });
                                     if (dc.getDocument().getBoolean("active")) {
                                         if (!dc.getDocument().getBoolean("archived")) {
-                                            types.add(cardChanged);
+                                            types.add(index, cardChanged);
+                                            customAdapter.notifyItemChanged(index);
+                                            Collections.sort(types);
+                                        } else {
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardChanged.getID())){
+                                                        types.remove(i);
+                                                        customAdapter.notifyItemRemoved(i);
+                                                        Collections.sort(types);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for(int i = 0; i < types.size(); i++){
+                                            if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                Card testCard = (Card) types.get(i);
+                                                if(testCard.getID().equals(cardChanged.getID())){
+                                                    types.remove(i);
+                                                    customAdapter.notifyItemRemoved(i);
+                                                    Collections.sort(types);
+                                                }
+                                            }
                                         }
                                     }
                                     break;
@@ -368,6 +438,7 @@ public class HomeFragment extends Fragment {
                                             if(testCard.getID().equals(cardRemoved.getID())){
                                                 types.remove(i);
                                                 customAdapter.notifyItemRemoved(i);
+                                                Collections.sort(types);
                                             }
                                         }
                                     }
@@ -376,12 +447,10 @@ public class HomeFragment extends Fragment {
                                     break;
                             }
                         }
-                        Collections.sort(types);
-                        customAdapter.notifyDataSetChanged();
                     }
                 });
 
-        /*postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
@@ -392,17 +461,23 @@ public class HomeFragment extends Fragment {
                         for (DocumentChange dc : value.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                        final Post postAdded = dc.getDocument().toObject(Post.class);
-                                        postAdded.setPostID(dc.getDocument().getId());
+                                    final Post postAdded = dc.getDocument().toObject(Post.class);
+                                    postAdded.setPostID(dc.getDocument().getId());
 
-                                        DocumentReference docRefAdded = mFirebaseFirestore.collection("users").document(postAdded.getSenderID());
-                                        docRefAdded.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    DocumentReference docRefAdded = mFirebaseFirestore.collection("users").document(postAdded.getSenderID());
+                                    docRefAdded.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if(documentSnapshot.exists()) {
                                                 User postSender = documentSnapshot.toObject(User.class);
                                                 postAdded.setSenderName(postSender.getFirstname() + " " + postSender.getLastname());
+                                            } else {
+                                                DocumentReference postDocRef = mFirebaseFirestore.collection("posts").document(postAdded.getPostID());
+                                                postDocRef.update("archived", true);
                                             }
-                                        });
+                                        }
+                                    });
+
                                     if (!dc.getDocument().getBoolean("archived")) {
                                         types.add(postAdded);
                                     }
@@ -426,13 +501,19 @@ public class HomeFragment extends Fragment {
                                         docRefChanged.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                             @Override
                                             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                User postSender = documentSnapshot.toObject(User.class);
-                                                postChanged.setSenderName(postSender.getFirstname() + " " + postSender.getLastname());
+                                                if(documentSnapshot.exists()) {
+                                                    User postSender = documentSnapshot.toObject(User.class);
+                                                    postChanged.setSenderName(postSender.getFirstname() + " " + postSender.getLastname());
+                                                } else {
+                                                    DocumentReference postDocRef = mFirebaseFirestore.collection("posts").document(postChanged.getPostID());
+                                                    postDocRef.update("archived", true);
+                                                }
                                             }
                                         });
-                                    if (!dc.getDocument().getBoolean("archived")) {
-                                        types.add(postChanged);
-                                    }
+                                        if (!dc.getDocument().getBoolean("archived")) {
+                                            types.add(postChanged);
+                                        }
+
                                     break;
                                 case REMOVED:
                                     final Post postRemoved = dc.getDocument().toObject(Post.class);
@@ -456,7 +537,7 @@ public class HomeFragment extends Fragment {
                         Collections.sort(types);
                         customAdapter.notifyDataSetChanged();
                     }
-                });*/
+                });
     }
 
 
