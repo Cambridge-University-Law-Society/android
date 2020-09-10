@@ -21,11 +21,12 @@ public class Notification implements PostType, Comparable<PostType> {
     private String mNotificationType;
     private String mNotificationID = "";
     private boolean isShrink = true;
+    private String mNotificationSenderName = "";
 
 
     public Notification(){}
 
-    public Notification(String notificationTitle, Timestamp notificationUST, String notificationSender, List<String> notificationRecievers, String notificationContent, String notificationType, String notificationID) {
+    public Notification(String notificationTitle, Timestamp notificationUST, String notificationSender, List<String> notificationRecievers, String notificationContent, String notificationType, String notificationID, String notificationSenderName) {
         mNotificationTitle = notificationTitle;
         mNotificationUST = notificationUST;
         mNotificationSender = notificationSender;
@@ -33,6 +34,7 @@ public class Notification implements PostType, Comparable<PostType> {
         mNotificationContent = notificationContent;
         mNotificationType = notificationType;
         mNotificationID = notificationID;
+        mNotificationSenderName = notificationSenderName;
     }
 
     public String getTitle() {
@@ -46,6 +48,7 @@ public class Notification implements PostType, Comparable<PostType> {
     public String getContent() { return mNotificationContent; }
     public String getType() { return mNotificationType; }
     public String getNotificationID() { return mNotificationID; }
+    public String getNotificationSenderName(){ return mNotificationSenderName; }
 
     public void setTitle(String mNotificationTitle) { this.mNotificationTitle = mNotificationTitle; }
     public void setTimestamp(Timestamp mNotificationUST) { this.mNotificationUST = mNotificationUST; }
@@ -54,6 +57,9 @@ public class Notification implements PostType, Comparable<PostType> {
     public void setContent(String mNotificationContent) { this.mNotificationContent = mNotificationContent; }
     public void setType(String mNotificationType) { this.mNotificationType = mNotificationType; }
     public void setNotificationID(String mNotificationID) { this.mNotificationID = mNotificationID; }
+    public void setNotificationSenderName(String mNotificationSenderName) {
+        this.mNotificationSenderName = mNotificationSenderName;
+    }
 
     public boolean isShrink() {
         return isShrink;

@@ -288,14 +288,13 @@
                         tools:src="@drawable/ic_interested_button_off_24dp" />
 
                     <TextView
-                        android:id="@+id/addtomyevents_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif-light"
                         android:gravity="top"
-                        tools:text="Add to My Events"
+                        android:text="Add to My Events"
                         android:textColor="#6E6E6E"
                         android:textSize="15dp"
                         android:textStyle="bold" />
