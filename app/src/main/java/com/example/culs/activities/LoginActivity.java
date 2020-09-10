@@ -33,7 +33,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Objects;
 
@@ -52,8 +51,6 @@ public class LoginActivity extends AppCompatActivity{
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,20 +90,7 @@ public class LoginActivity extends AppCompatActivity{
         // Set click listeners
         //mSignInButton.setOnClickListener(this);
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                if (firebaseUser != null) {
-                    Intent intent = new Intent(LoginActivity.this, OpeningTitlePage.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        };
-
     }
-
 
     //initiate signing in with google
 
@@ -122,22 +106,12 @@ public class LoginActivity extends AppCompatActivity{
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if (firebaseUser != null) {
-            firebaseAuth.addAuthStateListener(mAuthStateListener);
-        }
 
-        /*FirebaseUser user = mFirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = mFirebaseAuth.getCurrentUser();
         if (user!=null){
             Intent intent = new Intent(getApplicationContext(), OpeningTitlePage.class);
             startActivity(intent);
-        }*/
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        firebaseAuth.removeAuthStateListener(mAuthStateListener);
+        }
     }
 
     //add required sign in method that actually presents the user with the google sign in ui
@@ -194,17 +168,7 @@ public class LoginActivity extends AppCompatActivity{
                                         DocumentSnapshot document = task1.getResult();
                                         if (document.exists()) {
                                             Log.d(TAG, "Document exists!");
-                                            FirebaseMessaging.getInstance().subscribeToTopic(Objects.requireNonNull(mFirebaseAuth.getUid()))
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    Toast.makeText(getApplicationContext(), "Added to My Events.", Toast.LENGTH_SHORT).show();
-                                                    if (!task.isSuccessful()) {
-                                                        Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-                                            });
-                                            startActivity(new Intent(LoginActivity.this, OpeningTitlePage.class));
+                                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         } else {
                                             Log.d(TAG, "Document does not exist!");
                                             startActivity(new Intent(LoginActivity.this, SignUpActivity.class));

@@ -45,7 +45,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
@@ -74,7 +73,7 @@ public class HomeFragment extends Fragment {
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
-    private String userID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
 
@@ -135,7 +134,7 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
         eventsReg.remove();
-        //postsReg.remove();
+        postsReg.remove();
     }
 
 
@@ -206,8 +205,10 @@ public class HomeFragment extends Fragment {
                 Card intCard = (Card) types.get(position);
                 if(HomeFragment.currentUser.getMyevents() == null){
                     ((Card) types.get(position)).setInterested(true);
-
+                    DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(intCard.getID());
+                    eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
@@ -220,7 +221,8 @@ public class HomeFragment extends Fragment {
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
                     ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
-
+                    DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(intCard.getID());
+                    eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
                     customAdapter.notifyItemChanged(position);
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
@@ -289,8 +291,6 @@ public class HomeFragment extends Fragment {
                                         cardAdded.setInterested(false);
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                         cardAdded.setInterested(true);
-                                        DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(cardAdded.getID());
-                                        eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
                                     } else {
                                         cardAdded.setInterested(false);
                                     }
@@ -440,7 +440,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
 
-        /*postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        postsReg = posts.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
@@ -527,7 +527,7 @@ public class HomeFragment extends Fragment {
                         Collections.sort(types);
                         customAdapter.notifyDataSetChanged();
                     }
-                });*/
+                });
     }
 
 

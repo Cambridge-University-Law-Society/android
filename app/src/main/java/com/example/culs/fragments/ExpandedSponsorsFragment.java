@@ -27,11 +27,10 @@ import com.google.firebase.storage.StorageReference;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 public class ExpandedSponsorsFragment extends Fragment {
     private TextView exSponsorName, exSponsorBio, exSponsorApplication, exSponsorWebsite, exSponsorCSLink, exSponsorEmail;
-    private ImageView exSponsorCover, backbutton2;
+    private ImageView exSponsorCover;
     private View rootView;
     private Sponsor expandedSponsor = new Sponsor();
     private String sponsorID;
@@ -53,16 +52,6 @@ public class ExpandedSponsorsFragment extends Fragment {
 
         sponsorID = bundle.getString("Current Sponsor ID");
         getSponsor();
-
-        backbutton2 = rootView.findViewById(R.id.back_button2);
-        backbutton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fragmentManager = getFragmentManager();
-                assert fragmentManager != null;
-                fragmentManager.popBackStack(null, 0);
-            }
-        });
 
         return rootView;
     }

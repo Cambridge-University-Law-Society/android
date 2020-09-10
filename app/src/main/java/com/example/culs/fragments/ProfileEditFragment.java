@@ -23,10 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.BaseRequestOptions;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.culs.R;
 import com.example.culs.activities.MainActivity;
 import com.example.culs.activities.ProfileEditActivity;
@@ -273,13 +269,12 @@ public class ProfileEditFragment extends Fragment {
         //Reference to an image file in cloud storage
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
 
         // Create a reference with an initial file path and name
-        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic");
+        StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic.jpg");
 
         //try to download to a local file
-        /*final File file = File.createTempFile("profilePic", "jpg");
+        final File file = File.createTempFile("profilePic", "jpg");
         pathReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -289,21 +284,6 @@ public class ProfileEditFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), "Error in loading", Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
-        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                String userProfileImageUri = uri.toString();
-                //GlideApp.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
-                Glide.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                //GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
-                Glide.with(getContext()).load(R.drawable.noprofilepicture).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
             }
         });
 
@@ -377,7 +357,7 @@ public class ProfileEditFragment extends Fragment {
     private void uploadFile(){
         if (imageUri != null){
             //set the picture name to profilePic
-            StorageReference fileReference = storageRef.child("profilePic");//+ getFileExtension(imageUri)
+            StorageReference fileReference = storageRef.child("profilePic."+ getFileExtension(imageUri));
 
             //this puts the file into storage
             uploadTask = fileReference.putFile(imageUri)

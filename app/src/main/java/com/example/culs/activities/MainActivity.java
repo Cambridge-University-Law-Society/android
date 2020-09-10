@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Firebase instance variable
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseUser mFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private DatabaseReference mFirebaseDatabaseReference;
@@ -65,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        /*if (mFirebaseUser == null) {
+            // Not signed in, launch the Sign In activity
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }*/
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .setHostedDomain("cam.ac.uk")
@@ -74,8 +79,7 @@ public class MainActivity extends AppCompatActivity {
         mSignInClient = GoogleSignIn.getClient(this, gso);
 
 
-
-        /*mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -91,12 +95,10 @@ public class MainActivity extends AppCompatActivity {
                                             new AuthUI.IdpConfig.GoogleBuilder().build()))
                                     .build(),
                             RC_SIGN_IN);
-                    //startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
                 }
 
             }
-        };*/
+        };
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(bottomNavListener);
@@ -104,18 +106,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
 
     }
-
-    /*FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
-        @Override
-        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-            Log.d(TAG, "onAuthStateChanged:" + firebaseUser);
-            if (firebaseUser == null) {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-            }
-        }
-    };*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -132,14 +122,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        //mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        //mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
 
