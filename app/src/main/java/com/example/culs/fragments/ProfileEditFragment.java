@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,6 +78,7 @@ public class ProfileEditFragment extends Fragment {
 
 
     private String TAG = "ProfileEditFragment";
+    private Fragment ProfileEditActivity;
 
     @Nullable
     @Override
@@ -172,16 +174,23 @@ public class ProfileEditFragment extends Fragment {
         return v;
     }
 
+
     private void sendToProfileFragment(){
         Fragment nextFragment = new ProfileFragment();
+        Fragment currentFragment = ProfileEditActivity;
 
-        Bundle bundle = new Bundle();
-        nextFragment.setArguments(bundle);
+        //Bundle bundle = new Bundle();
+        //nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+        //Fragment fragment = (Fragment) fragmentManager.findFragmentById(R.id.frame_layout);
+        //fragmentTransaction.replace(R.id.fragment_container2,new HomeFragment());
+        fragmentTransaction.replace(R.id.fragment_container2, nextFragment);
+        //fragmentTransaction.detach(currentFragment);
+        //fragmentTransaction.attach(nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
     }
 
     private void loadCurrentData(final ArrayAdapter<CharSequence> adapter, final Spinner mSpinner, View v) throws IOException {
@@ -291,8 +300,8 @@ public class ProfileEditFragment extends Fragment {
                 Toast.makeText(getActivity(), "Error in loading", Toast.LENGTH_SHORT).show();
             }
         });*/
-
-        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        Glide.with(getActivity()).load(pathReference).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
+        /*pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 String userProfileImageUri = uri.toString();
@@ -305,7 +314,7 @@ public class ProfileEditFragment extends Fragment {
                 //GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
                 Glide.with(getContext()).load(R.drawable.noprofilepicture).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
             }
-        });
+        });*/
 
     }
 
@@ -360,7 +369,6 @@ public class ProfileEditFragment extends Fragment {
             //IF WE WANTED TO LOAD THE PICTURE FROM THE FILE INTO THE IMAGE VIEW WE WOULD DO THIS
             //native way of putting in an image into an imageview
             //mProfilePic.setImageURI(imageUri);
-
             //using picasso
             Picasso.get().load(imageUri).into(profileImage);
         }
@@ -385,7 +393,7 @@ public class ProfileEditFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getActivity(), "Upload successful", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity(), "Upload successful", Toast.LENGTH_SHORT).show();
                             if (taskSnapshot.getMetadata()!= null){
                                 if (taskSnapshot.getMetadata().getReference()!=null){
                                     String result = taskSnapshot.getStorage().getPath();
