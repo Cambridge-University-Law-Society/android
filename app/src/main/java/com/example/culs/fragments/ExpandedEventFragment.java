@@ -1,5 +1,6 @@
 package com.example.culs.fragments;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -52,7 +53,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 public class ExpandedEventFragment extends Fragment implements View.OnClickListener {
-    private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote[] = new TextView[3], exEventSponsorName;
+    private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote[] = new TextView[3], exEventSponsorName, exEventInterestedText;
     private ImageView exEventPic, exEventTagIcon[] = new ImageView[3], exEventSponsorImage, exEventInterestedIcon, backbutton;
     private LinearLayout exEventSponsorHolder, exEventInterestedHolder, exEventTagHolder[] = new LinearLayout[3];
     private View rootView;
@@ -89,6 +90,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         exEventTagHolder[2] = (LinearLayout) rootView.findViewById(R.id.ex_event_tag_holder_three);
         exEventSponsorImage = rootView.findViewById(R.id.ex_sponsor_logo_image_view);
         exEventInterestedIcon = rootView.findViewById(R.id.ex_event_interested_star);
+        exEventInterestedText = rootView.findViewById(R.id.addtomyevents_text_view);
         exEventSponsorHolder = rootView.findViewById(R.id.ex_event_sponsor_holder);
         exEventSponsorName = rootView.findViewById(R.id.ex_sponsor_name_text_view);
         exEventInterestedHolder = rootView.findViewById(R.id.ex_event_interested_button);
@@ -126,6 +128,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     public void getCard() {
         DocumentReference docRef = db.collection("Events").document(cardId);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @SuppressLint("ResourceAsColor")
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -187,8 +190,12 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
 
                     if (expandedCard.getInterested()) {
                         exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
+                        exEventInterestedText.setText("Remove from My Events");
+
                     } else {
                         exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_off_24dp);
+                        exEventInterestedText.setText("Add to My Events");
+
                     }
                     exEventSponsorName.setText(expandedCard.getSponsor());
 
@@ -209,6 +216,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         });
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -234,14 +242,20 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     userDocRef.update("myevents", FieldValue.arrayUnion(cardId));
                     expandedCard.setInterested(true);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
+                    exEventInterestedText.setText("Remove from My Events");
+
                 } else if (HomeFragment.currentUser.getMyevents().contains(cardId)) {
                     userDocRef.update("myevents", FieldValue.arrayRemove(cardId));
                     expandedCard.setInterested(false);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_off_24dp);
+                    exEventInterestedText.setText("Add to My Events");
+
                 } else {
                     userDocRef.update("myevents", FieldValue.arrayUnion(cardId));
                     expandedCard.setInterested(true);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
+                    exEventInterestedText.setText("Remove from My Events");
+
                 }
                 break;
             default:

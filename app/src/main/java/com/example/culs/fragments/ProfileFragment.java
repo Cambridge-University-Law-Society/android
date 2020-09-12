@@ -35,7 +35,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.ProfileEditActivity;
-import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.InterestsAdapter;
 import com.example.culs.helpers.InterestsModel;
 import com.example.culs.helpers.MyInterestsAdapter;

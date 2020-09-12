@@ -30,7 +30,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.culs.R;
 import com.example.culs.activities.MainActivity;
 import com.example.culs.activities.ProfileEditActivity;
-import com.example.culs.helpers.GlideApp;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
