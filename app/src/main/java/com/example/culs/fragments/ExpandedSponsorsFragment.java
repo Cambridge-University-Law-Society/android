@@ -9,9 +9,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
-import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.Sponsor;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -104,12 +105,12 @@ public class ExpandedSponsorsFragment extends Fragment {
                         @Override
                         public void onSuccess(Uri uri) {
                             String eventImageUri = uri.toString();
-                            GlideApp.with(getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
+                            Glide.with(getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
-                            GlideApp.with(getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
+                            Glide.with(getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
                         }
                     });
 

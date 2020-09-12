@@ -1,5 +1,6 @@
 package com.example.culs.fragments;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
@@ -51,7 +53,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 public class ExpandedEventFragment extends Fragment implements View.OnClickListener {
-    private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote[] = new TextView[3], exEventSponsorName;
+    private TextView exEventName, exEventDnT, exEventLoc, exEventDesc, exEventTagNote[] = new TextView[3], exEventSponsorName, exEventInterestedText;
     private ImageView exEventPic, exEventTagIcon[] = new ImageView[3], exEventSponsorImage, exEventInterestedIcon, backbutton;
     private LinearLayout exEventSponsorHolder, exEventInterestedHolder, exEventTagHolder[] = new LinearLayout[3];
     private View rootView;
@@ -88,6 +90,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         exEventTagHolder[2] = (LinearLayout) rootView.findViewById(R.id.ex_event_tag_holder_three);
         exEventSponsorImage = rootView.findViewById(R.id.ex_sponsor_logo_image_view);
         exEventInterestedIcon = rootView.findViewById(R.id.ex_event_interested_star);
+        exEventInterestedText = rootView.findViewById(R.id.addtomyevents_text_view);
         exEventSponsorHolder = rootView.findViewById(R.id.ex_event_sponsor_holder);
         exEventSponsorName = rootView.findViewById(R.id.ex_sponsor_name_text_view);
         exEventInterestedHolder = rootView.findViewById(R.id.ex_event_interested_button);
@@ -125,6 +128,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     public void getCard() {
         DocumentReference docRef = db.collection("Events").document(cardId);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @SuppressLint("ResourceAsColor")
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -186,43 +190,24 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
 
                     if (expandedCard.getInterested()) {
                         exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
+                        exEventInterestedText.setText("Remove from My Events");
+
                     } else {
                         exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_off_24dp);
+                        exEventInterestedText.setText("Add to My Events");
+
                     }
                     exEventSponsorName.setText(expandedCard.getSponsor());
 
                     FirebaseStorage eventStorage = FirebaseStorage.getInstance();
                     StorageReference eventStorageRef = eventStorage.getReference();
                     StorageReference eventPathReference = eventStorageRef.child("Events/" + expandedCard.getID() + "/coverPhoto");
-                    eventPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String eventImageUri = uri.toString();
-                            GlideApp.with(getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            GlideApp.with(getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
-                        }
-                    });
+                    Glide.with(getContext()).load(eventPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
 
                     FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
                     StorageReference sponsorStorageRef = sponsorStorage.getReference();
                     StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + expandedCard.getSponsor() + "/logo.png");
-                    sponsorPathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String sponsorImageUri = uri.toString();
-                            GlideApp.with(getContext()).load(sponsorImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            GlideApp.with(getContext()).load(R.drawable.mc_durks).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-                        }
-                    });
-
+                    Glide.with(getContext()).load(sponsorPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
 
                 } else {
                     System.out.print("Current data: null");
@@ -231,6 +216,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         });
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -256,14 +242,20 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     userDocRef.update("myevents", FieldValue.arrayUnion(cardId));
                     expandedCard.setInterested(true);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
+                    exEventInterestedText.setText("Remove from My Events");
+
                 } else if (HomeFragment.currentUser.getMyevents().contains(cardId)) {
                     userDocRef.update("myevents", FieldValue.arrayRemove(cardId));
                     expandedCard.setInterested(false);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_off_24dp);
+                    exEventInterestedText.setText("Add to My Events");
+
                 } else {
                     userDocRef.update("myevents", FieldValue.arrayUnion(cardId));
                     expandedCard.setInterested(true);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
+                    exEventInterestedText.setText("Remove from My Events");
+
                 }
                 break;
             default:
