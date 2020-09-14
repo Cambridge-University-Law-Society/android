@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.signature.ObjectKey;
 import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
@@ -34,11 +33,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -71,14 +67,6 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     private CustomAdapter customAdapter;
     private List<PostType> types = new ArrayList<>();
     public String sponsorID;
-    private ArrayList<String> uninterested = new ArrayList<>();
-    private ArrayList<String> interested = new ArrayList<>();
-    private ListenerRegistration eventsReg;
-    private DocumentReference events;
-    private ListenerRegistration notifsReg;
-    private ListenerRegistration userReg;
-    private Query notifs;
-    public User currentUser;
 
     @Nullable
     @Override
@@ -108,10 +96,9 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         exEventInterestedHolder = rootView.findViewById(R.id.ex_event_interested_button);
         exEventInterestedHolder.setOnClickListener(this);
         exEventSponsorHolder.setOnClickListener(this);
-
         setupCustomAdapter(rootView);
         cardId = bundle.getString("Current Card ID");
-
+        getCard();
 
         backbutton = rootView.findViewById(R.id.back_button);
         backbutton.setOnClickListener(new View.OnClickListener() {
@@ -131,33 +118,16 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
         super.onStart();
         types.clear();
         getListItems();
-        getCard();
         customAdapter.notifyDataSetChanged();
     }
 
     public void onStop() {
-
         super.onStop();
-
-        eventsReg.remove();
-        notifsReg.remove();
-        userReg.remove();
-
-        for(String i : interested){
-            DocumentReference eventDocRef = db.collection("Events").document(i);
-            eventDocRef.update("attendees", FieldValue.arrayUnion(userID));
-        }
-
-        for(String i : uninterested){
-            DocumentReference eventDocRef = db.collection("Events").document(i);
-            eventDocRef.update("attendees", FieldValue.arrayRemove(userID));
-        }
     }
 
     public void getCard() {
-
-        events = db.collection("Events").document(cardId);
-        eventsReg = events.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        DocumentReference docRef = db.collection("Events").document(cardId);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -185,9 +155,9 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                                 }
                             });
 
-                    if (currentUser.getMyevents() == null) {
+                    if (HomeFragment.currentUser.getMyevents() == null) {
                         expandedCard.setInterested(false);
-                    } else if (currentUser.getMyevents().contains(cardId)) {
+                    } else if (HomeFragment.currentUser.getMyevents().contains(cardId)) {
                         expandedCard.setInterested(true);
                     } else {
                         expandedCard.setInterested(false);
@@ -234,14 +204,11 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     StorageReference eventPathReference = eventStorageRef.child("Events/" + expandedCard.getID() + "/coverPhoto");
                     Glide.with(getContext()).load(eventPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
 
-                    if(expandedCard.getSponsor().equals("Law Society")){
-                        exEventSponsorImage.setImageResource(R.drawable.ic_small_culs_top_logo);
-                    } else {
-                        FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
-                        StorageReference sponsorStorageRef = sponsorStorage.getReference();
-                        StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + expandedCard.getSponsor() + "/logo.png");
-                        Glide.with(getContext()).load(sponsorPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
-                    }
+                    FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
+                    StorageReference sponsorStorageRef = sponsorStorage.getReference();
+                    StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + expandedCard.getSponsor() + "/logo.png");
+                    Glide.with(getContext()).load(sponsorPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
+
                 } else {
                     System.out.print("Current data: null");
                 }
@@ -271,53 +238,17 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                 }
                 break;
             case R.id.ex_event_interested_button:
-                if (currentUser.getMyevents() == null) {
+                if (HomeFragment.currentUser.getMyevents() == null) {
                     userDocRef.update("myevents", FieldValue.arrayUnion(cardId));
                     expandedCard.setInterested(true);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
                     exEventInterestedText.setText("Remove from My Events");
-                    if(!interested.contains(expandedCard.getID())) {
-                        interested.add(expandedCard.getID());
-                    }
-                    while(uninterested.contains(expandedCard.getID())) {
-                        uninterested.remove(expandedCard.getID());
-                    }
 
-                    userDocRef.update("myevents", FieldValue.arrayUnion(expandedCard.getID()));
-                    FirebaseMessaging.getInstance().subscribeToTopic(expandedCard.getID())
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (!task.isSuccessful()) {
-                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-
-                } else if (currentUser.getMyevents().contains(cardId)) {
+                } else if (HomeFragment.currentUser.getMyevents().contains(cardId)) {
                     userDocRef.update("myevents", FieldValue.arrayRemove(cardId));
                     expandedCard.setInterested(false);
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_off_24dp);
                     exEventInterestedText.setText("Add to My Events");
-
-                    if(!uninterested.contains(expandedCard.getID())) {
-                        uninterested.add(expandedCard.getID());
-                    }
-                    while(interested.contains(expandedCard.getID())) {
-                        interested.remove(expandedCard.getID());
-                    }
-
-                    userDocRef.update("myevents", FieldValue.arrayRemove(expandedCard.getID()));
-
-                    FirebaseMessaging.getInstance().unsubscribeFromTopic(expandedCard.getID())
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (!task.isSuccessful()) {
-                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
 
                 } else {
                     userDocRef.update("myevents", FieldValue.arrayUnion(cardId));
@@ -325,24 +256,6 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     exEventInterestedIcon.setImageResource(R.drawable.ic_interested_button_on_24dp);
                     exEventInterestedText.setText("Remove from My Events");
 
-                    if(!interested.contains(expandedCard.getID())) {
-                        interested.add(expandedCard.getID());
-                    }
-                    while(uninterested.contains(expandedCard.getID())) {
-                        uninterested.remove(expandedCard.getID());
-                    }
-
-                    userDocRef.update("myevents", FieldValue.arrayUnion(expandedCard.getID()));
-
-                    FirebaseMessaging.getInstance().subscribeToTopic(expandedCard.getID())
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (!task.isSuccessful()) {
-                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
                 }
                 break;
             default:
@@ -358,24 +271,8 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
     }
 
     private void getListItems() {
-        notifs = db.collection("notifications").whereArrayContains("receiverID", cardId).orderBy("timestamp");
-        userReg = userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    System.err.println("Listen failed: " + error);
-                    return;
-                }
 
-                if (value != null && value.exists()) {
-                    currentUser = value.toObject(User.class);
-                } else {
-                    System.out.print("Current data: null");
-                }
-            }
-        });
-
-        notifsReg = notifs
+        db.collection("notifications").whereArrayContains("receiverID", cardId).orderBy("timestamp")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

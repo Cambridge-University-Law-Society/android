@@ -1,27 +1,41 @@
 package com.example.culs.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.app.SearchManager;
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.culs.R;
+import com.example.culs.helpers.AppBarStateChangeListener;
+import com.example.culs.activities.MainActivity;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.User;
+import com.firebase.ui.auth.data.model.State;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,6 +45,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.ToLongBiFunction;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,12 +53,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -57,7 +72,7 @@ public class HomeFragment extends Fragment {
     private View rootView;
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
-    public static List<PostType> types = new ArrayList<>();
+    private List<PostType> types = new ArrayList<>();
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
     public static User currentUser;
@@ -75,8 +90,6 @@ public class HomeFragment extends Fragment {
     private Query posts = mFirebaseFirestore.collection("posts").orderBy("timestamp", Query.Direction.DESCENDING);
     private ListenerRegistration eventsReg;
     private ListenerRegistration postsReg;
-    private ListenerRegistration userReg;
-    private SwipeRefreshLayout swipeContainer;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,14 +121,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                swipeContainer.setRefreshing(false);
-            }
-        });
         return rootView;
     }
 
@@ -132,16 +137,15 @@ public class HomeFragment extends Fragment {
         super.onStop();
         eventsReg.remove();
         postsReg.remove();
-        userReg.remove();
 
         for(String i : interested){
             DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(i);
-            eventDocRef.update("attendees", FieldValue.arrayUnion(userID));
+            eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
         }
 
         for(String i : uninterested){
             DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(i);
-            eventDocRef.update("attendees", FieldValue.arrayRemove(userID));
+            eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
         }
 
     }
@@ -212,7 +216,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onInterestedClick(View v, int position) {
                 Card intCard = (Card) types.get(position);
-                if(currentUser.getMyevents() == null){
+                if(HomeFragment.currentUser.getMyevents() == null){
                     intCard.setInterested(true);
 
                     if(!interested.contains(intCard.getID())) {
@@ -284,7 +288,7 @@ public class HomeFragment extends Fragment {
 
     private void getListItems() {
 
-        userReg = userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {

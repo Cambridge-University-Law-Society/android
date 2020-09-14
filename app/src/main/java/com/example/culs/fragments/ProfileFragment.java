@@ -3,6 +3,7 @@ package com.example.culs.fragments;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +33,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.ProfileEditActivity;
+import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.InterestsAdapter;
 import com.example.culs.helpers.InterestsModel;
 import com.example.culs.helpers.MyInterestsAdapter;
@@ -51,6 +54,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -65,10 +69,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileFragment extends Fragment implements InterestsAdapter.OnNoteListener {
     private TextView username, userCrsid, userBio, userCollege, userYear, userGradYear, userInterests, admin;
     private TextView signout_btn, noInterests;
-    private CircleImageView profileImage;
+    private CircleImageView profilePic;
     private TextView edit_btn;
     private GoogleSignInClient mSignInClient;
     private ImageView add_interests_btn, done_interests_btn;
+
 
     //Firebase Instance variables - add them when you need them and explain their function
 
@@ -94,6 +99,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     private ArrayList<InterestsModel> myInterestsList;
 
 
+
     private String TAG = "ProfileFragment";
     @Nullable
     @Override
@@ -101,6 +107,16 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         //return inflater.inflate(R.layout.fragment_profile, container, false);
 
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        /*Fragment currentFragment = getFragmentManager().findFragmentById(R.id.frame_layout_profile);
+        if (currentFragment instanceof ProfileFragment) {
+            FragmentTransaction fragTransaction =   getFragmentManager().beginTransaction();
+            fragTransaction.detach(currentFragment);
+            fragTransaction.attach(currentFragment);
+            fragTransaction.commit();
+        }*/
+
+        //CircleImageView profilePic = (CircleImageView) v.findViewById(R.id.profile_image);
 
         noInterests = (TextView) v.findViewById(R.id.no_interests);
 
@@ -234,16 +250,17 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
             }
         });
 
-
         //call signout function
         signOut(v);
 
         //call loadData function
-        try {
+        /*try {
             loadData(v);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        loadData(v);
 
         //TODO set an intent to send pressing the edit button to the ProfileEditActivity with a fade transition
         edit_btn = v.findViewById(R.id.edit_button);
@@ -254,12 +271,13 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                 startActivity(intent);
                 getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
                 Fragment nextFragment = new ProfileEditFragment();
+                Fragment currentFragment = new ProfileFragment();
 
                 Bundle bundle = new Bundle();
                 nextFragment.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+                fragmentTransaction.replace(R.id.fragment_container, nextFragment).detach(currentFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
@@ -267,6 +285,19 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
         return v;
 
+    }
+
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     public void initAllRecyclerView(){
@@ -357,7 +388,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                Toast.makeText(getContext(), "Removed from My Events.", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getContext(), "Removed from My Events.", Toast.LENGTH_SHORT).show();
                                 if (!task.isSuccessful()) {
                                     Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
                                 }
@@ -370,7 +401,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     }
 
 
-    public void loadData(View v) throws IOException {
+    public void loadData(View v) {
         //this function will load in the current data of the user in the Firebase Database
 
         //current textView data
@@ -382,6 +413,40 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         final TextView userDegree = (TextView) v.findViewById(R.id.user_degree);
         final TextView admin = (TextView) v.findViewById(R.id.admin_mode);
         //final ListView myInterestsList = (ListView) v.findViewById(R.id.myInterestsList);
+
+        //username.setText(HomeFragment.currentUser.getFirstname() + HomeFragment.currentUser.getLastname());
+
+        if (HomeFragment.currentUser.getCrsid() != null){
+            userCrsid.setText(HomeFragment.currentUser.getCrsid());
+        }
+        else{
+            userCrsid.setText("crsid");
+        }
+
+        if (HomeFragment.currentUser.getBio() != null){
+            userBio.setText(HomeFragment.currentUser.getBio());
+        }else{
+            userBio.setText("Add a description about yourself, including interests and ambitions.");
+        }
+
+        if (HomeFragment.currentUser.getCollege() != null){
+            userCollege.setText(HomeFragment.currentUser.getCollege());
+        }else{
+            userCollege.setText("Select a College");
+        }
+
+        if(HomeFragment.currentUser.getYear() != null){
+            userYear.setText(HomeFragment.currentUser.getYear());
+        }else{
+            userYear.setText("Your Year");
+        }
+
+        if(HomeFragment.currentUser.getDegree() != null){
+            userDegree.setText(HomeFragment.currentUser.getDegree());
+        }else{
+            userDegree.setText("Your Degree");
+        }
+
 
         //final GridView gridView = (GridView) v.findViewById(R.id.interestsGridView);
 
@@ -472,7 +537,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
 
         //set the profile picture from firebase
-        final CircleImageView profilePic = (CircleImageView) v.findViewById(R.id.profile_image);
+        final ImageView profilePic = v.findViewById(R.id.profile_image);
         //profileImage = v.findViewById(R.id.profile_image);
         fetchImage(profilePic);
 
@@ -480,7 +545,9 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
     }
 
-    private void fetchImage(final CircleImageView image) throws IOException {
+
+
+    private void fetchImage(final ImageView image) {
         //using glide method
 
         //Reference to an image file in cloud storage
@@ -490,7 +557,10 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
         // Create a reference with an initial file path and name
         StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic");
-        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        //Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
+        Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).signature(new ObjectKey(System.currentTimeMillis())).fitCenter().into(image);
+
+        /*pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 String userProfileImageUri = uri.toString();
@@ -503,32 +573,8 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                 //GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
                 Glide.with(getContext()).load(R.drawable.noprofilepicture).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
             }
-        });
+        });*/
 
     }
-
-    public static void setListViewHeight(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
-            // pre-condition
-            return;
-        }
-
-        int totalHeight = listView.getPaddingTop() + listView.getPaddingBottom();
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            if (listItem instanceof ViewGroup) {
-                listItem.setLayoutParams(new ViewGroup.LayoutParams(AbsListView.LayoutParams.WRAP_CONTENT, AbsListView.LayoutParams.WRAP_CONTENT));
-            }
-
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
-    }
-
 
 }

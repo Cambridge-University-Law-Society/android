@@ -8,12 +8,20 @@ import androidx.cardview.widget.CardView;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.StyleSpan;
+import android.text.style.URLSpan;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -49,9 +57,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SignUpActivity extends AppCompatActivity {
 
     EditText txtfirstname, txtlastname, txtyearid, txtdegree;
+    TextView privacyPolicy;
     CardView signupbtn;
     Spinner txtcollegeid, txtdegreeid;
     CircleImageView profilePic;
+    CheckBox checkBox;
 
     String personName, personGivenName, personFamilyName, personEmail, personId;
 
@@ -99,6 +109,11 @@ public class SignUpActivity extends AppCompatActivity {
         userCollege.setAdapter(adapter);
         userDegree.setAdapter(adapter_degree);
 
+        checkBox = findViewById(R.id.checkbox);
+
+        privacyPolicy = findViewById(R.id.privacy_policy_hyperlink);
+        privacyPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+
         storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
 
         txtfirstname = (EditText) findViewById(R.id.first);
@@ -126,6 +141,8 @@ public class SignUpActivity extends AppCompatActivity {
             }
         }*/
 
+        //privacyPolicy = findViewById(R.id.privacy_policy_hyperlink);
+        //privacyPolicy.setText("https://www.culs.org.uk/privacy-policy");
 
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,11 +173,13 @@ public class SignUpActivity extends AppCompatActivity {
                 String user_college = userCollege.getSelectedItem().toString();
                 String user_degree = userDegree.getSelectedItem().toString();
 
-                if(first_name.isEmpty() || last_name.isEmpty() || year_id.isEmpty()){
+                if(first_name.isEmpty() || last_name.isEmpty() || year_id.isEmpty() || !checkBox.isChecked()){
                     Toast.makeText(getApplicationContext(), "Please fill out all the fields", Toast.LENGTH_SHORT).show();
+                }else if (!checkBox.isChecked()){
+                    Toast.makeText(getApplicationContext(), "Please check the tick box", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    User users = new User(first_name, last_name, user_college, year_id, null, userid, null, null, "admin",  user_degree, null);
+                    User users = new User(first_name, last_name, user_college, year_id, null, userid, null, null, "user",  user_degree, null);
                     docRef.set(users)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
