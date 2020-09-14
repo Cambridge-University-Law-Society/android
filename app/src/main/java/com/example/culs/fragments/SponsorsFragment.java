@@ -22,6 +22,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -45,6 +46,8 @@ public class SponsorsFragment extends Fragment {
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
+    private ListenerRegistration sponsorReg;
+    private Query sponsorsQ = mFirebaseFirestore.collection("Sponsors").orderBy("name", Query.Direction.ASCENDING);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,7 +71,10 @@ public class SponsorsFragment extends Fragment {
     }
 
     public void onStop() {
+
         super.onStop();
+        sponsorReg.remove();
+
     }
 
     private void setupCustomAdapter(View rootView) {
@@ -89,7 +95,7 @@ public class SponsorsFragment extends Fragment {
 
     private void getListItems() {
 
-        mFirebaseFirestore.collection("Sponsors").orderBy("name", Query.Direction.ASCENDING)
+        sponsorReg = sponsorsQ
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

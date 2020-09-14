@@ -143,53 +143,14 @@
                 android:hint="Degree"
                 android:inputType="text"/>
 
-            <LinearLayout
-                android:id="@+id/checkboxandtitle"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_below="@id/degree"
-                android:layout_alignLeft="@id/degree"
-                android:layout_marginTop="30dp">
-
-                <CheckBox
-                    android:id="@+id/checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:layout_gravity="bottom"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:layout_marginTop="5dp"
-                    android:textSize="15sp"
-                    android:text="I agree to the"
-                    />
-
-                <TextView
-                    android:id="@+id/privacy_policy_hyperlink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:layout_marginTop="5dp"
-                    android:textSize="15sp"
-                    android:text="@string/linktoprivacy"
-                    />
-            </LinearLayout>
-
-
-
             <androidx.cardview.widget.CardView
                 android:id="@+id/signupbtn"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/checkboxandtitle"
+                android:layout_below="@id/degree"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="150dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="70dp"
                 app:cardBackgroundColor="#2196F3"
                 app:cardCornerRadius="3dp">
 

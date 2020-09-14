@@ -287,18 +287,6 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
     }
 
-
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
     public void initAllRecyclerView(){
         all_recyclerAdapter = new InterestsAdapter(interestsModel, this);
         all_recyclerView.setAdapter(all_recyclerAdapter);

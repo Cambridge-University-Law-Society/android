@@ -39,6 +39,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,9 +53,12 @@ public class EventsFragment extends Fragment {
     private List<PostType> types = new ArrayList<>();
     private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
-    private Query events = mFirebaseFirestore.collection("Events").whereArrayContains("attendees", HomeFragment.currentUser.getUid()).orderBy("date", Query.Direction.ASCENDING);
+    private Query events;
     ListenerRegistration eventsReg;
-
+    private ArrayList<String> uninterested = new ArrayList<>();
+    private ArrayList<String> interested = new ArrayList<>();
+    public User currentUser;
+    private ListenerRegistration userReg;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,6 +84,18 @@ public class EventsFragment extends Fragment {
 
     public void onStop() {
         super.onStop();
+        eventsReg.remove();
+        userReg.remove();
+
+        for(String i : interested){
+            DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(i);
+            eventDocRef.update("attendees", FieldValue.arrayUnion(currentUser.getUid()));
+        }
+
+        for(String i : uninterested){
+            DocumentReference eventDocRef = mFirebaseFirestore.collection("Events").document(i);
+            eventDocRef.update("attendees", FieldValue.arrayRemove(currentUser.getUid()));
+        }
     }
 
     private void setupCustomAdapter(View rootView) {
@@ -99,20 +115,71 @@ public class EventsFragment extends Fragment {
             @Override
             public void onInterestedClick(View v, int position) {
                 Card intCard = (Card) types.get(position);
-                if(HomeFragment.currentUser.getMyevents() == null){
+                if(currentUser.getMyevents() == null){
+                    intCard.setInterested(true);
+
+                    if(!interested.contains(intCard.getID())) {
+                        interested.add(intCard.getID());
+                    }
+                    while(uninterested.contains(intCard.getID())) {
+                        uninterested.remove(intCard.getID());
+                    }
+
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
-                    ((Card) types.get(position)).setInterested(true);
-                    customAdapter.notifyDataSetChanged();
-                } else if(HomeFragment.currentUser.getMyevents().contains(intCard.getID())){
+                    customAdapter.notifyItemChanged(position);
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                } else if(currentUser.getMyevents().contains(intCard.getID())){
+                    intCard.setInterested(false);
+                    customAdapter.notifyItemChanged(position);
+
+                    if(!uninterested.contains(intCard.getID())) {
+                        uninterested.add(intCard.getID());
+                    }
+                    while(interested.contains(intCard.getID())) {
+                        interested.remove(intCard.getID());
+                    }
+
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
-                    HomeFragment.currentUser.getMyevents().remove(intCard.getID());
-                    ((Card) types.get(position)).setInterested(false);
-                    types.remove(position);
-                    customAdapter.notifyItemRemoved(position);
+                    customAdapter.notifyItemChanged(position);
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else {
+                    intCard.setInterested(true);
+                    customAdapter.notifyItemChanged(position);
+
+                    if(!interested.contains(intCard.getID())) {
+                        interested.add(intCard.getID());
+                    }
+                    while(uninterested.contains(intCard.getID())) {
+                        uninterested.remove(intCard.getID());
+                    }
+
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
-                    ((Card) types.get(position)).setInterested(true);
-                    customAdapter.notifyDataSetChanged();
+                    customAdapter.notifyItemChanged(position);
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 }
             }
         });
@@ -158,6 +225,23 @@ public class EventsFragment extends Fragment {
 //                    });
 //        }
 
+        userReg = userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    System.err.println("Listen failed: " + error);
+                    return;
+                }
+
+                if (value != null && value.exists()) {
+                    currentUser = value.toObject(User.class);
+                } else {
+                    System.out.print("Current data: null");
+                }
+            }
+        });
+
+        events = mFirebaseFirestore.collection("Events").whereArrayContains("attendees", userID).orderBy("date", Query.Direction.ASCENDING);
         eventsReg = events.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -172,9 +256,9 @@ public class EventsFragment extends Fragment {
                         case ADDED:
                             final Card cardAdded = dc.getDocument().toObject(Card.class);
                             cardAdded.setID(dc.getDocument().getId());
-                            if(HomeFragment.currentUser.getMyevents() == null){
+                            if(currentUser.getMyevents() == null){
                                 cardAdded.setInterested(false);
-                            } else if(HomeFragment.currentUser.getMyevents().contains(dc.getDocument().getId())){
+                            } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                 cardAdded.setInterested(true);
                             } else {
                                 cardAdded.setInterested(false);
@@ -250,9 +334,9 @@ public class EventsFragment extends Fragment {
                                 }
                             }
 
-                            if(HomeFragment.currentUser.getMyevents() == null){
+                            if(currentUser.getMyevents() == null){
                                 cardChanged.setInterested(false);
-                            } else if(HomeFragment.currentUser.getMyevents().contains(dc.getDocument().getId())){
+                            } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
                                 cardChanged.setInterested(true);
                             } else {
                                 cardChanged.setInterested(false);
@@ -346,20 +430,11 @@ public class EventsFragment extends Fragment {
     public void onCardClick(View v, Card currentCard) {
 
         Fragment nextFragment = new ExpandedEventFragment();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-            nextFragment.setEnterTransition(new android.transition.Fade());
-            nextFragment.setExitTransition(new android.transition.Fade());
-            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-        }
-
         Bundle bundle = new Bundle();
         bundle.putString("Current Card ID", currentCard.getID());
         nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
         fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

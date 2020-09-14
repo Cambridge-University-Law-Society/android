@@ -8,13 +8,6 @@
     android:layout_height="match_parent"
     android:backgroundTint="@color/background_light">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:visibility="invisible"/>
-
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/my_scroll_view"
@@ -361,19 +354,10 @@
 
                     <ImageView
                         android:layout_width="200dp"
-                        android:layout_height="55dp"
-                        android:layout_marginTop="25sp"
+                        android:layout_height="150dp"
+                        android:src="@drawable/ic_culs_top_logo"
                         android:layout_gravity="center_horizontal"
-                        android:src="@drawable/ic_culs_top_logo" />
-
-                    <TextView
-                        android:layout_marginBottom="20sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="By pressing done you agree to the CULS Privacy Policy"
-                        android:layout_gravity="center_horizontal"
-                        android:textSize="10sp"
-                        android:textColor="@android:color/darker_gray"/>
+                        />
 
                 </LinearLayout>
 
