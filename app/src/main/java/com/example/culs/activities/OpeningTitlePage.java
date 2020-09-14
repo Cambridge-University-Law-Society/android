@@ -69,7 +69,7 @@ public class OpeningTitlePage extends Activity {
                 public void run() {
                     try {
                         // Thread will sleep for 5 seconds
-                        sleep((long) (1*1000));
+                        sleep((long) (0.5*1000));
 
                         // After 5 seconds redirect to another intent
                         Intent i=new Intent(getBaseContext(),MainActivity.class);
