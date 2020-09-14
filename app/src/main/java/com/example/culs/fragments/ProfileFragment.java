@@ -33,9 +33,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
 import com.example.culs.activities.ProfileEditActivity;
+import com.example.culs.helpers.GlideApp;
 import com.example.culs.helpers.InterestsAdapter;
 import com.example.culs.helpers.InterestsModel;
 import com.example.culs.helpers.MyInterestsAdapter;
@@ -52,6 +54,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -268,12 +271,13 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                 startActivity(intent);
                 getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);*/
                 Fragment nextFragment = new ProfileEditFragment();
+                Fragment currentFragment = new ProfileFragment();
 
                 Bundle bundle = new Bundle();
                 nextFragment.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container, nextFragment);
+                fragmentTransaction.replace(R.id.fragment_container, nextFragment).detach(currentFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
@@ -410,6 +414,39 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         final TextView admin = (TextView) v.findViewById(R.id.admin_mode);
         //final ListView myInterestsList = (ListView) v.findViewById(R.id.myInterestsList);
 
+        //username.setText(HomeFragment.currentUser.getFirstname() + HomeFragment.currentUser.getLastname());
+
+        if (HomeFragment.currentUser.getCrsid() != null || HomeFragment.currentUser.getCrsid().equals("")){
+            userCrsid.setText(HomeFragment.currentUser.getCrsid());
+        }else{
+            userCrsid.setText("crsid");
+        }
+
+        if (HomeFragment.currentUser.getBio() != null || HomeFragment.currentUser.getBio().equals("")){
+            userBio.setText(HomeFragment.currentUser.getBio());
+        }else{
+            userBio.setText("Add a description about yourself, including interests and ambitions.");
+        }
+
+        if (HomeFragment.currentUser.getCollege() != null || HomeFragment.currentUser.getCollege().equals("")){
+            userCollege.setText(HomeFragment.currentUser.getCollege());
+        }else{
+            userCollege.setText("Select a College");
+        }
+
+        if(HomeFragment.currentUser.getYear() != null || HomeFragment.currentUser.getYear().equals("")){
+            userYear.setText(HomeFragment.currentUser.getYear());
+        }else{
+            userYear.setText("Your Year");
+        }
+
+        if(HomeFragment.currentUser.getDegree() != null || HomeFragment.currentUser.getDegree().equals("")){
+            userDegree.setText(HomeFragment.currentUser.getDegree());
+        }else{
+            userDegree.setText("Your Degree");
+        }
+
+
         //final GridView gridView = (GridView) v.findViewById(R.id.interestsGridView);
 
         //set up the adapter
@@ -433,47 +470,47 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                             username.setText("Username Here");
                         }
 
-                        if (documentSnapshot.get("crsid") == null||documentSnapshot.get("crsid").toString().equals("")) {
+                        /*if (documentSnapshot.get("crsid") == null||documentSnapshot.get("crsid").toString().equals("")) {
                             userCrsid.setText("crsid");
 
                         } else{
                             String crsid = documentSnapshot.getString("crsid");
 
                             userCrsid.setText(crsid);
-                        }
+                        }*/
 
-                        if (documentSnapshot.get("bio") == null||documentSnapshot.get("bio").toString().equals("")) {
+                        /*if (documentSnapshot.get("bio") == null||documentSnapshot.get("bio").toString().equals("")) {
                             userBio.setText("Add a description about yourself, including interests and ambitions.");
 
                         }else{
                             String bio = documentSnapshot.getString("bio");
 
                             userBio.setText(bio);
-                        }
+                        }*/
 
-                        if (documentSnapshot.get("college") != null) {
+                        /*if (documentSnapshot.get("college") != null) {
                             String college = documentSnapshot.getString("college");
 
                             userCollege.setText(college);
                         }else{
                             userCollege.setText("Select a College");
-                        }
+                        }*/
 
-                        if (documentSnapshot.get("year") != null) {
+                        /*if (documentSnapshot.get("year") != null) {
                             String year = documentSnapshot.getString("year");
 
                             userYear.setText(year);
                         }else{
                             userBio.setText("Your Year");
-                        }
+                        }*/
 
-                        if (documentSnapshot.get("degree") != null) {
+                        /*if (documentSnapshot.get("degree") != null) {
                             String degree = documentSnapshot.getString("degree");
 
                             userDegree.setText(degree);
                         }else{
                             userDegree.setText("Your Degree");
-                        }
+                        }*/
 
                         /*if (documentSnapshot.get("status").equals("admin")){
                             admin.setVisibility(View.VISIBLE);
@@ -515,11 +552,13 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         //Reference to an image file in cloud storage
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        //final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
+        final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
 
         // Create a reference with an initial file path and name
         StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic");
-        Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).fitCenter().into(image);
+        //Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
+        Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).signature(new ObjectKey(System.currentTimeMillis())).fitCenter().into(image);
+
         /*pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
