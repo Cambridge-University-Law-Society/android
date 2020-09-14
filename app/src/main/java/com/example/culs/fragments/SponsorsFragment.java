@@ -93,6 +93,7 @@ public class SponsorsFragment extends Fragment {
         });
     }
 
+
     private void getListItems() {
 
         sponsorReg = sponsorsQ
