@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,8 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.MediaStoreSignature;
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.culs.R;
 import com.example.culs.activities.MainActivity;
 import com.example.culs.activities.ProfileEditActivity;
@@ -47,6 +52,10 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -58,6 +67,7 @@ public class ProfileEditFragment extends Fragment {
     private TextView save_btn;
     private TextView cancel_btn;
     private TextView editProfileImage;
+    private ProgressBar progressBar;
 
     private static final int PICK_IMAGE_REQUEST =  1; //this is for the picture file intent in openFileChooser
 
@@ -76,6 +86,7 @@ public class ProfileEditFragment extends Fragment {
 
 
     private String TAG = "ProfileEditFragment";
+    private Fragment ProfileEditActivity;
 
     @Nullable
     @Override
@@ -83,6 +94,8 @@ public class ProfileEditFragment extends Fragment {
         //return super.onCreateView(inflater, container, savedInstanceState);
         final View v = inflater.inflate(R.layout.activity_profile_edit, container, false);
         v.setBackgroundColor(Color.WHITE);
+
+        progressBar = v.findViewById(R.id.progress_bar);
 
         storageRef = FirebaseStorage.getInstance().getReference("users/" + userid);
         if(mDatabase==null){
@@ -98,6 +111,7 @@ public class ProfileEditFragment extends Fragment {
             public void onClick(View view) {
                 //when the image is pressed, an intent will be sent to open the images file for user to pick a new picture which will show on the page
                 openFileChooser();
+
             }
         });
 
@@ -107,6 +121,7 @@ public class ProfileEditFragment extends Fragment {
             public void onClick(View view) {
                 //when the image is pressed, an intent will be sent to open the images file for user to pick a new picture which will show on the page
                 openFileChooser();
+
             }
         });
 
@@ -123,6 +138,7 @@ public class ProfileEditFragment extends Fragment {
         userCollege.setAdapter(adapter);
         userDegree.setAdapter(adapter_degree);
 
+
         save_btn = v.findViewById(R.id.button_done);
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,11 +147,14 @@ public class ProfileEditFragment extends Fragment {
                 if (uploadTask != null){
                     Toast.makeText(getActivity(), "Upload in Progress", Toast.LENGTH_SHORT).show();
                 }else {
-                    uploadFile();
-                    updateData(userCollege, userDegree, v);
+                    uploadFile(profileImage, userCollege, userDegree, v);
+                    //updateData(userCollege, userDegree, v);
+
                 }
 
-                sendToProfileFragment();
+                //progressBar.setVisibility(View.VISIBLE);
+
+                //sendToProfileFragment();
 
                 //Intent intent = new Intent(getActivity(), MainActivity.class);
                 //startActivity(intent);
@@ -163,7 +182,7 @@ public class ProfileEditFragment extends Fragment {
 
 
         try {
-            loadCurrentData(adapter, userCollege, v);
+            loadCurrentData(adapter, adapter_degree, userCollege, v, userDegree);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -171,19 +190,27 @@ public class ProfileEditFragment extends Fragment {
         return v;
     }
 
+
     private void sendToProfileFragment(){
         Fragment nextFragment = new ProfileFragment();
+        Fragment currentFragment = new ProfileEditFragment();
 
-        Bundle bundle = new Bundle();
-        nextFragment.setArguments(bundle);
+        //Bundle bundle = new Bundle();
+        //nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
-        fragmentTransaction.addToBackStack(null);
+        //Fragment fragment = (Fragment) fragmentManager.findFragmentById(R.id.frame_layout);
+        //fragmentTransaction.replace(R.id.fragment_container2,new HomeFragment());
+        fragmentTransaction.replace(R.id.fragment_container2, nextFragment);
+        fragmentTransaction.detach(currentFragment);
+        fragmentTransaction.attach(nextFragment);
+        fragmentTransaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+        //fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
     }
 
-    private void loadCurrentData(final ArrayAdapter<CharSequence> adapter, final Spinner mSpinner, View v) throws IOException {
+    private void loadCurrentData(final ArrayAdapter<CharSequence> adapter, final ArrayAdapter<CharSequence> adapter2, final Spinner mSpinner, View v, final Spinner mSpinner2) throws IOException {
         //load the current data from firebase into the edit text views
 
         final EditText firstName = (EditText) v.findViewById(R.id.first_name);
@@ -208,8 +235,6 @@ public class ProfileEditFragment extends Fragment {
                                 firstName.setText(first_name);
                                 lastName.setText(last_name);
                             }else{
-                                firstName.setText("First Name Here");
-                                lastName.setText("Last Name here");
                             }
 
                             if (documentSnapshot.get("crsid") != null) {
@@ -245,6 +270,18 @@ public class ProfileEditFragment extends Fragment {
                             }else{
                             }
 
+                            if (documentSnapshot.get("degree") != null) {
+                                String degree = documentSnapshot.getString("degree");
+
+                                if (degree != null){
+                                    int spinnerPosition = adapter2.getPosition(degree);
+                                    mSpinner2.setSelection(spinnerPosition);
+                                }
+
+                                //userCollege.setText(college);
+                            }else{
+                            }
+
 
                         }
 
@@ -276,6 +313,7 @@ public class ProfileEditFragment extends Fragment {
 
         // Create a reference with an initial file path and name
         StorageReference pathReference = storageRef.child("users/"+userid+"/profilePic");
+        //uploadFile(image);
 
         //try to download to a local file
         /*final File file = File.createTempFile("profilePic", "jpg");
@@ -290,8 +328,13 @@ public class ProfileEditFragment extends Fragment {
                 Toast.makeText(getActivity(), "Error in loading", Toast.LENGTH_SHORT).show();
             }
         });*/
+        //
+        //Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
+        Glide.with(getContext()).load(pathReference).placeholder(R.drawable.noprofilepicture).signature(new ObjectKey(System.currentTimeMillis())).fitCenter().into(image);
 
-        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+
+        /*pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 String userProfileImageUri = uri.toString();
@@ -304,7 +347,7 @@ public class ProfileEditFragment extends Fragment {
                 //GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
                 Glide.with(getContext()).load(R.drawable.noprofilepicture).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(image);
             }
-        });
+        });*/
 
     }
 
@@ -339,7 +382,13 @@ public class ProfileEditFragment extends Fragment {
         docRef.update("bio", user_bio);
         docRef.update("college", user_college);
         docRef.update("year", user_year);
-        docRef.update("degree", user_degree);
+        docRef.update("degree", user_degree).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                sendToProfileFragment();
+            }
+        });
+
     }
 
     private void openFileChooser(){
@@ -359,7 +408,6 @@ public class ProfileEditFragment extends Fragment {
             //IF WE WANTED TO LOAD THE PICTURE FROM THE FILE INTO THE IMAGE VIEW WE WOULD DO THIS
             //native way of putting in an image into an imageview
             //mProfilePic.setImageURI(imageUri);
-
             //using picasso
             Picasso.get().load(imageUri).into(profileImage);
         }
@@ -373,23 +421,30 @@ public class ProfileEditFragment extends Fragment {
     }
 
     //this will upload the picture file selected to firebase storage
-    private void uploadFile(){
+    private void uploadFile(final ImageView profilePic, final Spinner mSpinner, final Spinner mSpinner2, final View v){
         if (imageUri != null){
             //set the picture name to profilePic
             StorageReference fileReference = storageRef.child("profilePic");//+ getFileExtension(imageUri)
 
             //this puts the file into storage
             uploadTask = fileReference.putFile(imageUri)
+
                     //then we need to try add the url to the database
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getActivity(), "Upload successful", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity(), "Upload successful", Toast.LENGTH_SHORT).show();
                             if (taskSnapshot.getMetadata()!= null){
                                 if (taskSnapshot.getMetadata().getReference()!=null){
                                     String result = taskSnapshot.getStorage().getPath();
                                     //updates the database with this --> THIS MIGHT NOT BE NEEDED
                                     docRef.update("profilePicRef", result);
+                                    final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
+                                    Glide.with(getContext()).load(imageUri).placeholder(R.drawable.noprofilepicture).signature(new ObjectKey(System.currentTimeMillis())).into(profilePic);
+                                    //Glide.with(getContext()).load(imageUri).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(profilePic);
+                                    updateData(mSpinner, mSpinner2, v);
+                                    sendToProfileFragment();
+                                    Toast.makeText(getContext(), "Saved Data", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -401,6 +456,8 @@ public class ProfileEditFragment extends Fragment {
                         }
                     });
         }else{
+            updateData(mSpinner, mSpinner2, v);
+            //sendToProfileFragment();
             //Toast.makeText(ProfileEditActivity.this, "No File Selected", Toast.LENGTH_SHORT).show();
         }
     }
