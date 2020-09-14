@@ -3,8 +3,6 @@ package com.example.culs.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,14 +24,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.culs.R;
 import com.example.culs.helpers.Card;
 import com.example.culs.helpers.CustomAdapter;
 import com.example.culs.helpers.EventDecorator;
 import com.example.culs.helpers.GetEventDate;
 import com.example.culs.helpers.OneDayDecorators;
 import com.example.culs.helpers.PostType;
+
+import com.example.culs.R;
+
 import com.example.culs.helpers.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -47,9 +46,11 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
@@ -58,6 +59,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +76,10 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     private CardView myEventsButton;
     private TextView allEventsText, myEventsText;
     private ImageView allEventsBar, myEventsBar;
+    private ListenerRegistration CalMyEventsReg, CalEventsReg, CalMyUserReg, CalUserReg;
+    private Query CalMyEvents, CalEvents;
+
+    private DocumentReference CalMyUser, CalUser;
 
     //instantiate the short animation between the all events calendar view and myevents calendar view
     private int shortAnimationDuration;
@@ -84,7 +90,8 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     //this retrieves the entire document with this specific uid
     private CollectionReference eventsReference = db.collection("Events");
-
+    private ArrayList<String> uninterested = new ArrayList<>();
+    private ArrayList<String> interested = new ArrayList<>();
     //this retrieves the entire document with this specific uid
     final String userid = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DocumentReference userDocRef = db.collection("users").document(userid);
@@ -176,6 +183,25 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         allEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(CalMyEventsReg != null) {
+                    CalMyEventsReg.remove();
+                }
+
+                if(CalMyUserReg != null) {
+                    CalMyUserReg.remove();
+                }
+
+                for(String i : interested){
+                    DocumentReference eventDocRef = db.collection("Events").document(i);
+                    eventDocRef.update("attendees", FieldValue.arrayUnion(userid));
+                }
+
+                for(String i : uninterested){
+                    DocumentReference eventDocRef = db.collection("Events").document(i);
+                    eventDocRef.update("attendees", FieldValue.arrayRemove(userid));
+                }
+
+
                 if (allEventsCalendar.getVisibility() == View.GONE) {
                     crossFade(myEventsCalendar, allEventsCalendar);
                     crossFade(myEventsBar,allEventsBar);
@@ -199,6 +225,23 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         myEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(CalEventsReg != null) {
+                    CalEventsReg.remove();
+                }
+                if(CalUserReg != null) {
+                    CalUserReg.remove();
+                }
+
+                for(String i : interested){
+                    DocumentReference eventDocRef = db.collection("Events").document(i);
+                    eventDocRef.update("attendees", FieldValue.arrayUnion(userid));
+                }
+
+                for(String i : uninterested){
+                    DocumentReference eventDocRef = db.collection("Events").document(i);
+                    eventDocRef.update("attendees", FieldValue.arrayRemove(userid));
+                }
+
                 if (myEventsCalendar.getVisibility() == View.GONE) {
                     crossFade(allEventsCalendar, myEventsCalendar);
                     myEventsButton.setCardBackgroundColor(Color.TRANSPARENT);
@@ -224,10 +267,32 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         return v;
     }
 
-    /*public void onStop() {
+    public void onStop() {
         super.onStop();
-        fire_adapter.stopListening();
-    }*/
+        if(CalMyEventsReg != null) {
+            CalMyEventsReg.remove();
+        }
+        if(CalEventsReg != null) {
+            CalEventsReg.remove();
+        }
+        if(CalUserReg != null) {
+            CalUserReg.remove();
+        }
+        if(CalMyUserReg != null) {
+            CalMyUserReg.remove();
+        }
+
+        for(String i : interested){
+            DocumentReference eventDocRef = db.collection("Events").document(i);
+            eventDocRef.update("attendees", FieldValue.arrayUnion(userid));
+        }
+
+        for(String i : uninterested){
+            DocumentReference eventDocRef = db.collection("Events").document(i);
+            eventDocRef.update("attendees", FieldValue.arrayRemove(userid));
+        }
+
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -253,17 +318,70 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
             public void onInterestedClick(View v, int position) {
                 Card intCard = (Card) types.get(position);
                 if(currentUser.getMyevents() == null){
+                    intCard.setInterested(true);
+
+                    if(!interested.contains(intCard.getID())) {
+                        interested.add(intCard.getID());
+                    }
+                    while(uninterested.contains(intCard.getID())) {
+                        uninterested.remove(intCard.getID());
+                    }
+
                     userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
-                    ((Card) types.get(position)).setInterested(true);
                     customAdapter.notifyItemChanged(position);
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else if(currentUser.getMyevents().contains(intCard.getID())){
+                    intCard.setInterested(false);
+                    customAdapter.notifyItemChanged(position);
+
+                    if(!uninterested.contains(intCard.getID())) {
+                        uninterested.add(intCard.getID());
+                    }
+                    while(interested.contains(intCard.getID())) {
+                        interested.remove(intCard.getID());
+                    }
+
                     userDocRef.update("myevents", FieldValue.arrayRemove(intCard.getID()));
-                    ((Card) types.get(position)).setInterested(false);
                     customAdapter.notifyItemChanged(position);
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 } else {
-                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
-                    ((Card) types.get(position)).setInterested(true);
+                    intCard.setInterested(true);
                     customAdapter.notifyItemChanged(position);
+
+                    if(!interested.contains(intCard.getID())) {
+                        interested.add(intCard.getID());
+                    }
+                    while(uninterested.contains(intCard.getID())) {
+                        uninterested.remove(intCard.getID());
+                    }
+
+                    userDocRef.update("myevents", FieldValue.arrayUnion(intCard.getID()));
+                    customAdapter.notifyItemChanged(position);
+                    FirebaseMessaging.getInstance().subscribeToTopic(intCard.getID())
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Error!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 }
             }
         });
@@ -378,7 +496,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        CalUserReg = userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -394,7 +512,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
             }
         });
 
-        eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp)
+        CalEventsReg = eventsReference.whereEqualTo("active", true).whereGreaterThan("date", timestamp)
                 .whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -407,7 +525,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                         for (DocumentChange dc : value.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    Card cardAdded = dc.getDocument().toObject(Card.class);
+                                    final Card cardAdded = dc.getDocument().toObject(Card.class);
                                     cardAdded.setID(dc.getDocument().getId());
                                     if(currentUser.getMyevents() == null){
                                         cardAdded.setInterested(false);
@@ -416,12 +534,62 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                                     } else {
                                         cardAdded.setInterested(false);
                                     }
-                                    types.add(dc.getNewIndex(), cardAdded);
+
+                                    db.collection("Sponsors")
+                                            .whereEqualTo("name", cardAdded.getSponsor())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            cardAdded.setEventSponsorID(document.getId());
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                        if (!dc.getDocument().getBoolean("archived")) {
+                                            types.add(cardAdded);
+                                            Collections.sort(types);
+                                            int index = 0;
+
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardAdded.getID())){
+                                                        index = i;
+                                                    }
+                                                }
+                                            }
+
+                                        } else {
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardAdded.getID())){
+                                                        types.remove(i);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     break;
                                 case MODIFIED:
-                                    types.remove(dc.getOldIndex());
-                                    Card cardChanged = dc.getDocument().toObject(Card.class);
+                                    final Card cardChanged = dc.getDocument().toObject(Card.class);
                                     cardChanged.setID(dc.getDocument().getId());
+                                    int index = 0;
+
+                                    for(int i = 0; i < types.size(); i++){
+                                        if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                            Card testCard = (Card) types.get(i);
+                                            if(testCard.getID().equals(cardChanged.getID())){
+                                                types.remove(i);
+                                                index = i;
+                                            }
+                                        }
+                                    }
+
                                     if(currentUser.getMyevents() == null){
                                         cardChanged.setInterested(false);
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
@@ -429,10 +597,49 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                                     } else {
                                         cardChanged.setInterested(false);
                                     }
-                                    types.add(dc.getNewIndex(), cardChanged);
+
+                                    db.collection("Sponsors")
+                                            .whereEqualTo("name", cardChanged.getSponsor())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            cardChanged.setEventSponsorID(document.getId());
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                        if (!dc.getDocument().getBoolean("archived")) {
+                                            types.add(index, cardChanged);
+                                            Collections.sort(types);
+                                        } else {
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardChanged.getID())){
+                                                        types.remove(i);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     break;
                                 case REMOVED:
-                                    types.remove(dc.getOldIndex());
+                                    final Card cardRemoved = dc.getDocument().toObject(Card.class);
+                                    cardRemoved.setID(dc.getDocument().getId());
+
+                                    for(int i = 0; i < types.size(); i++){
+                                        if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                            Card testCard = (Card) types.get(i);
+                                            if(testCard.getID().equals(cardRemoved.getID())){
+                                                types.remove(i);
+
+                                            }
+                                        }
+                                    }
                                     break;
                                 default:
                                     break;
@@ -525,7 +732,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         eventsView.setHasFixedSize(true);
         eventsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        CalMyUserReg = userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -541,8 +748,9 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
             }
         });
 
-        eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid)
-                .whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING)
+        CalMyEvents = eventsReference.whereEqualTo("active", true).whereArrayContains("attendees", userid)
+                .whereGreaterThan("date", timestamp).whereLessThan("date", timestamp2).orderBy("date", Query.Direction.ASCENDING);
+        CalMyEventsReg = CalMyEvents
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -554,7 +762,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                         for (DocumentChange dc : value.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    Card cardAdded = dc.getDocument().toObject(Card.class);
+                                    final Card cardAdded = dc.getDocument().toObject(Card.class);
                                     cardAdded.setID(dc.getDocument().getId());
                                     if(currentUser.getMyevents() == null){
                                         cardAdded.setInterested(false);
@@ -563,12 +771,73 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                                     } else {
                                         cardAdded.setInterested(false);
                                     }
-                                    types.add(dc.getNewIndex(), cardAdded);
+
+                                    db.collection("Sponsors")
+                                            .whereEqualTo("name", cardAdded.getSponsor())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            cardAdded.setEventSponsorID(document.getId());
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                    if (dc.getDocument().getBoolean("active")) {
+                                        if (!dc.getDocument().getBoolean("archived")) {
+                                            types.add(cardAdded);
+                                            Collections.sort(types);
+                                            int index = 0;
+
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardAdded.getID())){
+                                                        index = i;
+                                                    }
+                                                }
+                                            }
+
+                                        } else {
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardAdded.getID())){
+                                                        types.remove(i);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for(int i = 0; i < types.size(); i++){
+                                            if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                Card testCard = (Card) types.get(i);
+                                                if(testCard.getID().equals(cardAdded.getID())){
+                                                    types.remove(i);
+                                                }
+                                            }
+                                        }
+                                    }
                                     break;
                                 case MODIFIED:
-                                    types.remove(dc.getOldIndex());
-                                    Card cardChanged = dc.getDocument().toObject(Card.class);
+                                    final Card cardChanged = dc.getDocument().toObject(Card.class);
                                     cardChanged.setID(dc.getDocument().getId());
+                                    int index = 0;
+
+                                    for(int i = 0; i < types.size(); i++){
+                                        if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                            Card testCard = (Card) types.get(i);
+                                            if(testCard.getID().equals(cardChanged.getID())){
+                                                types.remove(i);
+                                                index = i;
+                                            }
+                                        }
+                                    }
+
                                     if(currentUser.getMyevents() == null){
                                         cardChanged.setInterested(false);
                                     } else if(currentUser.getMyevents().contains(dc.getDocument().getId())){
@@ -576,10 +845,59 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                                     } else {
                                         cardChanged.setInterested(false);
                                     }
-                                    types.add(dc.getNewIndex(), cardChanged);
+
+                                    db.collection("Sponsors")
+                                            .whereEqualTo("name", cardChanged.getSponsor())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            cardChanged.setEventSponsorID(document.getId());
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                    if (dc.getDocument().getBoolean("active")) {
+                                        if (!dc.getDocument().getBoolean("archived")) {
+                                            types.add(index, cardChanged);
+
+                                        } else {
+                                            for(int i = 0; i < types.size(); i++){
+                                                if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                    Card testCard = (Card) types.get(i);
+                                                    if(testCard.getID().equals(cardChanged.getID())){
+                                                        types.remove(i);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for(int i = 0; i < types.size(); i++){
+                                            if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                                Card testCard = (Card) types.get(i);
+                                                if(testCard.getID().equals(cardChanged.getID())){
+                                                    types.remove(i);
+                                                }
+                                            }
+                                        }
+                                    }
                                     break;
                                 case REMOVED:
-                                    types.remove(dc.getOldIndex());
+                                    final Card cardRemoved = dc.getDocument().toObject(Card.class);
+                                    cardRemoved.setID(dc.getDocument().getId());
+
+                                    for(int i = 0; i < types.size(); i++){
+                                        if (types.get(i).getPostType() == PostType.TYPE_EVENT ){
+                                            Card testCard = (Card) types.get(i);
+                                            if(testCard.getID().equals(cardRemoved.getID())){
+                                                types.remove(i);
+                                            }
+                                        }
+                                    }
                                     break;
                                 default:
                                     break;
@@ -603,20 +921,11 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
     public void onCardClick(View v, Card currentCard) {
 
         Fragment nextFragment = new ExpandedEventFragment();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            nextFragment.setSharedElementEnterTransition(new DetailsTransition());
-            nextFragment.setEnterTransition(new android.transition.Fade());
-            nextFragment.setExitTransition(new android.transition.Fade());
-            nextFragment.setSharedElementReturnTransition(new DetailsTransition());
-        }
-
         Bundle bundle = new Bundle();
         bundle.putString("Current Card ID", currentCard.getID());
         nextFragment.setArguments(bundle);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.addSharedElement(v.findViewById(R.id.event_pic_image_view), "expandedImage");
         fragmentTransaction.replace(R.id.fragment_container, nextFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -694,63 +1003,63 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
         });
     }
 
-    public void addEventDots(final MaterialCalendarView c) {
-        //get the dates of all the events
-        final Calendar calendar = Calendar.getInstance();
-        final List<CalendarDay> list = new ArrayList<CalendarDay>();
-
-        /*eventsReference.whereEqualTo("active", true).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()){
-                            QuerySnapshot documentSnapshot = task.getResult();
-
-                        }
-                    }
-                })*/
-
-
-        eventsReference.whereEqualTo("active", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
-                            //Since query results contain only existing documents, the exists property will always be true
-                            for (QueryDocumentSnapshot document : task.getResult()) { //this is the syntax for a "for-each" loop (loops through each element in array)
-                                eventsDocRef1.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
-                                //dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
-                                //Log.d(TAG3, dateTime.toString());
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting the documents", task.getException());
-                        }
-                    }
-                    //convert to Calendar
-                    //use addDecorators to add the dots
-                });
-        Log.d(TAG3, eventsDocRef1.toString());
-        final ArrayList<CalendarDay> dates = new ArrayList<>();
-        for (int i = 0; i < eventsDocRef.size(); i++) {
-            eventsDocRef1.get(i).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (value.exists()) {
-                        Timestamp timestamp = value.getTimestamp("date");
-                        Date timeDate = timestamp.toDate();
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(timeDate);
-                        int year = calendar.get(Calendar.YEAR);
-                        int month = calendar.get(Calendar.MONTH);
-                        int day = calendar.get(Calendar.DAY_OF_MONTH);
-                        int color = R.color.colorAccent;
-                        final CalendarDay day1 = CalendarDay.from(year, month, day);
-                        dates.add(day1);
-                    }
-                }
-            });
-        }
-        Log.d(TAG3, dates.toString());
-    }
+//    public void addEventDots(final MaterialCalendarView c) {
+//        //get the dates of all the events
+//        final Calendar calendar = Calendar.getInstance();
+//        final List<CalendarDay> list = new ArrayList<CalendarDay>();
+//
+//        /*eventsReference.whereEqualTo("active", true).get()
+//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if (task.isSuccessful()){
+//                            QuerySnapshot documentSnapshot = task.getResult();
+//
+//                        }
+//                    }
+//                })*/
+//
+//
+//        eventsReference.whereEqualTo("active", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            //QueryDocumentSnapshot contains data read from a document in your Firebase Database as part of a query
+//                            //Since query results contain only existing documents, the exists property will always be true
+//                            for (QueryDocumentSnapshot document : task.getResult()) { //this is the syntax for a "for-each" loop (loops through each element in array)
+//                                eventsDocRef1.add(eventsReference.document(document.getId())); //adds documentReference to eventsList
+//                                //dateTime.add(String.valueOf(eventsReference.document(document.getString("location"))));
+//                                //Log.d(TAG3, dateTime.toString());
+//                            }
+//                        } else {
+//                            Log.d(TAG, "Error getting the documents", task.getException());
+//                        }
+//                    }
+//                    //convert to Calendar
+//                    //use addDecorators to add the dots
+//                });
+//        Log.d(TAG3, eventsDocRef1.toString());
+//        final ArrayList<CalendarDay> dates = new ArrayList<>();
+//        for (int i = 0; i < eventsDocRef.size(); i++) {
+//            eventsDocRef1.get(i).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+//                @Override
+//                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+//                    if (value.exists()) {
+//                        Timestamp timestamp = value.getTimestamp("date");
+//                        Date timeDate = timestamp.toDate();
+//                        Calendar calendar = Calendar.getInstance();
+//                        calendar.setTime(timeDate);
+//                        int year = calendar.get(Calendar.YEAR);
+//                        int month = calendar.get(Calendar.MONTH);
+//                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+//                        int color = R.color.colorAccent;
+//                        final CalendarDay day1 = CalendarDay.from(year, month, day);
+//                        dates.add(day1);
+//                    }
+//                }
+//            });
+//        }
+//        Log.d(TAG3, dates.toString());
+//    }
 
 }

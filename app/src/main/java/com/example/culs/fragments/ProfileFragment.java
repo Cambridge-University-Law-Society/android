@@ -2,8 +2,6 @@ package com.example.culs.fragments;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.util.Log;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,15 +31,12 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.example.culs.R;
 import com.example.culs.activities.LoginActivity;
-import com.example.culs.activities.ProfileEditActivity;
-import com.example.culs.helpers.GlideApp;
+
 import com.example.culs.helpers.InterestsAdapter;
 import com.example.culs.helpers.InterestsModel;
 import com.example.culs.helpers.MyInterestsAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -53,8 +45,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -73,7 +65,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     private TextView edit_btn;
     private GoogleSignInClient mSignInClient;
     private ImageView add_interests_btn, done_interests_btn;
-
+    private ListenerRegistration Regiboi;
 
     //Firebase Instance variables - add them when you need them and explain their function
 
@@ -292,12 +284,13 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        Regiboi.remove();
     }
 
     public void initAllRecyclerView(){
@@ -455,8 +448,7 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
         //myInterestsList.setAdapter(adapter);
 
         //method for loading textView data
-
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        Regiboi = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 if(error == null){

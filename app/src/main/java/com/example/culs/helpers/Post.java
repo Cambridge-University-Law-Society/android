@@ -1,8 +1,6 @@
 package com.example.culs.helpers;
 
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import java.util.Date;
 import java.util.List;

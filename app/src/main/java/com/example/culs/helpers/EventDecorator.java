@@ -5,12 +5,6 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
-import org.threeten.bp.LocalDate;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-
 public class EventDecorator implements DayViewDecorator {
 
     private int color;

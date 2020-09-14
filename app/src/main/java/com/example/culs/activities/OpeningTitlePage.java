@@ -2,12 +2,8 @@ package com.example.culs.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.culs.R;
@@ -15,9 +11,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-
-import java.util.Timer;
-import java.util.logging.LogRecord;
 
 public class OpeningTitlePage extends Activity {
 

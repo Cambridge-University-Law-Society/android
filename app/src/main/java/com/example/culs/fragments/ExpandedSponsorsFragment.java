@@ -6,23 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.culs.R;
-import com.example.culs.helpers.Card;
+
 import com.example.culs.helpers.Sponsor;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import androidx.annotation.NonNull;
@@ -37,6 +35,8 @@ public class ExpandedSponsorsFragment extends Fragment {
     private Sponsor expandedSponsor = new Sponsor();
     private String sponsorID;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private ListenerRegistration sponsorsQ;
+    private DocumentReference sponsorDoc;
 
     @Nullable
     @Override
@@ -74,12 +74,15 @@ public class ExpandedSponsorsFragment extends Fragment {
     }
 
     public void onStop() {
+
         super.onStop();
+        sponsorsQ.remove();
+
     }
 
     public void getSponsor() {
-        DocumentReference docRef = db.collection("Sponsors").document(sponsorID);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        sponsorDoc = db.collection("Sponsors").document(sponsorID);
+        sponsorsQ = sponsorDoc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {

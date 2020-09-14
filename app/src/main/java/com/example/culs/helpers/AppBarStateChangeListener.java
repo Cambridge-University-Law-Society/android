@@ -2,8 +2,6 @@ package com.example.culs.helpers;
 
 import com.google.android.material.appbar.AppBarLayout;
 
-import ru.embersoft.expandabletextview.ExpandableTextView;
-
 public abstract class AppBarStateChangeListener implements AppBarLayout.OnOffsetChangedListener {
 
     public abstract void onStateChanged(AppBarLayout appBarLayout, State state);

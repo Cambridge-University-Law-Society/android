@@ -7,32 +7,26 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.culs.R;
-import com.example.culs.helpers.Card;
+
 import com.example.culs.helpers.CustomAdapter;
-import com.example.culs.helpers.Post;
 import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.Sponsor;
-import com.example.culs.helpers.User;
+
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -45,6 +39,8 @@ public class SponsorsFragment extends Fragment {
     private CustomAdapter customAdapter;
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
+    private ListenerRegistration sponsorReg;
+    private Query sponsorsQ = mFirebaseFirestore.collection("Sponsors").orderBy("name", Query.Direction.ASCENDING);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,7 +64,10 @@ public class SponsorsFragment extends Fragment {
     }
 
     public void onStop() {
+
         super.onStop();
+        sponsorReg.remove();
+
     }
 
     private void setupCustomAdapter(View rootView) {
@@ -90,7 +89,7 @@ public class SponsorsFragment extends Fragment {
 
     private void getListItems() {
 
-        mFirebaseFirestore.collection("Sponsors").orderBy("name", Query.Direction.ASCENDING)
+        sponsorReg = sponsorsQ
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

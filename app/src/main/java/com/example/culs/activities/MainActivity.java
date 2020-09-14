@@ -3,23 +3,20 @@ package com.example.culs.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.example.culs.R;
-import com.example.culs.fragments.CalendarFragment;
 import com.example.culs.fragments.EventsFragment;
 import com.example.culs.fragments.HomeFragment;
 import com.example.culs.fragments.NotificationsFragment;
-import com.example.culs.fragments.ProfileFragment;
 import com.example.culs.fragments.SponsorsFragment;
-import com.firebase.ui.auth.AuthUI;
+
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.MenuItem;
+
+import com.example.culs.R;
+import com.example.culs.fragments.CalendarFragment;
+import com.example.culs.fragments.ProfileFragment;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -27,10 +24,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-
-import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity {

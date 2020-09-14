@@ -1,7 +1,5 @@
 package com.example.culs.helpers;
 
-import java.util.List;
-
 public class Sponsor implements PostType {
 
     private String mSponsorName;
