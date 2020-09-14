@@ -248,6 +248,7 @@ public class CalendarFragment extends Fragment implements OnDateSelectedListener
                 Card clickedCard = (Card) types.get(position);
                 onCardClick(v, clickedCard);
             }
+
             @Override
             public void onInterestedClick(View v, int position) {
                 Card intCard = (Card) types.get(position);
