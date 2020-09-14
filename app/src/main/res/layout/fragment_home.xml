@@ -214,15 +214,8 @@
 
     </com.google.android.material.appbar.AppBarLayout>-->
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipeContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
         <androidx.recyclerview.widget.RecyclerView
-
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:id="@+id/list"
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -230,7 +223,6 @@
             android:background="@drawable/gradient_background"
             android:divider="@null"/>
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <!--<include
         android:id="@+id/view_to_be_faded_in_over_collapsed"
         android:layout_height="wrap_content"

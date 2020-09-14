@@ -23,7 +23,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import androidx.annotation.NonNull;
@@ -38,8 +37,6 @@ public class ExpandedSponsorsFragment extends Fragment {
     private Sponsor expandedSponsor = new Sponsor();
     private String sponsorID;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ListenerRegistration sponsorsQ;
-    private DocumentReference sponsorDoc;
 
     @Nullable
     @Override
@@ -77,15 +74,12 @@ public class ExpandedSponsorsFragment extends Fragment {
     }
 
     public void onStop() {
-
         super.onStop();
-        sponsorsQ.remove();
-
     }
 
     public void getSponsor() {
-        sponsorDoc = db.collection("Sponsors").document(sponsorID);
-        sponsorsQ = sponsorDoc.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        DocumentReference docRef = db.collection("Sponsors").document(sponsorID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {

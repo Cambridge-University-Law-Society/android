@@ -287,6 +287,19 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
     }
 
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
     public void initAllRecyclerView(){
         all_recyclerAdapter = new InterestsAdapter(interestsModel, this);
         all_recyclerView.setAdapter(all_recyclerAdapter);
@@ -403,31 +416,32 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
 
         //username.setText(HomeFragment.currentUser.getFirstname() + HomeFragment.currentUser.getLastname());
 
-        if (HomeFragment.currentUser.getCrsid() != null || HomeFragment.currentUser.getCrsid().equals("")){
+        if (HomeFragment.currentUser.getCrsid() != null){
             userCrsid.setText(HomeFragment.currentUser.getCrsid());
-        }else{
+        }
+        else{
             userCrsid.setText("crsid");
         }
 
-        if (HomeFragment.currentUser.getBio() != null || HomeFragment.currentUser.getBio().equals("")){
+        if (HomeFragment.currentUser.getBio() != null){
             userBio.setText(HomeFragment.currentUser.getBio());
         }else{
             userBio.setText("Add a description about yourself, including interests and ambitions.");
         }
 
-        if (HomeFragment.currentUser.getCollege() != null || HomeFragment.currentUser.getCollege().equals("")){
+        if (HomeFragment.currentUser.getCollege() != null){
             userCollege.setText(HomeFragment.currentUser.getCollege());
         }else{
             userCollege.setText("Select a College");
         }
 
-        if(HomeFragment.currentUser.getYear() != null || HomeFragment.currentUser.getYear().equals("")){
+        if(HomeFragment.currentUser.getYear() != null){
             userYear.setText(HomeFragment.currentUser.getYear());
         }else{
             userYear.setText("Your Year");
         }
 
-        if(HomeFragment.currentUser.getDegree() != null || HomeFragment.currentUser.getDegree().equals("")){
+        if(HomeFragment.currentUser.getDegree() != null){
             userDegree.setText(HomeFragment.currentUser.getDegree());
         }else{
             userDegree.setText("Your Degree");
@@ -457,47 +471,47 @@ public class ProfileFragment extends Fragment implements InterestsAdapter.OnNote
                             username.setText("Username Here");
                         }
 
-                        /*if (documentSnapshot.get("crsid") == null||documentSnapshot.get("crsid").toString().equals("")) {
+                        if (documentSnapshot.get("crsid") == null||documentSnapshot.get("crsid").toString().equals("")) {
                             userCrsid.setText("crsid");
 
                         } else{
                             String crsid = documentSnapshot.getString("crsid");
 
                             userCrsid.setText(crsid);
-                        }*/
+                        }
 
-                        /*if (documentSnapshot.get("bio") == null||documentSnapshot.get("bio").toString().equals("")) {
+                        if (documentSnapshot.get("bio") == null||documentSnapshot.get("bio").toString().equals("")) {
                             userBio.setText("Add a description about yourself, including interests and ambitions.");
 
                         }else{
                             String bio = documentSnapshot.getString("bio");
 
                             userBio.setText(bio);
-                        }*/
+                        }
 
-                        /*if (documentSnapshot.get("college") != null) {
+                        if (documentSnapshot.get("college") != null) {
                             String college = documentSnapshot.getString("college");
 
                             userCollege.setText(college);
                         }else{
                             userCollege.setText("Select a College");
-                        }*/
+                        }
 
-                        /*if (documentSnapshot.get("year") != null) {
+                        if (documentSnapshot.get("year") != null) {
                             String year = documentSnapshot.getString("year");
 
                             userYear.setText(year);
                         }else{
                             userBio.setText("Your Year");
-                        }*/
+                        }
 
-                        /*if (documentSnapshot.get("degree") != null) {
+                        if (documentSnapshot.get("degree") != null) {
                             String degree = documentSnapshot.getString("degree");
 
                             userDegree.setText(degree);
                         }else{
                             userDegree.setText("Your Degree");
-                        }*/
+                        }
 
                         /*if (documentSnapshot.get("status").equals("admin")){
                             admin.setVisibility(View.VISIBLE);
