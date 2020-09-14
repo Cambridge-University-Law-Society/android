@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.culs.R;
-import com.example.culs.helpers.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -55,7 +54,6 @@ public class LoginActivity extends AppCompatActivity{
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,7 +186,7 @@ public class LoginActivity extends AppCompatActivity{
                             FirebaseUser user = mFirebaseAuth.getCurrentUser();
                             FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
                             Log.d(TAG, "onComplete: " + mFirebaseAuth.getUid());
-                            final DocumentReference docIdRef = rootRef.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getUid()));
+                            DocumentReference docIdRef = rootRef.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getUid()));
                             docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
@@ -209,8 +207,6 @@ public class LoginActivity extends AppCompatActivity{
                                             startActivity(new Intent(LoginActivity.this, OpeningTitlePage.class));
                                         } else {
                                             Log.d(TAG, "Document does not exist!");
-                                            User users = new User(null, null, null, null, null, mFirebaseAuth.getUid(), null, null, "user",  null, null);
-                                            docIdRef.set(users);
                                             startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
                                         }
                                         finish();

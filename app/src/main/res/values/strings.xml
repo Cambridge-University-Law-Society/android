@@ -9,9 +9,6 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="linktoprivacy">
-        <a href="https://www.culs.org.uk">CULS Privacy Policy</a>
-    </string>
 
     <string-array name="college_names">
         <item>Christ\'s</item>

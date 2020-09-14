@@ -1,6 +1,7 @@
 package com.example.culs.helpers;
 
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
 import java.util.ArrayList;
+
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.culs.R;
+import com.example.culs.fragments.HomeFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -45,7 +49,6 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public CustomAdapter(List<PostType> types) {
         mTypes = types;
-
         mTypesFull = new ArrayList<>(types); //a new array list that contains all the items in types but also is independent
     }
 
@@ -68,7 +71,7 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class EventViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView eventPic, eventTagIcon[] = new ImageView[3], eventSponsorLogo, eventInterested;
+        public ImageView eventPic, eventTagIcon[] = new ImageView[3], eventSponsorLogo, eventInterested;
         TextView eventDateTime, eventDescription, eventLocation, eventName, eventTagNote[] = new TextView[3], eventSponsor;
         LinearLayout eventTagHolder[] = new LinearLayout[3];
 
@@ -155,16 +158,18 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 eventInterested.setImageResource(R.drawable.ic_interested_button_off_24dp);
             }
 
-            final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
-            FirebaseStorage eventStorage = FirebaseStorage.getInstance();
-            StorageReference eventStorageRef = eventStorage.getReference();
-            StorageReference eventPathReference = eventStorageRef.child("Events/" + card.getID() + "/coverPhoto");
-            Glide.with(itemView.getContext()).load(eventPathReference).placeholder(R.drawable.image_placeholder).apply(requestOptions).fitCenter().into(eventPic);
+                BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
 
-            FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
-            StorageReference sponsorStorageRef = sponsorStorage.getReference();
-            StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + card.getSponsor() + "/logo.png");
-            Glide.with(itemView.getContext()).load(sponsorPathReference).placeholder(R.drawable.image_placeholder).apply(requestOptions).fitCenter().into(eventSponsorLogo);
+                FirebaseStorage eventStorage = FirebaseStorage.getInstance();
+                StorageReference eventStorageRef = eventStorage.getReference();
+                StorageReference eventPathReference = eventStorageRef.child("Events/" + card.getID() + "/coverPhoto");
+                Glide.with(itemView.getContext()).load(eventPathReference).apply(requestOptions).placeholder(R.drawable.image_placeholder).fitCenter().into(eventPic);
+
+                FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
+                StorageReference sponsorStorageRef = sponsorStorage.getReference();
+                StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + card.getSponsor() + "/logo.png");
+                Glide.with(itemView.getContext()).load(sponsorPathReference).apply(requestOptions).placeholder(R.drawable.image_placeholder).fitCenter().into(eventSponsorLogo);
+
 
         }
     }
@@ -192,11 +197,26 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             postDateTime.setText(spf.format(post.getTimestamp().toDate()));
             postSender.setText(post.getSenderName());
 
-            FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
-            StorageReference    postStorageRef = sponsorStorage.getReference();
-            StorageReference postPathReference = postStorageRef.child("users/" + post.getSenderID() + "/profilePic");
-            Glide.with(itemView.getContext()).load(postPathReference).placeholder(R.drawable.image_placeholder).fitCenter().into(postSenderPic);
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReference();
+            final BaseRequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
 
+            // Create a reference with an initial file path and name
+            StorageReference pathReference = storageRef.child("users/"+ post.getSenderID() +"/profilePic");
+            pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    String userProfileImageUri = uri.toString();
+                    //GlideApp.with(getContext()).load(userProfileImageUri).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
+                    Glide.with(itemView.getContext()).load(userProfileImageUri).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(postSenderPic);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //GlideApp.with(getContext()).load(R.drawable.ic_profile_icon_24dp).placeholder(R.drawable.ic_profile_icon_24dp).fitCenter().into(image);
+                    Glide.with(itemView.getContext()).load(R.drawable.noprofilepicture).placeholder(R.drawable.noprofilepicture).apply(requestOptions).fitCenter().into(postSenderPic);
+                }
+            });
             postContent.setText(post.getContent());
             postContent.setOnStateChangeListener(new ExpandableTextView.OnStateChangeListener() {
                 @Override
@@ -402,4 +422,5 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             notifyDataSetChanged();
         }
     };
+
 }

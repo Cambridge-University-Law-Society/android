@@ -42,7 +42,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:gravity="bottom"
-                tools:src="@drawable/hoglov_logo"
+                tools:src="@drawable/ic_small_culs_top_logo"
                 android:elevation="1dp"/>
 
             <LinearLayout

@@ -25,7 +25,7 @@ public class Card implements PostType, Comparable<PostType>{
 
     public Card(){}
 
-    public Card(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String eventImageURL, List<String> eventTags, String eventSponsor, String eventID, Boolean eventInterested, String eventSponsorID) {
+    public Card(String eventName, Timestamp eventUST, String eventLocation, String eventDescription, String eventImageURL, List<String> eventTags, String eventSponsor, String eventID, Boolean eventInterested, String eventSponsorID, Boolean eventRefreshing, Long eventLastUpdated) {
         mEventName = eventName;
         mEventUST = eventUST;
         mEventLocation = eventLocation;
@@ -36,6 +36,7 @@ public class Card implements PostType, Comparable<PostType>{
         mEventID = eventID;
         mEventInterested = eventInterested;
         mEventSponsorID = eventSponsorID;
+
     }
 
     public String getID() { return mEventID; }
@@ -63,6 +64,7 @@ public class Card implements PostType, Comparable<PostType>{
     public void setSponsor(String mEventSponsor) { this.mEventSponsor = mEventSponsor; }
     public void setInterested(Boolean mEventInterested) { this.mEventInterested = mEventInterested; }
     public void setEventSponsorID(String mEventSponsorID) { this.mEventSponsorID = mEventSponsorID; }
+
 
     @Override
     public int getPostType() {
