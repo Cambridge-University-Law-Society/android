@@ -16,14 +16,12 @@ import com.example.culs.helpers.PostType;
 import com.example.culs.helpers.Sponsor;
 import com.example.culs.helpers.User;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -50,12 +48,7 @@ public class NotificationsFragment extends Fragment {
     private FirebaseFirestore mFirebaseFirestore = FirebaseFirestore.getInstance();
     private List<PostType> types = new ArrayList<>();
     private ImageView backbtn;
-    private String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    private DocumentReference userDocRef = mFirebaseFirestore.collection("users").document(userID);
-    private User currentUser;
-    private ListenerRegistration notifsReg;
-    private Query notifs;
-    private ListenerRegistration userReg;
+    public static User currentUser;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,11 +88,7 @@ public class NotificationsFragment extends Fragment {
     }
 
     public void onStop() {
-
         super.onStop();
-        notifsReg.remove();
-        userReg.remove();
-
     }
 
     private void setupCustomAdapter(View rootView) {
@@ -112,33 +101,11 @@ public class NotificationsFragment extends Fragment {
 
     private void getListItems() {
 
-        userReg = userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    System.err.println("Listen failed: " + error);
-                    return;
-                }
-
-                if (value != null && value.exists()) {
-                    currentUser = value.toObject(User.class);
-                } else {
-                    System.out.print("Current data: null");
-                }
-            }
-        });
-
-        ArrayList<String> notifsArrayList = new ArrayList<>();
-
-        if (HomeFragment.currentUser.getMyevents() != null) {
-            notifsArrayList.addAll(HomeFragment.currentUser.getMyevents());
-        }
-
-        notifsArrayList.add(userID);
+        ArrayList<String> notifsArrayList = HomeFragment.currentUser.getMyevents();
+        notifsArrayList.add(HomeFragment.currentUser.getUid());
         String notifsList[] = notifsArrayList.toArray(new String[0]);
 
-        notifs = mFirebaseFirestore.collection("notifications").whereArrayContainsAny("receiverID", Arrays.asList(notifsList)).orderBy("timestamp", Query.Direction.ASCENDING);
-               notifsReg = notifs
+        mFirebaseFirestore.collection("notifications").whereArrayContainsAny("receiverID", Arrays.asList(notifsList)).orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
