@@ -8,6 +8,50 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:938383869511:android:d954c07c131c1979c0d362",
+        "android_client_info": {
+          "package_name": "com.camlawsocapp.culs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "938383869511-ohfifckmugfgd3k85a7s6hqesgdkkgtg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.camlawsocapp.culs",
+            "certificate_hash": "b28154fa571b9e9cb816eb08411369bd469a7f7f"
+          }
+        },
+        {
+          "client_id": "938383869511-udbnkv3bpeu552s1gllf035iqlss4sgs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnTU_0jQCTbedgcatsxeFKBXB1_1iYEbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "938383869511-udbnkv3bpeu552s1gllf035iqlss4sgs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "938383869511-cpsfvq8uagmdlvg27u3qlh1dmbgvlt5i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.samphillips.CULS"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:938383869511:android:082a77c4c35bcf73c0d362",
         "android_client_info": {
           "package_name": "com.example.culs"

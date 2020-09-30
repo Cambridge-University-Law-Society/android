@@ -401,6 +401,7 @@
                     android:layout_below="@+id/ex_event_details_text_view"/>
 
                 <TextView
+                    android:autoLink="web"
                     android:id="@+id/ex_event_description_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

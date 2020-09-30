@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.culs">
+    package="com.camlawsocapp.culs">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.SignUpActivity"
+        <activity android:name="com.camlawsocapp.culs.activities.SignUpActivity"
             android:configChanges="orientation"
             android:theme="@style/Spinner"
             android:screenOrientation="portrait">
@@ -19,7 +19,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LoginActivity"
+        <activity android:name="com.camlawsocapp.culs.activities.LoginActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.OpeningTitlePage"
+        <activity android:name="com.camlawsocapp.culs.activities.OpeningTitlePage"
             android:hardwareAccelerated="true"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
@@ -45,7 +45,7 @@
 
             </intent-filter>
         </activity>
-        <activity android:name=".activities.MainActivity"
+        <activity android:name="com.camlawsocapp.culs.activities.MainActivity"
                 android:hardwareAccelerated="true"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
@@ -65,7 +65,7 @@
         </activity>
 
         <service
-            android:name=".helpers.FirebaseMessagingService"
+            android:name="com.camlawsocapp.culs.helpers.FirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

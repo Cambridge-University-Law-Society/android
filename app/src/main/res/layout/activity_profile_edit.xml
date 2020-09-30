@@ -329,7 +329,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="17dp"
-                        android:layout_marginBottom="10dp">
+                        >
 
                         <TextView
                             android:id="@+id/year_id"
@@ -357,6 +357,40 @@
                             android:textColor="#000000"
                             android:textSize="16sp"
                             android:layout_toRightOf="@id/year_id"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17dp"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:id="@+id/grad_year_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Grad Year"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="14dp"
+                            android:layout_alignBottom="@id/edit_grad_user_year"/>
+
+                        <EditText
+                            android:id="@+id/edit_grad_user_year"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="sans-serif-light"
+                            android:hint="Graduation Year"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:layout_toRightOf="@id/grad_year_id"/>
                     </RelativeLayout>
 
                     <ImageView

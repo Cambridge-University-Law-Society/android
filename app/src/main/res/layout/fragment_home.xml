@@ -76,7 +76,7 @@
                             android:id="@+id/notifications_btn"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@drawable/ic_send_icon_24dp"
+                            android:src="@drawable/ic_baseline_notifications_24"
                             android:layout_gravity="right"
                             android:layout_marginTop="15dp"
                             android:layout_marginEnd="10dp"/>
