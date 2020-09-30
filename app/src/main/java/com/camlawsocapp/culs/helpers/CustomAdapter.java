@@ -148,6 +148,9 @@ public class CustomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     case "Social":
                         eventTagIcon[i].setImageResource(R.drawable.ic_socials_icon_24dp);
                         break;
+                    default:
+                        eventTagIcon[i].setImageResource(R.drawable.ic_default_tag_24dp);
+                        break;
                 }
                 eventTagHolder[i].animate().translationX(1f).setDuration(1000).setListener(null);
             }

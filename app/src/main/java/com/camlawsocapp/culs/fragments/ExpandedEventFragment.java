@@ -208,6 +208,9 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                             case "Social":
                                 exEventTagIcon[i].setImageResource(R.drawable.ic_socials_icon_24dp);
                                 break;
+                            default:
+                                exEventTagIcon[i].setImageResource(R.drawable.ic_default_tag_24dp);
+                                break;
                         }
                         exEventTagHolder[i].animate().translationX(1f).setDuration(1000).setListener(null);
                     }
@@ -226,7 +229,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                     FirebaseStorage eventStorage = FirebaseStorage.getInstance();
                     StorageReference eventStorageRef = eventStorage.getReference();
                     StorageReference eventPathReference = eventStorageRef.child("Events/" + expandedCard.getID() + "/coverPhoto");
-                    Glide.with(getContext()).load(eventPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventPic);
+                    Glide.with(getContext()).load(eventPathReference).placeholder(R.drawable.image_placeholder).fitCenter().into(exEventPic);
 
                     if(expandedCard.getSponsor().equals("Law Society")){
                         exEventSponsorImage.setImageResource(R.drawable.culs_black_logo);
@@ -234,7 +237,7 @@ public class ExpandedEventFragment extends Fragment implements View.OnClickListe
                         FirebaseStorage sponsorStorage = FirebaseStorage.getInstance();
                         StorageReference sponsorStorageRef = sponsorStorage.getReference();
                         StorageReference sponsorPathReference = sponsorStorageRef.child("Sponsors/" + expandedCard.getSponsor() + "/logo.png");
-                        Glide.with(getContext()).load(sponsorPathReference).placeholder(R.drawable.rounded_tags).fitCenter().into(exEventSponsorImage);
+                        Glide.with(getContext()).load(sponsorPathReference).placeholder(R.drawable.image_placeholder).fitCenter().into(exEventSponsorImage);
                     }
                 } else {
                     System.out.print("Current data: null");

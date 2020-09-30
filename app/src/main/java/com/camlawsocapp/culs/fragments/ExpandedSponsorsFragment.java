@@ -108,12 +108,12 @@ public class ExpandedSponsorsFragment extends Fragment {
                         @Override
                         public void onSuccess(Uri uri) {
                             String eventImageUri = uri.toString();
-                            Glide.with(getContext()).load(eventImageUri).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
+                            Glide.with(getContext()).load(eventImageUri).placeholder(R.drawable.image_placeholder).fitCenter().into(exSponsorCover);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
-                            Glide.with(getContext()).load(R.drawable.rounded_tags).placeholder(R.drawable.rounded_tags).fitCenter().into(exSponsorCover);
+                            Glide.with(getContext()).load(R.drawable.image_placeholder).placeholder(R.drawable.image_placeholder).fitCenter().into(exSponsorCover);
                         }
                     });
 
